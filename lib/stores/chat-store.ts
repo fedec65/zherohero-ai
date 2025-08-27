@@ -6,9 +6,10 @@ import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import { Chat, Message, Folder, AsyncState, Patch, SearchResult, SearchOptions, FilterOptions, SearchHistory, SearchState } from './types';
+import { Chat, Message, Folder, AsyncState, Patch, SearchResult, SearchOptions, FilterOptions, SearchHistory, SearchState, AIProvider } from './types';
 import { createStorage, createPartializer, PersistOptions } from './middleware/persistence';
 import { SearchEngine, applyFilters, debounce } from '../../src/lib/utils/search';
+import { aiClientAPI, AIClientAPI } from '../../src/lib/api/client';
 import { nanoid } from 'nanoid';
 
 // Chat store state interface
@@ -99,6 +100,9 @@ interface ChatActions {
   // Cleanup
   clearAllChats: () => void;
   archiveOldChats: (olderThanDays: number) => void;
+  
+  // AI Integration
+  sendAIMessage: (chatId: string, messageId: string) => Promise<void>;
 }
 
 type ChatStore = ChatState & ChatActions;
@@ -322,8 +326,8 @@ export const useChatStore = create<ChatStore>()(
               state.loading.sendMessage = false;
             });
 
-            // TODO: Integrate with AI providers here
-            // This would call the appropriate AI service based on selected model
+            // Integrate with AI providers
+            await get().sendAIMessage(chatId, assistantMessageId);
             
           } catch (error) {
             set((state) => {
@@ -716,6 +720,103 @@ export const useChatStore = create<ChatStore>()(
                 draft.activeChat = result.chatId;
               }
             });
+          }
+        },
+
+        // AI Integration method
+        sendAIMessage: async (chatId: string, messageId: string) => {
+          try {
+            const state = get();
+            const chat = state.chats[chatId];
+            const messages = state.messages[chatId] || [];
+            
+            if (!chat) {
+              throw new Error('Chat not found');
+            }
+
+            // Get the selected model from model store
+            // For now, we'll use a default model - this should be integrated with model store
+            const provider: AIProvider = 'openai'; // This should come from model store
+            const model = 'gpt-4o-2024-11-20'; // This should come from model store
+            
+            // Get conversation messages (exclude the assistant placeholder)
+            const conversationMessages = messages
+              .filter(msg => msg.id !== messageId)
+              .map(msg => ({
+                role: msg.role,
+                content: msg.content
+              }));
+
+            // Start streaming
+            get().startStreamingMessage(chatId, messageId);
+
+            // Stream the AI response
+            await aiClientAPI.streamChatCompletion(
+              {
+                provider,
+                model,
+                messages: conversationMessages,
+                stream: true,
+                temperature: 0.7, // This should come from model config
+                maxTokens: 2000
+              },
+              {
+                onContent: (content: string, isComplete: boolean) => {
+                  get().updateStreamingContent(content);
+                },
+                onError: (error: string) => {
+                  console.error('AI streaming error:', error);
+                  
+                  set((state) => {
+                    const messages = state.messages[chatId];
+                    const message = messages?.find(m => m.id === messageId);
+                    if (message) {
+                      message.streamingState = 'error';
+                      message.error = error;
+                      message.content = 'Sorry, I encountered an error while processing your request.';
+                    }
+                    state.streamingMessage = null;
+                  });
+                },
+                onComplete: (fullContent: string) => {
+                  set((state) => {
+                    const messages = state.messages[chatId];
+                    const message = messages?.find(m => m.id === messageId);
+                    if (message) {
+                      message.content = fullContent;
+                      message.streamingState = 'complete';
+                      message.updatedAt = new Date();
+                    }
+                    
+                    // Update chat
+                    const chat = state.chats[chatId];
+                    if (chat) {
+                      chat.messageCount++;
+                      chat.lastMessageAt = new Date();
+                      chat.updatedAt = new Date();
+                    }
+                  });
+                  
+                  get().finishStreamingMessage();
+                }
+              }
+            );
+
+          } catch (error) {
+            console.error('AI message error:', error);
+            
+            set((state) => {
+              const messages = state.messages[chatId];
+              const message = messages?.find(m => m.id === messageId);
+              if (message) {
+                message.streamingState = 'error';
+                message.error = error instanceof Error ? error.message : 'Unknown error';
+                message.content = 'Sorry, I encountered an error while processing your request.';
+              }
+              state.streamingMessage = null;
+            });
+            
+            throw error;
           }
         },
       })),

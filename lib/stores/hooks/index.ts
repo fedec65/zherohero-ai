@@ -136,6 +136,67 @@ export const useModelSearch = () => {
   );
 };
 
+// Performance optimized hooks for models grid
+export const useOptimizedModelGrid = () => {
+  return useModelStore(
+    useCallback((state) => ({
+      models: state.models,
+      customModels: state.customModels,
+      activeTab: state.activeTab,
+      searchQuery: state.searchQuery,
+      selectedProvider: state.selectedProvider,
+    }), []),
+    shallow
+  );
+};
+
+export const useModelGridActions = () => {
+  return useModelStore(
+    useCallback((state) => ({
+      setSearchQuery: state.setSearchQuery,
+      setSelectedProvider: state.setSelectedProvider,
+      setSelectedModel: state.setSelectedModel,
+      getFilteredModels: state.getFilteredModels,
+      getAvailableProviders: state.getAvailableProviders,
+    }), []),
+    shallow
+  );
+};
+
+export const useModelSelection = () => {
+  return useModelStore(
+    useCallback((state) => ({
+      selectedModel: state.selectedModel,
+      setSelectedModel: state.setSelectedModel,
+    }), []),
+    shallow
+  );
+};
+
+export const useModelTestResults = () => {
+  return useModelStore(
+    useCallback((state) => ({
+      testResults: state.testResults,
+      loading: state.loading,
+      getModelKey: state.getModelKey,
+      formatContextWindow: state.formatContextWindow,
+    }), []),
+    shallow
+  );
+};
+
+export const useModelTest = (provider: AIProvider, modelId: string) => {
+  const modelKey = useModelStore(state => state.getModelKey(provider, modelId));
+  return useModelStore(
+    useCallback((state) => ({
+      testResult: state.testResults[modelKey],
+      isLoading: state.loading.testModel,
+      testModel: state.testModel,
+    }), [modelKey]),
+    shallow
+  );
+};
+
 // Settings-related hooks
 export const useTheme = () => {
   return useSettingsStore(

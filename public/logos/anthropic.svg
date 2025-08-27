@@ -1,0 +1,5 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<circle cx="16" cy="16" r="16" fill="#F97316"/>
+<path d="M16 8c4.418 0 8 3.582 8 8s-3.582 8-8 8-8-3.582-8-8 3.582-8 8-8z" fill="white"/>
+<text x="16" y="20" text-anchor="middle" fill="#F97316" font-family="system-ui" font-weight="bold" font-size="7">CL</text>
+</svg>

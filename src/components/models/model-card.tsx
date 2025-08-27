@@ -1,0 +1,247 @@
+'use client';
+
+import React, { memo, useCallback, useMemo } from 'react';
+import { Settings, Zap, CheckCircle, AlertCircle } from 'lucide-react';
+import Image from 'next/image';
+import { clsx } from 'clsx';
+import { Button } from '../ui/button';
+import { Badge } from '../ui/badge';
+import type { Model, CustomModel, AIProvider } from '../../../lib/stores/types';
+import { useModelTest, useModelTestResults } from '../../../lib/stores/hooks';
+import { withPerformanceMonitor } from '../dev/performance-monitor';
+
+interface ModelCardProps {
+  model: Model | CustomModel;
+  onConfigure?: (model: Model | CustomModel) => void;
+  onSelect?: (provider: AIProvider, modelId: string) => void;
+  selected?: boolean;
+}
+
+// Provider logos mapping
+const providerLogos: Record<AIProvider, string> = {
+  openai: '/logos/openai.svg',
+  anthropic: '/logos/anthropic.svg',
+  gemini: '/logos/gemini.svg',
+  xai: '/logos/xai.svg',
+  deepseek: '/logos/deepseek.svg',
+  custom: '/logos/custom.svg',
+};
+
+// Provider colors for fallback
+const providerColors: Record<AIProvider, string> = {
+  openai: 'bg-green-500',
+  anthropic: 'bg-orange-500',
+  gemini: 'bg-blue-500',
+  xai: 'bg-black dark:bg-white',
+  deepseek: 'bg-purple-500',
+  custom: 'bg-gray-500',
+};
+
+const ProviderLogo = memo(({ provider }: { provider: AIProvider }) => {
+  const handleImageError = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
+    // Fallback to colored circle with letter if image fails to load
+    const target = e.target as HTMLElement;
+    target.style.display = 'none';
+    const fallback = target.nextElementSibling as HTMLElement;
+    if (fallback) fallback.style.display = 'flex';
+  }, []);
+
+  return (
+    <div className="relative w-8 h-8">
+      <Image
+        src={providerLogos[provider]}
+        alt={`${provider} logo`}
+        width={32}
+        height={32}
+        className="rounded-full"
+        onError={handleImageError}
+      />
+      <div 
+        className={clsx(
+          'w-8 h-8 rounded-full hidden items-center justify-center text-white text-xs font-bold',
+          providerColors[provider]
+        )}
+      >
+        {provider.charAt(0).toUpperCase()}
+      </div>
+    </div>
+  );
+});
+
+ProviderLogo.displayName = 'ProviderLogo';
+
+const capabilityIcons: Record<string, React.ReactNode> = {
+  'text-generation': '💬',
+  'code-generation': '💻',
+  'image-understanding': '🖼️',
+  'function-calling': '⚡',
+  'json-mode': '📋',
+  'streaming': '🌊',
+};
+
+const ModelCapabilities = memo(({ capabilities }: { capabilities: string[] }) => {
+  const displayCapabilities = useMemo(() => capabilities.slice(0, 3), [capabilities]);
+  
+  return (
+    <div className="flex items-center gap-1 mt-2">
+      {displayCapabilities.map((capability) => (
+        <span
+          key={capability}
+          className="text-xs"
+          title={capability.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+        >
+          {capabilityIcons[capability] || '⚙️'}
+        </span>
+      ))}
+      {capabilities.length > 3 && (
+        <span className="text-xs text-gray-500 dark:text-gray-400">
+          +{capabilities.length - 3}
+        </span>
+      )}
+    </div>
+  );
+});
+
+ModelCapabilities.displayName = 'ModelCapabilities';
+
+const ModelCard = memo(({ 
+  model, 
+  onConfigure, 
+  onSelect, 
+  selected = false 
+}: ModelCardProps) => {
+  // Use optimized hooks for better performance
+  const { formatContextWindow } = useModelTestResults();
+  const { testResult } = useModelTest(model.provider, model.id);
+  
+  const handleConfigure = useCallback(() => {
+    onConfigure?.(model);
+  }, [onConfigure, model]);
+
+  const handleSelect = useCallback(() => {
+    onSelect?.(model.provider, model.id);
+  }, [onSelect, model.provider, model.id]);
+
+  const contextWindowText = useMemo(() => 
+    formatContextWindow(model.contextWindow), 
+    [formatContextWindow, model.contextWindow]
+  );
+  
+  const maxTokensText = useMemo(() => 
+    model.maxTokens ? formatContextWindow(model.maxTokens) : 'Variable',
+    [formatContextWindow, model.maxTokens]
+  );
+
+  const cardClassName = useMemo(() => clsx(
+    'bg-white dark:bg-gray-800 border rounded-lg p-4 transition-all duration-200',
+    'hover:shadow-lg hover:shadow-gray-200 dark:hover:shadow-gray-900/20',
+    selected 
+      ? 'border-blue-500 dark:border-blue-400 ring-1 ring-blue-500 dark:ring-blue-400' 
+      : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600',
+    'cursor-pointer'
+  ), [selected]);
+
+  return (
+    <div 
+      className={cardClassName}
+      onClick={handleSelect}
+    >
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex items-start gap-3 flex-1 min-w-0">
+          <ProviderLogo provider={model.provider} />
+          
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-2">
+              <h3 className="font-medium text-gray-900 dark:text-white text-sm leading-tight">
+                {model.name}
+              </h3>
+              
+              <div className="flex items-center gap-1 flex-shrink-0">
+                {model.isNew && (
+                  <Badge variant="new" size="sm">
+                    New
+                  </Badge>
+                )}
+                {model.isDeprecated && (
+                  <Badge variant="secondary" size="sm">
+                    Legacy
+                  </Badge>
+                )}
+              </div>
+            </div>
+            
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Context: {contextWindowText}
+            </p>
+            
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Max output: {maxTokensText}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Test Status */}
+      {testResult && (
+        <div className="mb-3">
+          {testResult.loading ? (
+            <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+              <div className="w-3 h-3 border border-gray-300 dark:border-gray-600 border-t-transparent rounded-full animate-spin" />
+              Testing...
+            </div>
+          ) : testResult.error ? (
+            <div className="flex items-center gap-2 text-xs text-red-600 dark:text-red-400">
+              <AlertCircle className="w-3 h-3" />
+              Test failed
+            </div>
+          ) : testResult.data ? (
+            <div className="flex items-center gap-2 text-xs text-green-600 dark:text-green-400">
+              <CheckCircle className="w-3 h-3" />
+              {testResult.data.latency}ms
+              {testResult.data.success && (
+                <Zap className="w-3 h-3" />
+              )}
+            </div>
+          ) : null}
+        </div>
+      )}
+
+      {/* Capabilities */}
+      {'capabilities' in model && (
+        <ModelCapabilities capabilities={model.capabilities} />
+      )}
+
+      {/* Pricing */}
+      {model.pricing && (
+        <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+          ${model.pricing.input.toFixed(3)}/${model.pricing.output.toFixed(3)} per 1K tokens
+        </div>
+      )}
+
+      {/* Configure Button */}
+      <div className="flex items-center justify-end mt-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={useCallback((e: React.MouseEvent) => {
+            e.stopPropagation();
+            handleConfigure();
+          }, [handleConfigure])}
+          className="text-xs h-8 px-3"
+          leftIcon={<Settings className="h-3 w-3" />}
+        >
+          Configure
+        </Button>
+      </div>
+    </div>
+  );
+});
+
+ModelCard.displayName = 'ModelCard';
+
+// Export with performance monitoring in development
+const ModelCardWithMonitoring = process.env.NODE_ENV === 'development' 
+  ? withPerformanceMonitor(ModelCard, 'ModelCard')
+  : ModelCard;
+
+export { ModelCardWithMonitoring as ModelCard };

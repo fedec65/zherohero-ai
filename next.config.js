@@ -1,0 +1,134 @@
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  // Enable experimental features for better performance
+  experimental: {
+    serverComponentsExternalPackages: ['@vercel/analytics', '@vercel/speed-insights'],
+    optimizePackageImports: ['lucide-react', 'framer-motion'],
+  },
+
+  // Compiler options
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error', 'warn']
+    } : false,
+  },
+
+  // Performance optimizations
+  poweredByHeader: false,
+  compress: true,
+  
+  // Image optimization
+  images: {
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 31536000,
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+  },
+
+  // Bundle analysis
+  webpack: (config, { buildId, dev, isServer, defaultLoaders, nextRuntime, webpack }) => {
+    // Bundle analyzer in development
+    if (dev && !isServer) {
+      const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
+      if (process.env.ANALYZE === 'true') {
+        config.plugins.push(
+          new BundleAnalyzerPlugin({
+            analyzerMode: 'server',
+            openAnalyzer: true,
+          })
+        );
+      }
+    }
+
+    // Optimize chunks
+    if (!dev && !isServer) {
+      config.optimization.splitChunks.chunks = 'all';
+      config.optimization.splitChunks.cacheGroups = {
+        ...config.optimization.splitChunks.cacheGroups,
+        ai: {
+          name: 'ai-providers',
+          chunks: 'all',
+          test: /[\\/]node_modules[\\/](openai|@anthropic-ai|@google\/generative-ai)[\\/]/,
+          priority: 40,
+        },
+        ui: {
+          name: 'ui-components',
+          chunks: 'all',
+          test: /[\\/]node_modules[\\/](@headlessui|framer-motion|lucide-react)[\\/]/,
+          priority: 30,
+        },
+      };
+    }
+
+    return config;
+  },
+
+  // Environment variables validation
+  env: {
+    CUSTOM_KEY: process.env.CUSTOM_KEY,
+  },
+
+  // Content Security Policy
+  async headers() {
+    const contentSecurityPolicy = `
+      default-src 'self';
+      script-src 'self' 'unsafe-eval' 'unsafe-inline' https://vercel.live https://va.vercel-scripts.com;
+      style-src 'self' 'unsafe-inline';
+      img-src 'self' blob: data: https:;
+      font-src 'self';
+      connect-src 'self' 
+        https://api.openai.com
+        https://api.anthropic.com
+        https://generativelanguage.googleapis.com
+        https://api.x.ai
+        https://api.deepseek.com
+        https://vercel.live
+        https://vitals.vercel-insights.com;
+      media-src 'self';
+      object-src 'none';
+      base-uri 'self';
+      form-action 'self';
+      frame-ancestors 'none';
+      upgrade-insecure-requests;
+    `.replace(/\s{2,}/g, ' ').trim();
+
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: contentSecurityPolicy,
+          },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=31536000; includeSubDomains; preload',
+          },
+        ],
+      },
+    ];
+  },
+
+  // Redirects for SEO and UX
+  async redirects() {
+    return [
+      {
+        source: '/chat',
+        destination: '/',
+        permanent: false,
+      },
+    ];
+  },
+
+  // API route optimization
+  async rewrites() {
+    return [
+      {
+        source: '/api/v1/:path*',
+        destination: '/api/:path*',
+      },
+    ];
+  },
+};
+
+module.exports = nextConfig;

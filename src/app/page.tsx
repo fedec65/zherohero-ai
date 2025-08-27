@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { ChatLayout } from '../components/layout';
-import { ChatHome } from '../components/chat/chat-home';
+import { ChatContainer } from '../components/chat/chat-container';
 
 export const metadata: Metadata = {
   title: 'Home - ZheroHero AI',
@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <ChatLayout>
-      <ChatHome />
+      <ChatContainer className="h-full" />
     </ChatLayout>
   );
 }

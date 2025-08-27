@@ -5,6 +5,7 @@ import { Search, Plus, FolderPlus, Filter, Star, MoreHorizontal, Trash2, Edit3 }
 import { Button } from '../ui/button';
 import { SearchInput } from '../ui/input';
 import { Tooltip } from '../ui/tooltip';
+import { EnhancedSearch } from '../chat/enhanced-search';
 import { useChatStore } from '../../../lib/stores/chat-store';
 import { useSettingsStore } from '../../../lib/stores/settings-store';
 import { cn } from '../../lib/utils';
@@ -14,7 +15,22 @@ interface ChatSidebarProps {
 }
 
 export function ChatSidebar({ className }: ChatSidebarProps) {
-  const { chats, searchQuery, setSearchQuery, createChat, deleteChat, setActiveChat, activeChat } = useChatStore();
+  const { 
+    chats, 
+    searchQuery, 
+    setSearchQuery, 
+    createChat, 
+    deleteChat, 
+    setActiveChat, 
+    activeChat,
+    search,
+    performSearch,
+    clearSearch,
+    setSearchFilters,
+    getFilteredChats,
+    getSearchSuggestions,
+    selectSearchResult
+  } = useChatStore();
   const { settings, setSidebarWidth } = useSettingsStore();
   const [isResizing, setIsResizing] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
@@ -55,12 +71,13 @@ export function ChatSidebar({ className }: ChatSidebarProps) {
     setIsResizing(true);
   };
 
-  const filteredChats = Object.values(chats || {}).filter(chat =>
-    chat.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Get chats to display - either search results or filtered chats
+  const displayChats = search.query ? 
+    search.results.filter(result => result.type === 'chat').map(result => chats[result.id]).filter(Boolean) :
+    getFilteredChats();
 
-  const starredChats = filteredChats.filter(chat => chat.starred);
-  const regularChats = filteredChats.filter(chat => !chat.starred);
+  const starredChats = displayChats.filter(chat => chat.starred);
+  const regularChats = displayChats.filter(chat => !chat.starred);
 
   const handleNewChat = () => {
     createChat();
@@ -86,12 +103,20 @@ export function ChatSidebar({ className }: ChatSidebarProps) {
     >
       {/* Header */}
       <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-        {/* Search */}
+        {/* Enhanced Search */}
         <div className="mb-3">
-          <SearchInput
-            placeholder="Search chats..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+          <EnhancedSearch
+            value={search.query}
+            onSearch={performSearch}
+            onClear={clearSearch}
+            filters={search.filters}
+            onFiltersChange={setSearchFilters}
+            searchHistory={search.searchHistory}
+            suggestions={getSearchSuggestions(search.query)}
+            results={search.results}
+            isSearching={search.isSearching}
+            onSelectResult={selectSearchResult}
+            placeholder="Search chats and messages..."
             className="w-full"
           />
         </div>
@@ -127,12 +152,12 @@ export function ChatSidebar({ className }: ChatSidebarProps) {
 
       {/* Chat list */}
       <div className="flex-1 overflow-y-auto">
-        {filteredChats.length === 0 ? (
+        {displayChats.length === 0 ? (
           <div className="p-4 text-center">
             <div className="text-gray-500 dark:text-gray-400 text-sm">
-              {searchQuery ? 'No matching chats' : 'No chat groups yet'}
+              {search.query ? 'No matching chats' : 'No chat groups yet'}
             </div>
-            {!searchQuery && (
+            {!search.query && (
               <Button
                 variant="ghost"
                 onClick={handleNewChat}
@@ -153,6 +178,8 @@ export function ChatSidebar({ className }: ChatSidebarProps) {
                 isActive={activeChat === chat.id}
                 onClick={() => handleChatClick(chat.id)}
                 onDelete={(e) => handleDeleteChat(chat.id, e)}
+                searchQuery={search.query}
+                searchResults={search.results}
               />
             ))}
           </div>
@@ -175,6 +202,8 @@ export function ChatSidebar({ className }: ChatSidebarProps) {
                   isActive={activeChat === chat.id}
                   onClick={() => handleChatClick(chat.id)}
                   onDelete={(e) => handleDeleteChat(chat.id, e)}
+                  searchQuery={search.query}
+                  searchResults={search.results}
                   compact
                 />
               ))}
@@ -204,11 +233,43 @@ interface ChatItemProps {
   isActive: boolean;
   onClick: () => void;
   onDelete: (e: React.MouseEvent) => void;
+  searchQuery?: string;
+  searchResults?: any[];
   compact?: boolean;
 }
 
-function ChatItem({ chat, isActive, onClick, onDelete, compact = false }: ChatItemProps) {
+function ChatItem({ 
+  chat, 
+  isActive, 
+  onClick, 
+  onDelete, 
+  searchQuery, 
+  searchResults, 
+  compact = false 
+}: ChatItemProps) {
   const [showActions, setShowActions] = useState(false);
+
+  // Find search highlights for this chat
+  const searchResult = searchResults?.find(result => 
+    result.type === 'chat' && result.id === chat.id
+  );
+  const highlights = searchResult?.highlights || (searchQuery ? [searchQuery] : []);
+
+  // Component for highlighted text
+  const HighlightedTitle = ({ title, highlights }: { title: string; highlights: string[] }) => {
+    if (!highlights.length) return <>{title}</>;
+
+    let highlightedTitle = title;
+    highlights.forEach((highlight) => {
+      const regex = new RegExp(`(${highlight})`, 'gi');
+      highlightedTitle = highlightedTitle.replace(
+        regex,
+        '<mark class="bg-yellow-200 dark:bg-yellow-900 text-inherit rounded px-0.5">$1</mark>'
+      );
+    });
+
+    return <span dangerouslySetInnerHTML={{ __html: highlightedTitle }} />;
+  };
 
   return (
     <div
@@ -229,7 +290,7 @@ function ChatItem({ chat, isActive, onClick, onDelete, compact = false }: ChatIt
               'font-medium text-gray-900 dark:text-white truncate',
               compact ? 'text-sm' : 'text-sm'
             )}>
-              {chat.title}
+              <HighlightedTitle title={chat.title} highlights={highlights} />
             </h4>
             {chat.starred && (
               <Star className="h-3 w-3 text-yellow-500 fill-current flex-shrink-0" />

@@ -174,6 +174,18 @@ export interface SearchResult {
   title: string;
   snippet?: string;
   relevance: number;
+  chatId?: string; // For message results
+  messageIndex?: number; // Position of message in chat
+  highlights?: string[]; // Highlighted text matches
+}
+
+export interface SearchOptions {
+  query: string;
+  type?: 'chat' | 'message' | 'all';
+  exact?: boolean;
+  regex?: boolean;
+  caseSensitive?: boolean;
+  limit?: number;
 }
 
 export interface FilterOptions {
@@ -184,4 +196,25 @@ export interface FilterOptions {
   };
   starred?: boolean;
   folders?: string[];
+  chatType?: 'all' | 'regular' | 'incognito';
+  hasMessages?: boolean;
+  sortBy?: 'date' | 'title' | 'messageCount' | 'relevance';
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface SearchHistory {
+  id: string;
+  query: string;
+  timestamp: Date;
+  resultsCount: number;
+}
+
+export interface SearchState {
+  query: string;
+  results: SearchResult[];
+  isSearching: boolean;
+  searchHistory: SearchHistory[];
+  filters: FilterOptions;
+  suggestions: string[];
+  selectedResultId?: string;
 }

@@ -6,8 +6,9 @@ import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import { Chat, Message, Folder, AsyncState, Patch } from './types';
+import { Chat, Message, Folder, AsyncState, Patch, SearchResult, SearchOptions, FilterOptions, SearchHistory, SearchState } from './types';
 import { createStorage, createPartializer, PersistOptions } from './middleware/persistence';
+import { SearchEngine, applyFilters, debounce } from '../../src/lib/utils/search';
 import { nanoid } from 'nanoid';
 
 // Chat store state interface
@@ -20,6 +21,9 @@ interface ChatState {
   // Current state
   activeChat: string | null;
   searchQuery: string;
+  
+  // Enhanced search state
+  search: SearchState;
   
   // UI state
   loading: {
@@ -78,6 +82,15 @@ interface ChatActions {
   getStarredChats: () => Chat[];
   getChatsByFolder: (folderId: string | null) => Chat[];
   
+  // Advanced search functionality
+  performSearch: (options: SearchOptions) => Promise<SearchResult[]>;
+  clearSearch: () => void;
+  setSearchFilters: (filters: Partial<FilterOptions>) => void;
+  getFilteredChats: () => Chat[];
+  addToSearchHistory: (query: string, resultsCount: number) => void;
+  getSearchSuggestions: (query: string) => string[];
+  selectSearchResult: (resultId: string) => void;
+  
   // Utility
   getChatTitle: (chatId: string) => string;
   getChatMessageCount: (chatId: string) => number;
@@ -101,6 +114,18 @@ export const useChatStore = create<ChatStore>()(
         folders: {},
         activeChat: null,
         searchQuery: '',
+        search: {
+          query: '',
+          results: [],
+          isSearching: false,
+          searchHistory: [],
+          filters: {
+            chatType: 'all',
+            sortBy: 'date',
+            sortOrder: 'desc',
+          },
+          suggestions: [],
+        },
         loading: {
           sendMessage: false,
           deleteChat: false,
@@ -584,6 +609,114 @@ export const useChatStore = create<ChatStore>()(
               state.activeChat = remainingChats.length > 0 ? remainingChats[0] : null;
             }
           });
+        },
+
+        // Advanced search functionality
+        performSearch: async (options: SearchOptions) => {
+          const state = get();
+          
+          set((draft) => {
+            draft.search.isSearching = true;
+            draft.search.query = options.query;
+          });
+
+          try {
+            const searchEngine = SearchEngine.getInstance();
+            
+            // Build/update search index if needed
+            searchEngine.buildIndex(state.chats, state.messages);
+            
+            // Perform search
+            const results = searchEngine.search(options, state.chats, state.messages);
+            
+            set((draft) => {
+              draft.search.results = results;
+              draft.search.isSearching = false;
+            });
+
+            // Add to search history if query has results
+            if (results.length > 0) {
+              get().addToSearchHistory(options.query, results.length);
+            }
+
+            return results;
+          } catch (error) {
+            set((draft) => {
+              draft.search.isSearching = false;
+              draft.search.results = [];
+            });
+            throw error;
+          }
+        },
+
+        clearSearch: () => {
+          set((state) => {
+            state.search.query = '';
+            state.search.results = [];
+            state.search.selectedResultId = undefined;
+            state.searchQuery = '';
+          });
+        },
+
+        setSearchFilters: (filters: Partial<FilterOptions>) => {
+          set((state) => {
+            state.search.filters = { ...state.search.filters, ...filters };
+          });
+        },
+
+        getFilteredChats: () => {
+          const state = get();
+          const chats = Object.values(state.chats);
+          return applyFilters(chats, state.search.filters, state.messages);
+        },
+
+        addToSearchHistory: (query: string, resultsCount: number) => {
+          set((state) => {
+            // Remove existing entry with same query
+            state.search.searchHistory = state.search.searchHistory.filter(
+              h => h.query !== query
+            );
+            
+            // Add new entry at the beginning
+            state.search.searchHistory.unshift({
+              id: nanoid(),
+              query,
+              timestamp: new Date(),
+              resultsCount,
+            });
+            
+            // Keep only last 20 searches
+            state.search.searchHistory = state.search.searchHistory.slice(0, 20);
+          });
+        },
+
+        getSearchSuggestions: (query: string) => {
+          const state = get();
+          const searchEngine = SearchEngine.getInstance();
+          
+          return searchEngine.generateSuggestions(
+            query,
+            state.search.searchHistory,
+            state.chats
+          );
+        },
+
+        selectSearchResult: (resultId: string) => {
+          const state = get();
+          const result = state.search.results.find(r => r.id === resultId);
+          
+          if (result) {
+            set((draft) => {
+              draft.search.selectedResultId = resultId;
+              
+              // Navigate to the relevant chat
+              if (result.type === 'chat') {
+                draft.activeChat = result.id;
+              } else if (result.type === 'message' && result.chatId) {
+                draft.activeChat = result.chatId;
+              }
+            });
+          }
         },
       })),
       {

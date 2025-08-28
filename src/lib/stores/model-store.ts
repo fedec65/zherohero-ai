@@ -14,9 +14,10 @@ import {
   AIProvider, 
   AsyncState, 
   Patch 
-} from './types';
+} from '../../../lib/stores/types';
 import { createStorage, createPartializer, PersistOptions } from './middleware/persistence';
 import { nanoid } from 'nanoid';
+import OpenRouterClient, { convertOpenRouterModel, type OpenRouterModel as OpenRouterAPIModel } from '../api/openrouter';
 
 // Default model configurations
 const DEFAULT_MODEL_CONFIG: ModelConfig = {
@@ -446,7 +447,7 @@ const BUILT_IN_MODELS: Record<AIProvider, Model[]> = {
       isNew: true,
     },
   ],
-  openrouter: [],
+  openrouter: [], // OpenRouter models are fetched dynamically
   custom: [],
 };
 
@@ -474,10 +475,14 @@ interface ModelState {
   // Loading states
   loading: {
     fetchModels: boolean;
+    fetchOpenRouterModels: boolean;
     testModel: boolean;
     addCustomModel: boolean;
-    fetchOpenRouterModels: boolean;
   };
+  
+  // OpenRouter-specific state
+  openRouterProviders: Record<string, any>[];
+  openRouterLastFetched: Date | null;
   
   // Model testing
   testResults: Record<string, AsyncState<{ latency: number; success: boolean }>>;
@@ -511,11 +516,6 @@ interface ModelActions {
   getFilteredModels: () => Record<AIProvider, Model[]>;
   searchModels: (query: string, provider?: AIProvider) => Model[];
   
-  // OpenRouter methods
-  fetchOpenRouterModels: () => Promise<void>;
-  refreshOpenRouterModels: () => Promise<void>;
-  getFilteredOpenRouterModels: () => OpenRouterModel[];
-  
   // Bulk operations
   exportAllConfigs: () => Record<string, ModelConfig>;
   importAllConfigs: (configs: Record<string, ModelConfig>) => void;
@@ -542,6 +542,14 @@ interface ModelActions {
   getModelKey: (provider: AIProvider, modelId: string) => string;
   formatContextWindow: (tokens: number) => string;
   estimateTokens: (text: string) => number;
+  
+  // OpenRouter-specific actions
+  fetchOpenRouterModels: () => Promise<void>;
+  refreshOpenRouterModels: () => Promise<void>;
+  getOpenRouterModel: (modelId: string) => OpenRouterModel | null;
+  checkOpenRouterModelAvailability: (modelId: string) => Promise<{ available: boolean; queued?: number }>;
+  getFilteredOpenRouterModels: () => OpenRouterModel[];
+  searchOpenRouterModels: (query: string) => OpenRouterModel[];
 }
 
 type ModelStore = ModelState & ModelActions;
@@ -565,10 +573,12 @@ export const useModelStore = create<ModelStore>()(
         selectedProvider: 'all',
         loading: {
           fetchModels: false,
+          fetchOpenRouterModels: false,
           testModel: false,
           addCustomModel: false,
-          fetchOpenRouterModels: false,
         },
+        openRouterProviders: [],
+        openRouterLastFetched: null,
         testResults: {},
 
         // Actions
@@ -584,6 +594,12 @@ export const useModelStore = create<ModelStore>()(
           // Check built-in models
           const builtInModel = state.models[provider]?.find(m => m.id === modelId);
           if (builtInModel) return builtInModel;
+          
+          // Check OpenRouter models
+          if (provider === 'openrouter') {
+            const openRouterModel = state.openRouterModels.find(m => m.id === modelId);
+            if (openRouterModel) return openRouterModel;
+          }
           
           // Check custom models
           const customModel = state.customModels.find(m => m.id === modelId);
@@ -847,51 +863,6 @@ export const useModelStore = create<ModelStore>()(
           );
         },
 
-        // OpenRouter methods
-        fetchOpenRouterModels: async () => {
-          set((state) => {
-            state.loading.fetchOpenRouterModels = true;
-          });
-
-          try {
-            // TODO: Implement actual OpenRouter API call
-            // Mock data for now
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            
-            const mockOpenRouterModels: OpenRouterModel[] = [];
-
-            set((state) => {
-              state.openRouterModels = mockOpenRouterModels;
-              state.loading.fetchOpenRouterModels = false;
-            });
-          } catch (error) {
-            set((state) => {
-              state.loading.fetchOpenRouterModels = false;
-            });
-            throw error;
-          }
-        },
-
-        refreshOpenRouterModels: async () => {
-          // Clear existing models and refetch
-          set((state) => {
-            state.openRouterModels = [];
-          });
-          await get().fetchOpenRouterModels();
-        },
-
-        getFilteredOpenRouterModels: () => {
-          const state = get();
-          const { searchQuery } = state;
-          const lowerQuery = searchQuery.toLowerCase();
-
-          return state.openRouterModels.filter(model =>
-            model.name.toLowerCase().includes(lowerQuery) ||
-            model.id.toLowerCase().includes(lowerQuery) ||
-            model.originalProvider.toLowerCase().includes(lowerQuery)
-          );
-        },
-
         // Bulk operations
         exportAllConfigs: () => {
           return { ...get().modelConfigs };
@@ -1038,6 +1009,171 @@ export const useModelStore = create<ModelStore>()(
         estimateTokens: (text: string) => {
           // Rough estimation: ~4 characters per token for English
           return Math.ceil(text.length / 4);
+        },
+
+        // OpenRouter-specific implementations
+        fetchOpenRouterModels: async () => {
+          const state = get();
+          
+          // Check if we have cached models that are still fresh (less than 1 hour old)
+          if (state.openRouterModels.length > 0 && state.openRouterLastFetched) {
+            const cacheAge = Date.now() - state.openRouterLastFetched.getTime();
+            const CACHE_DURATION = 60 * 60 * 1000; // 1 hour
+            
+            if (cacheAge < CACHE_DURATION) {
+              console.log('Using cached OpenRouter models');
+              return;
+            }
+          }
+
+          set((state) => {
+            state.loading.fetchOpenRouterModels = true;
+          });
+
+          try {
+            // Get API key from settings (we'll need to integrate with settings store)
+            const apiKey = localStorage.getItem('minddeck-settings-store')
+              ? JSON.parse(localStorage.getItem('minddeck-settings-store') || '{}').state?.settings?.apiKeys?.openrouter
+              : null;
+
+            if (!apiKey) {
+              set((state) => {
+                state.loading.fetchOpenRouterModels = false;
+              });
+              throw new Error('OpenRouter API key not found. Please add your API key in Settings.');
+            }
+
+            const client = new OpenRouterClient({ 
+              apiKey,
+              appName: 'MindDeck',
+              appUrl: 'https://minddeck.ai',
+              timeout: 30000, // 30 second timeout for model fetching
+              retryAttempts: 2,
+              retryDelay: 1000
+            });
+            
+            console.log('Fetching OpenRouter models...');
+            const openRouterModels = await client.fetchModels();
+            console.log(`Fetched ${openRouterModels.length} OpenRouter models`);
+            
+            // Convert OpenRouter models to our format and add them to state
+            const convertedModels: OpenRouterModel[] = openRouterModels
+              .filter((model: OpenRouterAPIModel) => {
+                // Filter out models that don't have proper pricing info
+                return model.pricing && (
+                  parseFloat(model.pricing.prompt) > 0 || 
+                  parseFloat(model.pricing.completion) > 0 ||
+                  (parseFloat(model.pricing.prompt) === 0 && parseFloat(model.pricing.completion) === 0)
+                );
+              })
+              .map((model: OpenRouterAPIModel) => {
+                const converted = convertOpenRouterModel(model);
+                return {
+                  ...converted,
+                  provider: 'openrouter' as const,
+                  originalProvider: converted.provider,
+                } as OpenRouterModel;
+              })
+              // Sort by pricing (cheapest first) and then by name
+              .sort((a, b) => {
+                const aPrice = a.pricing ? (a.pricing.input + a.pricing.output) / 2 : Infinity;
+                const bPrice = b.pricing ? (b.pricing.input + b.pricing.output) / 2 : Infinity;
+                
+                if (aPrice !== bPrice) {
+                  return aPrice - bPrice;
+                }
+                return a.name.localeCompare(b.name);
+              });
+
+            console.log(`Processed ${convertedModels.length} models for display`);
+
+            set((state) => {
+              state.openRouterModels = convertedModels;
+              state.openRouterLastFetched = new Date();
+              state.loading.fetchOpenRouterModels = false;
+            });
+          } catch (error) {
+            console.error('Failed to fetch OpenRouter models:', error);
+            set((state) => {
+              state.loading.fetchOpenRouterModels = false;
+            });
+            throw error;
+          }
+        },
+
+        refreshOpenRouterModels: async () => {
+          // Clear cache and fetch fresh models
+          set((state) => {
+            state.openRouterModels = [];
+            state.openRouterLastFetched = null;
+          });
+          await get().fetchOpenRouterModels();
+        },
+
+        getOpenRouterModel: (modelId: string) => {
+          const state = get();
+          return state.openRouterModels.find(m => m.id === modelId) || null;
+        },
+
+        checkOpenRouterModelAvailability: async (modelId: string) => {
+          try {
+            const apiKey = localStorage.getItem('minddeck-settings-store')
+              ? JSON.parse(localStorage.getItem('minddeck-settings-store') || '{}').state?.settings?.apiKeys?.openrouter
+              : null;
+
+            if (!apiKey) {
+              return { available: false };
+            }
+
+            const client = new OpenRouterClient({ 
+              apiKey,
+              appName: 'MindDeck',
+              appUrl: 'https://minddeck.ai'
+            });
+            
+            return await client.checkModelAvailability(modelId);
+          } catch {
+            return { available: false };
+          }
+        },
+
+        getFilteredOpenRouterModels: () => {
+          const state = get();
+          const { searchQuery, selectedProvider } = state;
+          const lowerQuery = searchQuery.toLowerCase();
+
+          let filteredModels = state.openRouterModels;
+
+          // Apply search filter
+          if (searchQuery) {
+            filteredModels = filteredModels.filter(model =>
+              model.name.toLowerCase().includes(lowerQuery) ||
+              model.id.toLowerCase().includes(lowerQuery) ||
+              model.originalProvider.toLowerCase().includes(lowerQuery) ||
+              model.description?.toLowerCase().includes(lowerQuery)
+            );
+          }
+
+          // Apply provider filter
+          if (selectedProvider !== 'all') {
+            filteredModels = filteredModels.filter(model =>
+              model.originalProvider === selectedProvider
+            );
+          }
+
+          return filteredModels;
+        },
+
+        searchOpenRouterModels: (query: string) => {
+          const state = get();
+          const lowerQuery = query.toLowerCase();
+
+          return state.openRouterModels.filter(model =>
+            model.name.toLowerCase().includes(lowerQuery) ||
+            model.id.toLowerCase().includes(lowerQuery) ||
+            model.originalProvider.toLowerCase().includes(lowerQuery) ||
+            model.description?.toLowerCase().includes(lowerQuery)
+          );
         },
       })),
       {

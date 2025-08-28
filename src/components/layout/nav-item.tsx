@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { LucideIcon } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Tooltip } from '../ui/tooltip';
+import { UserProfileMenu } from '../settings/user-profile-menu';
 
 interface NavItemProps {
   href: string;
@@ -66,43 +67,15 @@ interface UserAvatarProps {
   name?: string;
   image?: string;
   className?: string;
+  onSettingsClick: () => void;
 }
 
-export function UserAvatar({ name = 'User', image, className }: UserAvatarProps) {
-  const initial = name.charAt(0).toUpperCase();
-
-  if (image) {
-    return (
-      <Tooltip content={name} side="right">
-        <div className={cn(
-          'h-8 w-8 rounded-full overflow-hidden',
-          'ring-2 ring-gray-200 dark:ring-gray-700',
-          'hover:ring-blue-300 dark:hover:ring-blue-600 transition-all',
-          className
-        )}>
-          <img
-            src={image}
-            alt={name}
-            className="h-full w-full object-cover"
-          />
-        </div>
-      </Tooltip>
-    );
-  }
-
+export function UserAvatar({ name = 'User', image, className, onSettingsClick }: UserAvatarProps) {
   return (
-    <Tooltip content={name} side="right">
-      <div className={cn(
-        'h-8 w-8 rounded-full flex items-center justify-center',
-        'bg-gradient-to-br from-blue-500 to-purple-600',
-        'text-white text-sm font-medium',
-        'ring-2 ring-gray-200 dark:ring-gray-700',
-        'hover:ring-blue-300 dark:hover:ring-blue-600 transition-all',
-        'cursor-pointer',
-        className
-      )}>
-        {initial}
-      </div>
-    </Tooltip>
+    <UserProfileMenu
+      userName={name}
+      userImage={image}
+      onSettingsClick={onSettingsClick}
+    />
   );
 }

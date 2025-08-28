@@ -53,6 +53,9 @@ export async function POST(request: NextRequest) {
       )
     ]) as ChatRequest;
     
+    // Extract API keys from request headers (sent securely from client)
+    const apiKeys = extractApiKeysFromHeaders(request.headers);
+    
     // Validate request
     const validation = validateRequest(body);
     if (!validation.valid) {
@@ -70,6 +73,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Initialize provider with API key from request if provided
+    const providerApiKey = apiKeys[body.provider];
+    if (providerApiKey) {
+      // Initialize/update provider with the API key for this request
+      try {
+        aiAPI.initializeProvider(body.provider, { apiKey: providerApiKey });
+      } catch (error) {
+        // If already initialized, update the config
+        aiAPI.updateProviderConfig(body.provider, { apiKey: providerApiKey });
+      }
+    }
+    
     // Check provider status with circuit breaker
     const providerStatus = aiAPI.getProviderStatus(body.provider);
     if (!providerStatus.initialized || !providerStatus.hasApiKey) {
@@ -79,10 +94,10 @@ export async function POST(request: NextRequest) {
         model: body.model,
         duration: performance.now() - startTime,
         success: false,
-        error: 'Provider not configured'
+        error: 'Provider not configured or missing API key'
       });
       return NextResponse.json(
-        { error: `Provider ${body.provider} is not properly configured` },
+        { error: `Provider ${body.provider} is not properly configured. Please check your API key in Settings.` },
         { status: 503 }
       );
     }
@@ -366,6 +381,26 @@ async function handleStreamingRequest(
       { status }
     );
   }
+}
+
+// Extract API keys from request headers
+function extractApiKeysFromHeaders(headers: Headers): Partial<Record<AIProvider, string>> {
+  const apiKeys: Partial<Record<AIProvider, string>> = {};
+  
+  // Extract API keys from secure headers
+  const openaiKey = headers.get('x-openai-key');
+  const anthropicKey = headers.get('x-anthropic-key');
+  const geminiKey = headers.get('x-gemini-key');
+  const xaiKey = headers.get('x-xai-key');
+  const deepseekKey = headers.get('x-deepseek-key');
+  
+  if (openaiKey) apiKeys.openai = openaiKey;
+  if (anthropicKey) apiKeys.anthropic = anthropicKey;
+  if (geminiKey) apiKeys.gemini = geminiKey;
+  if (xaiKey) apiKeys.xai = xaiKey;
+  if (deepseekKey) apiKeys.deepseek = deepseekKey;
+  
+  return apiKeys;
 }
 
 // Request validation

@@ -18,6 +18,7 @@ import { AnthropicClient } from './anthropic';
 import { GeminiClient } from './gemini';
 import { XAIClient } from './xai';
 import { DeepSeekClient } from './deepseek';
+import OpenRouterClient from './openrouter';
 
 // Provider configuration registry
 interface ProviderRegistry {
@@ -268,6 +269,16 @@ export class AIAPIManager {
         return new XAIClient(config);
       case 'deepseek':
         return new DeepSeekClient(config);
+      case 'openrouter':
+        return new OpenRouterClient({
+          apiKey: config.apiKey,
+          appName: 'MindDeck',
+          appUrl: 'https://minddeck.ai',
+          baseURL: config.baseURL,
+          timeout: config.timeout,
+          retryAttempts: config.retryAttempts,
+          retryDelay: config.retryDelay,
+        });
       default:
         throw new Error(`Unsupported provider: ${provider}`);
     }
@@ -307,6 +318,9 @@ export function initializeProviderFromEnv(provider: AIProvider): boolean {
       break;
     case 'deepseek':
       apiKey = process.env.DEEPSEEK_API_KEY;
+      break;
+    case 'openrouter':
+      apiKey = process.env.OPENROUTER_API_KEY;
       break;
   }
   

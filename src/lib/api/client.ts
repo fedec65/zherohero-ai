@@ -3,7 +3,7 @@
  * Interfaces with Next.js API routes from the browser
  */
 
-import { AIProvider, Message, ModelConfig } from '../../../lib/stores/types';
+import { AIProvider, Message, ModelConfig } from '../stores/types';
 
 // Request/Response types
 interface ChatRequest {
@@ -81,11 +81,24 @@ export class AIClientAPI {
 
   // Create non-streaming chat completion
   async createChatCompletion(request: ChatRequest): Promise<ChatResponse> {
+    // Get API keys from settings store
+    const { useSettingsStore } = await import('../stores/settings-store');
+    const settingsState = useSettingsStore.getState();
+    
+    // Prepare headers with API keys for secure transmission
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    
+    // Add API key for the requested provider
+    const apiKey = settingsState.getApiKey(request.provider);
+    if (apiKey) {
+      headers[`x-${request.provider}-key`] = apiKey;
+    }
+    
     const response = await fetch(`${this.baseURL}/chat`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify({ ...request, stream: false }),
     });
 
@@ -102,11 +115,24 @@ export class AIClientAPI {
     request: ChatRequest,
     options: StreamingOptions = {}
   ): Promise<void> {
+    // Get API keys from settings store
+    const { useSettingsStore } = await import('../stores/settings-store');
+    const settingsState = useSettingsStore.getState();
+    
+    // Prepare headers with API keys for secure transmission
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    
+    // Add API key for the requested provider
+    const apiKey = settingsState.getApiKey(request.provider);
+    if (apiKey) {
+      headers[`x-${request.provider}-key`] = apiKey;
+    }
+    
     const response = await fetch(`${this.baseURL}/chat`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify({ ...request, stream: true }),
       signal: options.signal,
     });

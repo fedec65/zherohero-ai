@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from '../components/layout/theme-provider'
 import { THEME_SCRIPT } from '../lib/theme-script'
+import { Toaster } from 'react-hot-toast'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -100,6 +101,17 @@ export default function RootLayout({
       <body className={`${inter.className} font-sans antialiased`}>
         <ThemeProvider>
           {children}
+          <Toaster 
+            position="top-right"
+            toastOptions={{
+              duration: 4000,
+              style: {
+                background: 'var(--toast-bg, #ffffff)',
+                color: 'var(--toast-text, #1f2937)',
+                border: '1px solid var(--toast-border, #e5e7eb)',
+              },
+            }}
+          />
         </ThemeProvider>
       </body>
     </html>

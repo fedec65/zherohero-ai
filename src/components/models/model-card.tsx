@@ -1,7 +1,7 @@
 'use client';
 
 import React, { memo, useCallback, useMemo } from 'react';
-import { Settings, Zap, CheckCircle, AlertCircle } from 'lucide-react';
+import { Settings, Zap, CheckCircle, AlertCircle, Trash2, Edit } from 'lucide-react';
 import Image from 'next/image';
 import { clsx } from 'clsx';
 import { Button } from '../ui/button';
@@ -14,6 +14,8 @@ interface ModelCardProps {
   model: Model | CustomModel;
   onConfigure?: (model: Model | CustomModel) => void;
   onSelect?: (provider: AIProvider, modelId: string) => void;
+  onDelete?: (model: CustomModel) => void;
+  onEdit?: (model: CustomModel) => void;
   selected?: boolean;
 }
 
@@ -24,6 +26,7 @@ const providerLogos: Record<AIProvider, string> = {
   gemini: '/logos/gemini.svg',
   xai: '/logos/xai.svg',
   deepseek: '/logos/deepseek.svg',
+  openrouter: '/logos/openrouter.svg',
   custom: '/logos/custom.svg',
 };
 
@@ -34,6 +37,7 @@ const providerColors: Record<AIProvider, string> = {
   gemini: 'bg-blue-500',
   xai: 'bg-black dark:bg-white',
   deepseek: 'bg-purple-500',
+  openrouter: 'bg-indigo-500',
   custom: 'bg-gray-500',
 };
 
@@ -108,15 +112,32 @@ const ModelCard = memo(({
   model, 
   onConfigure, 
   onSelect, 
+  onDelete,
+  onEdit,
   selected = false 
 }: ModelCardProps) => {
   // Use optimized hooks for better performance
   const { formatContextWindow } = useModelTestResults();
   const { testResult } = useModelTest(model.provider, model.id);
   
-  const handleConfigure = useCallback(() => {
+  const handleConfigure = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
     onConfigure?.(model);
   }, [onConfigure, model]);
+
+  const handleDelete = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (model.provider === 'custom') {
+      onDelete?.(model as CustomModel);
+    }
+  }, [onDelete, model]);
+
+  const handleEdit = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (model.provider === 'custom') {
+      onEdit?.(model as CustomModel);
+    }
+  }, [onEdit, model]);
 
   const handleSelect = useCallback(() => {
     onSelect?.(model.provider, model.id);
@@ -157,6 +178,11 @@ const ModelCard = memo(({
               </h3>
               
               <div className="flex items-center gap-1 flex-shrink-0">
+                {model.provider === 'custom' && (
+                  <Badge variant="custom" size="sm">
+                    Custom
+                  </Badge>
+                )}
                 {model.isNew && (
                   <Badge variant="new" size="sm">
                     New
@@ -218,15 +244,34 @@ const ModelCard = memo(({
         </div>
       )}
 
-      {/* Configure Button */}
-      <div className="flex items-center justify-end mt-4">
+      {/* Action Buttons */}
+      <div className="flex items-center justify-end gap-2 mt-4">
+        {model.provider === 'custom' && (
+          <>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleEdit}
+              className="text-xs h-8 px-2"
+              leftIcon={<Edit className="h-3 w-3" />}
+            >
+              Edit
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleDelete}
+              className="text-xs h-8 px-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+              leftIcon={<Trash2 className="h-3 w-3" />}
+            >
+              Delete
+            </Button>
+          </>
+        )}
         <Button
           variant="ghost"
           size="sm"
-          onClick={useCallback((e: React.MouseEvent) => {
-            e.stopPropagation();
-            handleConfigure();
-          }, [handleConfigure])}
+          onClick={handleConfigure}
           className="text-xs h-8 px-3"
           leftIcon={<Settings className="h-3 w-3" />}
         >

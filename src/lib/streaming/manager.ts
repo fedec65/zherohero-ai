@@ -66,6 +66,12 @@ const DEFAULT_PROVIDER_LIMITS: Record<AIProvider, ProviderLimits> = {
     requestTimeout: 120000,
     rateLimit: { requests: 800, window: 60000 } // 800 per minute
   },
+  openrouter: {
+    maxConcurrentRequests: 12,
+    maxQueueSize: 60,
+    requestTimeout: 120000,
+    rateLimit: { requests: 1200, window: 60000 } // 1200 per minute
+  },
   custom: {
     maxConcurrentRequests: 5,
     maxQueueSize: 25,

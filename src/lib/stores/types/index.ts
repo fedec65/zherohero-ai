@@ -89,48 +89,6 @@ export interface CustomModel extends Model {
   headers?: Record<string, string>;
 }
 
-// OpenRouter-specific model types
-export interface OpenRouterModel extends Model {
-  provider: 'openrouter';
-  description?: string;
-  originalProvider: string; // The actual provider (e.g., 'anthropic', 'openai')
-  availability?: {
-    available: boolean;
-    queued?: number;
-    error?: string;
-  };
-  architecture?: {
-    tokenizer: string;
-    instructType?: string;
-  };
-  perRequestLimits?: {
-    promptTokens: number;
-    completionTokens: number;
-  };
-  topProvider?: {
-    maxCompletionTokens: number;
-    isModerated: boolean;
-  };
-}
-
-export interface OpenRouterProvider {
-  code: string;
-  name: string;
-  description?: string;
-  moderated: boolean;
-  imageUrl?: string;
-}
-
-// OpenRouter-specific settings
-export interface OpenRouterSettings {
-  apiKey?: string;
-  appName: string;
-  appUrl?: string;
-  defaultProvider?: string[];
-  enableFallbacks: boolean;
-  dataCollection: 'allow' | 'deny';
-}
-
 // MCP Server types
 export interface MCPServer extends BaseEntity {
   name: string;
@@ -172,7 +130,6 @@ export interface UserSettings {
     autoSpeak: boolean;
     voiceInput: boolean;
   };
-  openrouter?: OpenRouterSettings;
 }
 
 // UI State types

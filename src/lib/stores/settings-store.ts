@@ -73,8 +73,9 @@ interface SettingsActions {
   updatePrivacySettings: (privacy: Partial<UserSettings['privacy']>) => void;
   
   // Speech settings
-  setSpeechSetting: (setting: keyof UserSettings['speech'], value: any) => void;
+  setSpeechSetting: (setting: keyof UserSettings['speech'], value: boolean | string | number) => void;
   updateSpeechSettings: (speech: Partial<UserSettings['speech']>) => void;
+  toggleVoiceInput: () => void;
   
   // Bulk operations
   updateSettings: (updates: Partial<UserSettings>) => void;
@@ -234,7 +235,7 @@ export const useSettingsStore = create<SettingsStore>()(
             gemini: /^AIza[0-9A-Za-z\-_]{35}$/,
             xai: /^xai-[a-zA-Z0-9\-_]+$/,
             deepseek: /^sk-[a-zA-Z0-9]{32,}$/,
-            openrouter: /^sk-or-v1-[a-zA-Z0-9\-_]+$/,
+            openrouter: /^sk-or-[a-zA-Z0-9\-_]{43}$/, // OpenRouter API key format
             custom: /.+/, // Allow any non-empty string for custom models
           };
 
@@ -277,17 +278,10 @@ export const useSettingsStore = create<SettingsStore>()(
         },
 
         // Speech settings
-        setSpeechSetting: (setting: keyof UserSettings['speech'], value: any) => {
+        setSpeechSetting: (setting: keyof UserSettings['speech'], value: boolean | string | number) => {
           set((state) => {
             if (!state.settings.speech) {
-              state.settings.speech = {
-                enabled: false,
-                selectedVoice: '',
-                rate: 1,
-                pitch: 1,
-                autoSpeak: false,
-                voiceInput: false,
-              };
+              state.settings.speech = { ...DEFAULT_SETTINGS.speech };
             }
             (state.settings.speech as any)[setting] = value;
             state.unsavedChanges = true;
@@ -297,16 +291,19 @@ export const useSettingsStore = create<SettingsStore>()(
         updateSpeechSettings: (speech: Partial<UserSettings['speech']>) => {
           set((state) => {
             if (!state.settings.speech) {
-              state.settings.speech = {
-                enabled: false,
-                selectedVoice: '',
-                rate: 1,
-                pitch: 1,
-                autoSpeak: false,
-                voiceInput: false,
-              };
+              state.settings.speech = { ...DEFAULT_SETTINGS.speech };
             }
             Object.assign(state.settings.speech, speech);
+            state.unsavedChanges = true;
+          });
+        },
+
+        toggleVoiceInput: () => {
+          set((state) => {
+            if (!state.settings.speech) {
+              state.settings.speech = { ...DEFAULT_SETTINGS.speech };
+            }
+            state.settings.speech.voiceInput = !state.settings.speech.voiceInput;
             state.unsavedChanges = true;
           });
         },

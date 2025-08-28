@@ -1,15 +1,19 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Paperclip, Mic, MicOff, Smile, Plus, ChevronDown } from 'lucide-react';
+import { Send, Paperclip, Smile } from 'lucide-react';
 import { Button } from '../ui/button';
 import { ChatInput as BaseChatInput } from '../ui/textarea';
 import { ModelSelector, DropdownOption } from '../ui/dropdown';
 import { Tooltip } from '../ui/tooltip';
 import { Badge } from '../ui/badge';
+import { MicrophoneButton } from '../ui/microphone-button';
 import { useChatStore } from '../../../lib/stores/chat-store';
 import { useModelStore } from '../../../lib/stores/model-store';
+import { useSettingsStore } from '../../../lib/stores/settings-store';
 import { cn } from '../../lib/utils';
+import { SpeechRecognitionError } from '../../lib/services/speech-recognition';
+import { toast } from 'react-hot-toast';
 
 interface ChatInputProps {
   chatId: string;
@@ -26,9 +30,9 @@ export function ChatInputComponent({
 }: ChatInputProps) {
   const { sendMessage, loading } = useChatStore();
   const { models, selectedModel, setSelectedModel } = useModelStore();
+  const { hasApiKey, settings } = useSettingsStore();
   const [message, setMessage] = useState('');
   const [attachments, setAttachments] = useState<File[]>([]);
-  const [isRecording, setIsRecording] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -99,10 +103,59 @@ export function ChatInputComponent({
     setAttachments(prev => prev.filter((_, i) => i !== index));
   };
 
-  // Voice recording (placeholder)
-  const handleVoiceToggle = () => {
-    setIsRecording(!isRecording);
-    // TODO: Implement voice recording
+  // Voice input handlers
+  const handleVoiceTranscription = (text: string, duration: number) => {
+    if (text.trim()) {
+      // Append transcription to current message
+      const currentText = message.trim();
+      const newText = currentText ? `${currentText} ${text}` : text;
+      setMessage(newText);
+      
+      // Focus input after transcription
+      if (inputRef.current) {
+        inputRef.current.focus();
+        // Set cursor to end
+        setTimeout(() => {
+          if (inputRef.current) {
+            inputRef.current.setSelectionRange(newText.length, newText.length);
+          }
+        }, 0);
+      }
+
+      // Show success toast
+      toast.success(`Voice input recorded (${duration.toFixed(1)}s)`);
+    }
+  };
+
+  const handleVoiceError = (error: SpeechRecognitionError) => {
+    // Show error toast with appropriate message
+    let errorMessage = error.message;
+    
+    switch (error.type) {
+      case 'api-key-missing':
+        errorMessage = 'OpenAI API key required for voice input';
+        break;
+      case 'permission-denied':
+        errorMessage = 'Microphone access denied';
+        break;
+      case 'no-microphone':
+        errorMessage = 'No microphone found';
+        break;
+      case 'network-error':
+        errorMessage = 'Network error during transcription';
+        break;
+      case 'transcription-error':
+        errorMessage = 'Failed to transcribe audio';
+        break;
+      case 'recording-error':
+        errorMessage = 'Recording failed';
+        break;
+      default:
+        errorMessage = error.message || 'Voice input failed';
+    }
+
+    toast.error(errorMessage);
+    console.error('Voice input error:', error);
   };
 
   // Get available models for dropdown
@@ -118,8 +171,12 @@ export function ChatInputComponent({
   }));
 
   const currentSelectedModel = selectedModel?.modelId || null;
+  const hasValidApiKey = selectedModel ? hasApiKey(selectedModel.provider) : false;
 
-  const canSend = message.trim().length > 0 && !loading.sendMessage;
+  const canSend = message.trim().length > 0 && 
+                  !loading.sendMessage && 
+                  selectedModel && 
+                  hasValidApiKey;
 
   return (
     <div 
@@ -196,8 +253,20 @@ export function ChatInputComponent({
             triggerClassName="h-9 text-sm"
           />
           
-          <Badge variant="outline" className="text-xs">
-            {selectedModel ? selectedModel.provider : 'No model'}
+          <Badge 
+            variant="outline" 
+            className={cn(
+              "text-xs",
+              hasValidApiKey ? "text-green-600 dark:text-green-400 border-green-300" : 
+              selectedModel ? "text-red-600 dark:text-red-400 border-red-300" :
+              "text-gray-500 dark:text-gray-400"
+            )}
+          >
+            {selectedModel ? (
+              hasValidApiKey ? 
+                `${selectedModel.provider} ✓` : 
+                `${selectedModel.provider} ⚠️`
+            ) : 'No model'}
           </Badge>
         </div>
 
@@ -236,22 +305,17 @@ export function ChatInputComponent({
                 </Button>
               </Tooltip>
 
-              <Tooltip content={isRecording ? "Stop recording" : "Voice message"}>
-                <Button
-                  type="button"
-                  variant="ghost"
+              {/* Voice input button - only show if enabled in settings */}
+              {settings.speech?.voiceInput && (
+                <MicrophoneButton
+                  onTranscription={handleVoiceTranscription}
+                  onError={handleVoiceError}
+                  disabled={disabled || loading.sendMessage}
                   size="sm"
-                  className={cn(
-                    "h-8 w-8 p-0",
-                    isRecording 
-                      ? "text-red-500 hover:text-red-600" 
-                      : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                  )}
-                  onClick={handleVoiceToggle}
-                >
-                  {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-                </Button>
-              </Tooltip>
+                  maxDuration={60}
+                  showDuration={false}
+                />
+              )}
 
               <Tooltip content="Emoji">
                 <Button
@@ -267,7 +331,12 @@ export function ChatInputComponent({
             </div>
 
             {/* Send button */}
-            <Tooltip content={canSend ? "Send message" : "Enter a message"}>
+            <Tooltip content={
+              !selectedModel ? "Select a model first" :
+              !hasValidApiKey ? `Configure ${selectedModel.provider.toUpperCase()} API key in Settings` :
+              !message.trim() ? "Enter a message" :
+              "Send message"
+            }>
               <Button
                 type="button"
                 size="sm"

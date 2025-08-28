@@ -16,6 +16,11 @@
   --popover-rgb: 255, 255, 255; /* white */
   --primary-rgb: 37, 99, 235; /* blue-600 */
   --secondary-rgb: 243, 244, 246; /* gray-100 */
+  
+  /* Toast variables */
+  --toast-bg: #ffffff;
+  --toast-text: #1f2937;
+  --toast-border: #e5e7eb;
 }
 
 [data-theme="dark"] {
@@ -30,6 +35,11 @@
   --popover-rgb: 31, 41, 55; /* gray-800 */
   --primary-rgb: 59, 130, 246; /* blue-500 */
   --secondary-rgb: 55, 65, 81; /* gray-700 */
+  
+  /* Toast variables */
+  --toast-bg: #374151;
+  --toast-text: #f9fafb;
+  --toast-border: #6b7280;
 }
 
 * {
@@ -260,6 +270,74 @@ pre code {
   .message-bubble {
     @apply border border-gray-300;
   }
+}
+
+/* Custom slider styling */
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.slider::-webkit-slider-track {
+  width: 100%;
+  height: 8px;
+  cursor: pointer;
+  background: rgb(var(--secondary-rgb));
+  border-radius: 4px;
+  border: none;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: rgb(var(--accent-rgb));
+  cursor: pointer;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease-in-out;
+}
+
+.slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.slider::-moz-range-track {
+  width: 100%;
+  height: 8px;
+  cursor: pointer;
+  background: rgb(var(--secondary-rgb));
+  border-radius: 4px;
+  border: none;
+}
+
+.slider::-moz-range-thumb {
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: rgb(var(--accent-rgb));
+  cursor: pointer;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease-in-out;
+}
+
+.slider::-moz-range-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="dark"] .slider::-webkit-slider-thumb {
+  border: 2px solid rgb(31, 41, 55);
+}
+
+[data-theme="dark"] .slider::-moz-range-thumb {
+  border: 2px solid rgb(31, 41, 55);
 }
 
 /* Reduced motion support */

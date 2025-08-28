@@ -1,11 +1,14 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { MessageSquare, Brain, Server, Settings, HelpCircle } from 'lucide-react';
 import { NavItem, UserAvatar } from './nav-item';
 import { ThemeToggle } from './theme-toggle';
+import { SettingsModal } from '../settings/settings-modal';
 
 export function SidebarNavigation() {
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  
   const navItems = [
     { 
       href: '/', 
@@ -76,8 +79,14 @@ export function SidebarNavigation() {
         <ThemeToggle />
 
         {/* User avatar */}
-        <UserAvatar />
+        <UserAvatar onSettingsClick={() => setSettingsOpen(true)} />
       </div>
+
+      {/* Settings Modal */}
+      <SettingsModal 
+        open={settingsOpen} 
+        onOpenChange={setSettingsOpen} 
+      />
     </nav>
   );
 }

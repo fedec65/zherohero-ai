@@ -45,7 +45,10 @@ export function ChatInterface({ chatId, className }: ChatInterfaceProps) {
   const { models, selectedModel } = useModelStore();
 
   const chat = chats[chatId];
-  const chatMessages = useMemo(() => messages[chatId] || [], [messages, chatId]);
+  const chatMessages = useMemo(
+    () => messages[chatId] || [],
+    [messages, chatId],
+  );
   const messageCount = getChatMessageCount(chatId);
   const isStreaming = streamingMessage?.chatId === chatId;
 

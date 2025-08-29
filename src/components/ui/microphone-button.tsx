@@ -58,6 +58,21 @@ export function MicrophoneButton({
 
   const config = sizeConfig[size];
 
+  // Duration timer functions
+  const startDurationTimer = useCallback(() => {
+    durationIntervalRef.current = setInterval(() => {
+      const elapsed = (Date.now() - startTimeRef.current) / 1000;
+      setRecordingDuration(elapsed);
+    }, 100);
+  }, []);
+
+  const stopDurationTimer = useCallback(() => {
+    if (durationIntervalRef.current) {
+      clearInterval(durationIntervalRef.current);
+      durationIntervalRef.current = null;
+    }
+  }, []);
+
   // Check microphone permission on mount
   useEffect(() => {
     const checkPermission = async () => {
@@ -105,22 +120,13 @@ export function MicrophoneButton({
       speechService.removeEventListener("result", handleResult);
       speechService.removeEventListener("error", handleError);
     };
-  }, [speechService, onTranscription, onError, startDurationTimer, stopDurationTimer]);
-
-  // Duration timer functions
-  const startDurationTimer = useCallback(() => {
-    durationIntervalRef.current = setInterval(() => {
-      const elapsed = (Date.now() - startTimeRef.current) / 1000;
-      setRecordingDuration(elapsed);
-    }, 100);
-  }, []);
-
-  const stopDurationTimer = useCallback(() => {
-    if (durationIntervalRef.current) {
-      clearInterval(durationIntervalRef.current);
-      durationIntervalRef.current = null;
-    }
-  }, []);
+  }, [
+    speechService,
+    onTranscription,
+    onError,
+    startDurationTimer,
+    stopDurationTimer,
+  ]);
 
   // Cleanup on unmount
   useEffect(() => {

@@ -73,7 +73,12 @@ module.exports = {
   },
   overrides: [
     {
-      files: ["**/*.test.{js,jsx,ts,tsx}", "**/__tests__/**/*", "jest.*.js", "playwright.config.ts"],
+      files: [
+        "**/*.test.{js,jsx,ts,tsx}",
+        "**/__tests__/**/*",
+        "jest.*.js",
+        "playwright.config.ts",
+      ],
       rules: {
         "security/detect-non-literal-fs-filename": "off",
         "security/detect-non-literal-require": "off",

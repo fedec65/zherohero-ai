@@ -132,12 +132,7 @@ export function UserProfileMenu({
         aria-haspopup="menu"
       >
         {userImage ? (
-          <Image
-            src={userImage}
-            alt={userName}
-            fill
-            className="object-cover"
-          />
+          <Image src={userImage} alt={userName} fill className="object-cover" />
         ) : (
           <span className="text-white text-sm font-medium">{initial}</span>
         )}

@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const withBundleAnalyzer = require("@next/bundle-analyzer")({
   enabled: process.env.ANALYZE === "true",
-  openAnalyzer: true,
+  openAnalyzer: false,
 });
 
 const nextConfig = {
@@ -48,8 +48,8 @@ const nextConfig = {
         if (process.env.ANALYZE === "true") {
           config.plugins.push(
             new BundleAnalyzerPlugin({
-              analyzerMode: "server",
-              openAnalyzer: true,
+              analyzerMode: "static",
+              openAnalyzer: false,
             }),
           );
         }

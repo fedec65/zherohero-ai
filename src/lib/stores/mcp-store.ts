@@ -107,9 +107,7 @@ interface MCPActions {
   connectServer: (serverId: string) => Promise<void>;
   disconnectServer: (serverId: string) => Promise<void>;
   testConnection: (serverId: string) => Promise<boolean>;
-  performHealthCheck: (
-    serverId: string,
-  ) => Promise<{
+  performHealthCheck: (serverId: string) => Promise<{
     healthy: boolean;
     latency: number;
     capabilities: MCPCapability[];

@@ -3,8 +3,8 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, ExternalLink, Check, X, Loader2 } from 'lucide-react';
 import { cn } from '../../../lib/utils';
-import { useSettingsStore } from '../../../../lib/stores/settings-store';
-import { AIProvider } from '../../../../lib/stores/types';
+import { useSettingsStore } from '../../../lib/stores/settings-store';
+import { AIProvider } from '../../../lib/stores/types';
 
 interface APIKeyField {
   provider: AIProvider;
@@ -45,9 +45,9 @@ const apiKeyFields: APIKeyField[] = [
     docsUrl: 'https://platform.deepseek.com/api_keys',
   },
   {
-    provider: 'custom',
+    provider: 'openrouter',
     label: 'OpenRouter API Key',
-    placeholder: '••••••••••••••••',
+    placeholder: 'sk-or-v1-...',
     docsUrl: 'https://openrouter.ai/keys',
   },
 ];

@@ -14,7 +14,7 @@ import {
   AIProvider, 
   AsyncState, 
   Patch 
-} from '../../../lib/stores/types';
+} from './types';
 import { createStorage, createPartializer, PersistOptions } from './middleware/persistence';
 import { nanoid } from 'nanoid';
 import OpenRouterClient, { convertOpenRouterModel, type OpenRouterModel as OpenRouterAPIModel } from '../api/openrouter';
@@ -1031,14 +1031,28 @@ export const useModelStore = create<ModelStore>()(
           });
 
           try {
-            // Get API key from settings (we'll need to integrate with settings store)
-            const apiKey = localStorage.getItem('minddeck-settings-store')
-              ? JSON.parse(localStorage.getItem('minddeck-settings-store') || '{}').state?.settings?.apiKeys?.openrouter
-              : null;
+            // Get API key from settings with proper error handling
+            let apiKey = null;
+            try {
+              const settingsData = localStorage.getItem('minddeck-settings-store');
+              if (settingsData) {
+                const parsed = JSON.parse(settingsData);
+                apiKey = parsed.state?.settings?.apiKeys?.openrouter;
+              }
+            } catch (parseError) {
+              console.warn('Failed to parse settings from localStorage:', parseError);
+            }
 
             if (!apiKey) {
               set((state) => {
                 state.loading.fetchOpenRouterModels = false;
+                // Add error state for no API key
+                state.testResults['openrouter:error'] = {
+                  data: null,
+                  loading: false,
+                  error: 'OpenRouter API key not found. Please add your API key in Settings.',
+                  lastUpdated: new Date()
+                };
               });
               throw new Error('OpenRouter API key not found. Please add your API key in Settings.');
             }
@@ -1091,11 +1105,22 @@ export const useModelStore = create<ModelStore>()(
               state.openRouterModels = convertedModels;
               state.openRouterLastFetched = new Date();
               state.loading.fetchOpenRouterModels = false;
+              // Clear error state on success
+              delete state.testResults['openrouter:error'];
             });
           } catch (error) {
             console.error('Failed to fetch OpenRouter models:', error);
+            const errorMessage = error instanceof Error ? error.message : 'Failed to fetch OpenRouter models';
+            
             set((state) => {
               state.loading.fetchOpenRouterModels = false;
+              // Set error state for failed fetch
+              state.testResults['openrouter:error'] = {
+                data: null,
+                loading: false,
+                error: errorMessage,
+                lastUpdated: new Date()
+              };
             });
             throw error;
           }
@@ -1117,9 +1142,17 @@ export const useModelStore = create<ModelStore>()(
 
         checkOpenRouterModelAvailability: async (modelId: string) => {
           try {
-            const apiKey = localStorage.getItem('minddeck-settings-store')
-              ? JSON.parse(localStorage.getItem('minddeck-settings-store') || '{}').state?.settings?.apiKeys?.openrouter
-              : null;
+            let apiKey = null;
+            try {
+              const settingsData = localStorage.getItem('minddeck-settings-store');
+              if (settingsData) {
+                const parsed = JSON.parse(settingsData);
+                apiKey = parsed.state?.settings?.apiKeys?.openrouter;
+              }
+            } catch (parseError) {
+              console.warn('Failed to parse settings from localStorage:', parseError);
+              return { available: false };
+            }
 
             if (!apiKey) {
               return { available: false };
@@ -1132,7 +1165,8 @@ export const useModelStore = create<ModelStore>()(
             });
             
             return await client.checkModelAvailability(modelId);
-          } catch {
+          } catch (error) {
+            console.warn('Failed to check OpenRouter model availability:', error);
             return { available: false };
           }
         },

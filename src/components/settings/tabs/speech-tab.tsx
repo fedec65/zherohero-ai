@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Volume2, Mic, Play, Pause, RotateCcw, AlertTriangle, CheckCircle } from 'lucide-react';
 import { cn } from '../../../lib/utils';
-import { useSettingsStore } from '../../../../lib/stores/settings-store';
+import { useSettingsStore } from '../../../lib/stores/settings-store';
 import { getSpeechRecognitionService } from '../../../lib/services/speech-recognition';
 
 interface VoiceOption {

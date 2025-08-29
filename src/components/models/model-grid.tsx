@@ -9,13 +9,13 @@ import { OpenRouterModelCard } from './openrouter-model-card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Dropdown } from '../ui/dropdown';
-import type { Model, CustomModel, OpenRouterModel, AIProvider } from '../../../lib/stores/types';
+import type { Model, CustomModel, OpenRouterModel, AIProvider } from '../../lib/stores/types';
 import { 
   useOptimizedModelGrid, 
   useModelGridActions, 
   useModelSelection 
-} from '../../../lib/stores/hooks';
-import { useModelStore } from '../../../lib/stores/model-store';
+} from '../../lib/stores/hooks';
+import { useModelStore } from '../../lib/stores/model-store';
 import { PerformanceMonitor } from '../dev/performance-monitor';
 
 interface ModelGridProps {
@@ -71,7 +71,8 @@ export function ModelGrid({ className }: ModelGridProps) {
     fetchOpenRouterModels,
     refreshOpenRouterModels,
     getFilteredOpenRouterModels,
-    loading
+    loading,
+    testResults
   } = useModelStore(state => ({
     updateModelConfig: state.updateModelConfig,
     deleteCustomModel: state.deleteCustomModel,
@@ -80,6 +81,7 @@ export function ModelGrid({ className }: ModelGridProps) {
     refreshOpenRouterModels: state.refreshOpenRouterModels,
     getFilteredOpenRouterModels: state.getFilteredOpenRouterModels,
     loading: state.loading,
+    testResults: state.testResults,
   }));
 
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
@@ -211,6 +213,7 @@ export function ModelGrid({ className }: ModelGridProps) {
     if (activeTab === 'openrouter' && openRouterModels.length === 0 && !loading.fetchOpenRouterModels) {
       fetchOpenRouterModels().catch(error => {
         console.error('Failed to fetch OpenRouter models:', error);
+        // Error is already handled in the store
       });
     }
   }, [activeTab, openRouterModels.length, loading.fetchOpenRouterModels, fetchOpenRouterModels]);
@@ -221,11 +224,14 @@ export function ModelGrid({ className }: ModelGridProps) {
       await refreshOpenRouterModels();
     } catch (error) {
       console.error('Failed to refresh OpenRouter models:', error);
+      // Error is already handled in the store and will show in UI
     }
   }, [refreshOpenRouterModels]);
 
   // OpenRouter tab rendering
   if (activeTab === 'openrouter') {
+    const openRouterError = testResults['openrouter:error'];
+    
     // Loading state
     if (loading.fetchOpenRouterModels) {
       return (
@@ -243,8 +249,57 @@ export function ModelGrid({ className }: ModelGridProps) {
       );
     }
 
-    // No API key state
-    if (openRouterModels.length === 0 && !loading.fetchOpenRouterModels) {
+    // Error state - show specific error message
+    if (openRouterError && openRouterError.error) {
+      return (
+        <div className={clsx('space-y-6', className)}>
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="w-16 h-16 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center mx-auto mb-4">
+              <ExternalLink className="w-8 h-8 text-red-600 dark:text-red-400" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+              OpenRouter Connection Failed
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-6 text-center max-w-md">
+              {openRouterError.error}
+            </p>
+            <div className="flex gap-3">
+              {openRouterError.error.includes('API key') && (
+                <>
+                  <Button 
+                    variant="primary"
+                    onClick={() => {
+                      window.open('https://openrouter.ai/keys', '_blank');
+                    }}
+                  >
+                    Get API Key
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={() => {
+                      // TODO: Open Settings modal to API Keys tab
+                      console.log('Open Settings modal to API Keys tab');
+                    }}
+                  >
+                    Add in Settings
+                  </Button>
+                </>
+              )}
+              <Button 
+                variant="outline"
+                onClick={handleRefreshOpenRouter}
+                disabled={loading.fetchOpenRouterModels}
+              >
+                {loading.fetchOpenRouterModels ? 'Retrying...' : 'Retry'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // No models loaded but no specific error - assume API key missing
+    if (openRouterModels.length === 0 && !loading.fetchOpenRouterModels && !openRouterError) {
       return (
         <div className={clsx('space-y-6', className)}>
           <div className="flex flex-col items-center justify-center py-16">
@@ -261,7 +316,6 @@ export function ModelGrid({ className }: ModelGridProps) {
               <Button 
                 variant="primary"
                 onClick={() => {
-                  // Navigate to settings - this would need to be implemented
                   window.open('https://openrouter.ai/keys', '_blank');
                 }}
               >
@@ -269,9 +323,19 @@ export function ModelGrid({ className }: ModelGridProps) {
               </Button>
               <Button 
                 variant="outline"
-                onClick={handleRefreshOpenRouter}
+                onClick={() => {
+                  // TODO: Open Settings modal to API Keys tab
+                  console.log('Open Settings modal to API Keys tab');
+                }}
               >
-                Retry
+                Add in Settings
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={handleRefreshOpenRouter}
+                disabled={loading.fetchOpenRouterModels}
+              >
+                {loading.fetchOpenRouterModels ? 'Retrying...' : 'Retry'}
               </Button>
             </div>
           </div>

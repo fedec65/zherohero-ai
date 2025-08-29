@@ -29,7 +29,7 @@ export function SidebarNavigation() {
 
   const bottomItems = [
     {
-      href: '/settings',
+      onClick: () => setSettingsOpen(true),
       icon: Settings,
       label: 'Settings'
     },
@@ -62,12 +62,13 @@ export function SidebarNavigation() {
       <div className="flex flex-col items-center space-y-3 pb-4 px-2">
         {/* Bottom navigation items */}
         <div className="flex flex-col items-center space-y-2">
-          {bottomItems.map((item) => (
+          {bottomItems.map((item, index) => (
             <NavItem
-              key={item.href}
-              href={item.href}
+              key={item.href || `bottom-item-${index}`}
+              href={item.href || '#'}
               icon={item.icon}
               label={item.label}
+              onClick={item.onClick}
             />
           ))}
         </div>

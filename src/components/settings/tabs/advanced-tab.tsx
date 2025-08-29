@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Code, Database, Shield, Zap, RotateCcw, AlertTriangle } from 'lucide-react';
 import { cn } from '../../../lib/utils';
-import { useSettingsStore } from '../../../../lib/stores/settings-store';
+import { useSettingsStore } from '../../../lib/stores/settings-store';
 
 export function AdvancedTab() {
   const { settings, updateSettings, resetSettings, getDeveloperSettings, setDeveloperSetting } = useSettingsStore();

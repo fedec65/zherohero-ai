@@ -82,10 +82,12 @@ export function ModelTabs() {
       </nav>
       
       {/* Add Custom Model Dialog */}
-      <AddCustomModelDialog
-        open={showAddModelDialog}
-        onOpenChange={setShowAddModelDialog}
-      />
+      {showAddModelDialog && (
+        <AddCustomModelDialog
+          open={showAddModelDialog}
+          onOpenChange={setShowAddModelDialog}
+        />
+      )}
     </div>
   );
 }

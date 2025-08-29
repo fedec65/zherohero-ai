@@ -3,8 +3,8 @@
 import React, { useRef, useState } from 'react';
 import { Download, Upload, FileText, AlertTriangle, CheckCircle } from 'lucide-react';
 import { cn } from '../../../lib/utils';
-import { useSettingsStore } from '../../../../lib/stores/settings-store';
-import { useChatStore } from '../../../../lib/stores/chat-store';
+import { useSettingsStore } from '../../../lib/stores/settings-store';
+import { useChatStore } from '../../../lib/stores/chat-store';
 
 type ExportType = 'settings' | 'chats' | 'all';
 type ImportResult = {

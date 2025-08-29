@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { cn } from '../../lib/utils';
-import { useSettingsStore } from '../../../lib/stores/settings-store';
+import { useSettingsStore } from '../../lib/stores/settings-store';
 import { APIKeysTab } from './tabs/api-keys-tab';
 import { SpeechTab } from './tabs/speech-tab';
 import { ImportExportTab } from './tabs/import-export-tab';

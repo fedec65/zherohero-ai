@@ -51,6 +51,7 @@ export function SidebarNavigation() {
       className="w-16 h-full bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col"
       role="navigation"
       aria-label="Main navigation"
+      data-testid="sidebar-nav"
     >
       {/* Top navigation items */}
       <div className="flex-1 flex flex-col items-center py-4 space-y-2">

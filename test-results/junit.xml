@@ -1,11 +1,1392 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="3" failures="0" errors="0" time="0.24">
-  <testsuite name="Utils Tests" errors="0" failures="0" skipped="0" timestamp="2025-08-29T16:38:22" time="0.106" tests="3">
-    <testcase classname="Utils Tests should pass a basic test" name="Utils Tests should pass a basic test" time="0.001">
-    </testcase>
-    <testcase classname="Utils Tests should handle environment variables" name="Utils Tests should handle environment variables" time="0">
-    </testcase>
-    <testcase classname="Utils Tests should have test API keys set" name="Utils Tests should have test API keys set" time="0.001">
-    </testcase>
-  </testsuite>
+<testsuites id="" name="" tests="85" failures="85" skipped="0" errors="0" time="7.687086">
+<testsuite name="app.spec.ts" timestamp="2025-08-29T16:45:59.337Z" hostname="chromium" tests="6" failures="6" skipped="0" time="0.009" errors="0">
+<testcase name="ZheroHero AI Chat Interface › should load the homepage" classname="app.spec.ts" time="0.001">
+<failure message="app.spec.ts:8:7 should load the homepage" type="FAILURE">
+<![CDATA[  [chromium] › app.spec.ts:8:7 › ZheroHero AI Chat Interface › should load the homepage ────────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/chromium_headless_shell-1187/chrome-mac/headless_shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="ZheroHero AI Chat Interface › should display new chat buttons" classname="app.spec.ts" time="0.001">
+<failure message="app.spec.ts:16:7 should display new chat buttons" type="FAILURE">
+<![CDATA[  [chromium] › app.spec.ts:16:7 › ZheroHero AI Chat Interface › should display new chat buttons ────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/chromium_headless_shell-1187/chrome-mac/headless_shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="ZheroHero AI Chat Interface › should navigate to models page" classname="app.spec.ts" time="0.002">
+<failure message="app.spec.ts:26:7 should navigate to models page" type="FAILURE">
+<![CDATA[  [chromium] › app.spec.ts:26:7 › ZheroHero AI Chat Interface › should navigate to models page ─────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/chromium_headless_shell-1187/chrome-mac/headless_shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="ZheroHero AI Chat Interface › should navigate to MCP servers page" classname="app.spec.ts" time="0.002">
+<failure message="app.spec.ts:37:7 should navigate to MCP servers page" type="FAILURE">
+<![CDATA[  [chromium] › app.spec.ts:37:7 › ZheroHero AI Chat Interface › should navigate to MCP servers page 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/chromium_headless_shell-1187/chrome-mac/headless_shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="ZheroHero AI Chat Interface › should have working theme toggle" classname="app.spec.ts" time="0.001">
+<failure message="app.spec.ts:48:7 should have working theme toggle" type="FAILURE">
+<![CDATA[  [chromium] › app.spec.ts:48:7 › ZheroHero AI Chat Interface › should have working theme toggle ───
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/chromium_headless_shell-1187/chrome-mac/headless_shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="ZheroHero AI Chat Interface › should display sidebar navigation" classname="app.spec.ts" time="0.002">
+<failure message="app.spec.ts:61:7 should display sidebar navigation" type="FAILURE">
+<![CDATA[  [chromium] › app.spec.ts:61:7 › ZheroHero AI Chat Interface › should display sidebar navigation ──
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/chromium_headless_shell-1187/chrome-mac/headless_shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+</testsuite>
+<testsuite name="mcp-servers.spec.ts" timestamp="2025-08-29T16:45:59.337Z" hostname="chromium" tests="6" failures="6" skipped="0" time="0.01" errors="0">
+<testcase name="MCP Servers Page › should display MCP servers page" classname="mcp-servers.spec.ts" time="0.001">
+<failure message="mcp-servers.spec.ts:8:7 should display MCP servers page" type="FAILURE">
+<![CDATA[  [chromium] › mcp-servers.spec.ts:8:7 › MCP Servers Page › should display MCP servers page ────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/chromium_headless_shell-1187/chrome-mac/headless_shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="MCP Servers Page › should display MCP server tabs" classname="mcp-servers.spec.ts" time="0.002">
+<failure message="mcp-servers.spec.ts:16:7 should display MCP server tabs" type="FAILURE">
+<![CDATA[  [chromium] › mcp-servers.spec.ts:16:7 › MCP Servers Page › should display MCP server tabs ────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/chromium_headless_shell-1187/chrome-mac/headless_shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="MCP Servers Page › should display Tavily Search server" classname="mcp-servers.spec.ts" time="0.001">
+<failure message="mcp-servers.spec.ts:23:7 should display Tavily Search server" type="FAILURE">
+<![CDATA[  [chromium] › mcp-servers.spec.ts:23:7 › MCP Servers Page › should display Tavily Search server ───
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/chromium_headless_shell-1187/chrome-mac/headless_shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="MCP Servers Page › should show server status indicators" classname="mcp-servers.spec.ts" time="0.001">
+<failure message="mcp-servers.spec.ts:32:7 should show server status indicators" type="FAILURE">
+<![CDATA[  [chromium] › mcp-servers.spec.ts:32:7 › MCP Servers Page › should show server status indicators ──
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/chromium_headless_shell-1187/chrome-mac/headless_shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="MCP Servers Page › should switch to custom servers tab" classname="mcp-servers.spec.ts" time="0.004">
+<failure message="mcp-servers.spec.ts:42:7 should switch to custom servers tab" type="FAILURE">
+<![CDATA[  [chromium] › mcp-servers.spec.ts:42:7 › MCP Servers Page › should switch to custom servers tab ───
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/chromium_headless_shell-1187/chrome-mac/headless_shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="MCP Servers Page › should display info banner" classname="mcp-servers.spec.ts" time="0.001">
+<failure message="mcp-servers.spec.ts:53:7 should display info banner" type="FAILURE">
+<![CDATA[  [chromium] › mcp-servers.spec.ts:53:7 › MCP Servers Page › should display info banner ────────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/chromium_headless_shell-1187/chrome-mac/headless_shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+</testsuite>
+<testsuite name="models.spec.ts" timestamp="2025-08-29T16:45:59.337Z" hostname="chromium" tests="5" failures="5" skipped="0" time="0.008" errors="0">
+<testcase name="Models Page › should display model tabs" classname="models.spec.ts" time="0.001">
+<failure message="models.spec.ts:8:7 should display model tabs" type="FAILURE">
+<![CDATA[  [chromium] › models.spec.ts:8:7 › Models Page › should display model tabs ────────────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/chromium_headless_shell-1187/chrome-mac/headless_shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Models Page › should display model providers" classname="models.spec.ts" time="0.002">
+<failure message="models.spec.ts:16:7 should display model providers" type="FAILURE">
+<![CDATA[  [chromium] › models.spec.ts:16:7 › Models Page › should display model providers ──────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/chromium_headless_shell-1187/chrome-mac/headless_shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Models Page › should display model cards" classname="models.spec.ts" time="0.001">
+<failure message="models.spec.ts:25:7 should display model cards" type="FAILURE">
+<![CDATA[  [chromium] › models.spec.ts:25:7 › Models Page › should display model cards ──────────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/chromium_headless_shell-1187/chrome-mac/headless_shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Models Page › should show model details" classname="models.spec.ts" time="0.002">
+<failure message="models.spec.ts:38:7 should show model details" type="FAILURE">
+<![CDATA[  [chromium] › models.spec.ts:38:7 › Models Page › should show model details ───────────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/chromium_headless_shell-1187/chrome-mac/headless_shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Models Page › should switch between model tabs" classname="models.spec.ts" time="0.002">
+<failure message="models.spec.ts:52:7 should switch between model tabs" type="FAILURE">
+<![CDATA[  [chromium] › models.spec.ts:52:7 › Models Page › should switch between model tabs ────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/chromium_headless_shell-1187/chrome-mac/headless_shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+</testsuite>
+<testsuite name="app.spec.ts" timestamp="2025-08-29T16:45:59.337Z" hostname="firefox" tests="6" failures="6" skipped="0" time="0.007" errors="0">
+<testcase name="ZheroHero AI Chat Interface › should load the homepage" classname="app.spec.ts" time="0.001">
+<failure message="app.spec.ts:8:7 should load the homepage" type="FAILURE">
+<![CDATA[  [firefox] › app.spec.ts:8:7 › ZheroHero AI Chat Interface › should load the homepage ─────────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/firefox-1490/firefox/Nightly.app/Contents/MacOS/firefox
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="ZheroHero AI Chat Interface › should display new chat buttons" classname="app.spec.ts" time="0.001">
+<failure message="app.spec.ts:16:7 should display new chat buttons" type="FAILURE">
+<![CDATA[  [firefox] › app.spec.ts:16:7 › ZheroHero AI Chat Interface › should display new chat buttons ─────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/firefox-1490/firefox/Nightly.app/Contents/MacOS/firefox
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="ZheroHero AI Chat Interface › should navigate to models page" classname="app.spec.ts" time="0.001">
+<failure message="app.spec.ts:26:7 should navigate to models page" type="FAILURE">
+<![CDATA[  [firefox] › app.spec.ts:26:7 › ZheroHero AI Chat Interface › should navigate to models page ──────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/firefox-1490/firefox/Nightly.app/Contents/MacOS/firefox
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="ZheroHero AI Chat Interface › should navigate to MCP servers page" classname="app.spec.ts" time="0.001">
+<failure message="app.spec.ts:37:7 should navigate to MCP servers page" type="FAILURE">
+<![CDATA[  [firefox] › app.spec.ts:37:7 › ZheroHero AI Chat Interface › should navigate to MCP servers page ─
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/firefox-1490/firefox/Nightly.app/Contents/MacOS/firefox
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="ZheroHero AI Chat Interface › should have working theme toggle" classname="app.spec.ts" time="0.002">
+<failure message="app.spec.ts:48:7 should have working theme toggle" type="FAILURE">
+<![CDATA[  [firefox] › app.spec.ts:48:7 › ZheroHero AI Chat Interface › should have working theme toggle ────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/firefox-1490/firefox/Nightly.app/Contents/MacOS/firefox
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="ZheroHero AI Chat Interface › should display sidebar navigation" classname="app.spec.ts" time="0.001">
+<failure message="app.spec.ts:61:7 should display sidebar navigation" type="FAILURE">
+<![CDATA[  [firefox] › app.spec.ts:61:7 › ZheroHero AI Chat Interface › should display sidebar navigation ───
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/firefox-1490/firefox/Nightly.app/Contents/MacOS/firefox
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+</testsuite>
+<testsuite name="mcp-servers.spec.ts" timestamp="2025-08-29T16:45:59.337Z" hostname="firefox" tests="6" failures="6" skipped="0" time="0.014" errors="0">
+<testcase name="MCP Servers Page › should display MCP servers page" classname="mcp-servers.spec.ts" time="0.003">
+<failure message="mcp-servers.spec.ts:8:7 should display MCP servers page" type="FAILURE">
+<![CDATA[  [firefox] › mcp-servers.spec.ts:8:7 › MCP Servers Page › should display MCP servers page ─────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/firefox-1490/firefox/Nightly.app/Contents/MacOS/firefox
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="MCP Servers Page › should display MCP server tabs" classname="mcp-servers.spec.ts" time="0.001">
+<failure message="mcp-servers.spec.ts:16:7 should display MCP server tabs" type="FAILURE">
+<![CDATA[  [firefox] › mcp-servers.spec.ts:16:7 › MCP Servers Page › should display MCP server tabs ─────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/firefox-1490/firefox/Nightly.app/Contents/MacOS/firefox
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="MCP Servers Page › should display Tavily Search server" classname="mcp-servers.spec.ts" time="0.001">
+<failure message="mcp-servers.spec.ts:23:7 should display Tavily Search server" type="FAILURE">
+<![CDATA[  [firefox] › mcp-servers.spec.ts:23:7 › MCP Servers Page › should display Tavily Search server ────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/firefox-1490/firefox/Nightly.app/Contents/MacOS/firefox
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="MCP Servers Page › should show server status indicators" classname="mcp-servers.spec.ts" time="0.001">
+<failure message="mcp-servers.spec.ts:32:7 should show server status indicators" type="FAILURE">
+<![CDATA[  [firefox] › mcp-servers.spec.ts:32:7 › MCP Servers Page › should show server status indicators ───
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/firefox-1490/firefox/Nightly.app/Contents/MacOS/firefox
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="MCP Servers Page › should switch to custom servers tab" classname="mcp-servers.spec.ts" time="0.002">
+<failure message="mcp-servers.spec.ts:42:7 should switch to custom servers tab" type="FAILURE">
+<![CDATA[  [firefox] › mcp-servers.spec.ts:42:7 › MCP Servers Page › should switch to custom servers tab ────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/firefox-1490/firefox/Nightly.app/Contents/MacOS/firefox
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="MCP Servers Page › should display info banner" classname="mcp-servers.spec.ts" time="0.006">
+<failure message="mcp-servers.spec.ts:53:7 should display info banner" type="FAILURE">
+<![CDATA[  [firefox] › mcp-servers.spec.ts:53:7 › MCP Servers Page › should display info banner ─────────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/firefox-1490/firefox/Nightly.app/Contents/MacOS/firefox
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+</testsuite>
+<testsuite name="models.spec.ts" timestamp="2025-08-29T16:45:59.337Z" hostname="firefox" tests="5" failures="5" skipped="0" time="0.006" errors="0">
+<testcase name="Models Page › should display model tabs" classname="models.spec.ts" time="0.002">
+<failure message="models.spec.ts:8:7 should display model tabs" type="FAILURE">
+<![CDATA[  [firefox] › models.spec.ts:8:7 › Models Page › should display model tabs ─────────────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/firefox-1490/firefox/Nightly.app/Contents/MacOS/firefox
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Models Page › should display model providers" classname="models.spec.ts" time="0.001">
+<failure message="models.spec.ts:16:7 should display model providers" type="FAILURE">
+<![CDATA[  [firefox] › models.spec.ts:16:7 › Models Page › should display model providers ───────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/firefox-1490/firefox/Nightly.app/Contents/MacOS/firefox
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Models Page › should display model cards" classname="models.spec.ts" time="0.001">
+<failure message="models.spec.ts:25:7 should display model cards" type="FAILURE">
+<![CDATA[  [firefox] › models.spec.ts:25:7 › Models Page › should display model cards ───────────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/firefox-1490/firefox/Nightly.app/Contents/MacOS/firefox
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Models Page › should show model details" classname="models.spec.ts" time="0.001">
+<failure message="models.spec.ts:38:7 should show model details" type="FAILURE">
+<![CDATA[  [firefox] › models.spec.ts:38:7 › Models Page › should show model details ────────────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/firefox-1490/firefox/Nightly.app/Contents/MacOS/firefox
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Models Page › should switch between model tabs" classname="models.spec.ts" time="0.001">
+<failure message="models.spec.ts:52:7 should switch between model tabs" type="FAILURE">
+<![CDATA[  [firefox] › models.spec.ts:52:7 › Models Page › should switch between model tabs ─────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/firefox-1490/firefox/Nightly.app/Contents/MacOS/firefox
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+</testsuite>
+<testsuite name="app.spec.ts" timestamp="2025-08-29T16:45:59.337Z" hostname="webkit" tests="6" failures="6" skipped="0" time="0.006" errors="0">
+<testcase name="ZheroHero AI Chat Interface › should load the homepage" classname="app.spec.ts" time="0.001">
+<failure message="app.spec.ts:8:7 should load the homepage" type="FAILURE">
+<![CDATA[  [webkit] › app.spec.ts:8:7 › ZheroHero AI Chat Interface › should load the homepage ──────────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/webkit-2203/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="ZheroHero AI Chat Interface › should display new chat buttons" classname="app.spec.ts" time="0.001">
+<failure message="app.spec.ts:16:7 should display new chat buttons" type="FAILURE">
+<![CDATA[  [webkit] › app.spec.ts:16:7 › ZheroHero AI Chat Interface › should display new chat buttons ──────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/webkit-2203/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="ZheroHero AI Chat Interface › should navigate to models page" classname="app.spec.ts" time="0.001">
+<failure message="app.spec.ts:26:7 should navigate to models page" type="FAILURE">
+<![CDATA[  [webkit] › app.spec.ts:26:7 › ZheroHero AI Chat Interface › should navigate to models page ───────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/webkit-2203/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="ZheroHero AI Chat Interface › should navigate to MCP servers page" classname="app.spec.ts" time="0.001">
+<failure message="app.spec.ts:37:7 should navigate to MCP servers page" type="FAILURE">
+<![CDATA[  [webkit] › app.spec.ts:37:7 › ZheroHero AI Chat Interface › should navigate to MCP servers page ──
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/webkit-2203/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="ZheroHero AI Chat Interface › should have working theme toggle" classname="app.spec.ts" time="0.001">
+<failure message="app.spec.ts:48:7 should have working theme toggle" type="FAILURE">
+<![CDATA[  [webkit] › app.spec.ts:48:7 › ZheroHero AI Chat Interface › should have working theme toggle ─────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/webkit-2203/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="ZheroHero AI Chat Interface › should display sidebar navigation" classname="app.spec.ts" time="0.001">
+<failure message="app.spec.ts:61:7 should display sidebar navigation" type="FAILURE">
+<![CDATA[  [webkit] › app.spec.ts:61:7 › ZheroHero AI Chat Interface › should display sidebar navigation ────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/webkit-2203/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+</testsuite>
+<testsuite name="mcp-servers.spec.ts" timestamp="2025-08-29T16:45:59.337Z" hostname="webkit" tests="6" failures="6" skipped="0" time="0.006" errors="0">
+<testcase name="MCP Servers Page › should display MCP servers page" classname="mcp-servers.spec.ts" time="0.001">
+<failure message="mcp-servers.spec.ts:8:7 should display MCP servers page" type="FAILURE">
+<![CDATA[  [webkit] › mcp-servers.spec.ts:8:7 › MCP Servers Page › should display MCP servers page ──────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/webkit-2203/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="MCP Servers Page › should display MCP server tabs" classname="mcp-servers.spec.ts" time="0.001">
+<failure message="mcp-servers.spec.ts:16:7 should display MCP server tabs" type="FAILURE">
+<![CDATA[  [webkit] › mcp-servers.spec.ts:16:7 › MCP Servers Page › should display MCP server tabs ──────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/webkit-2203/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="MCP Servers Page › should display Tavily Search server" classname="mcp-servers.spec.ts" time="0.001">
+<failure message="mcp-servers.spec.ts:23:7 should display Tavily Search server" type="FAILURE">
+<![CDATA[  [webkit] › mcp-servers.spec.ts:23:7 › MCP Servers Page › should display Tavily Search server ─────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/webkit-2203/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="MCP Servers Page › should show server status indicators" classname="mcp-servers.spec.ts" time="0.001">
+<failure message="mcp-servers.spec.ts:32:7 should show server status indicators" type="FAILURE">
+<![CDATA[  [webkit] › mcp-servers.spec.ts:32:7 › MCP Servers Page › should show server status indicators ────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/webkit-2203/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="MCP Servers Page › should switch to custom servers tab" classname="mcp-servers.spec.ts" time="0.001">
+<failure message="mcp-servers.spec.ts:42:7 should switch to custom servers tab" type="FAILURE">
+<![CDATA[  [webkit] › mcp-servers.spec.ts:42:7 › MCP Servers Page › should switch to custom servers tab ─────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/webkit-2203/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="MCP Servers Page › should display info banner" classname="mcp-servers.spec.ts" time="0.001">
+<failure message="mcp-servers.spec.ts:53:7 should display info banner" type="FAILURE">
+<![CDATA[  [webkit] › mcp-servers.spec.ts:53:7 › MCP Servers Page › should display info banner ──────────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/webkit-2203/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+</testsuite>
+<testsuite name="models.spec.ts" timestamp="2025-08-29T16:45:59.337Z" hostname="webkit" tests="5" failures="5" skipped="0" time="0.005" errors="0">
+<testcase name="Models Page › should display model tabs" classname="models.spec.ts" time="0.001">
+<failure message="models.spec.ts:8:7 should display model tabs" type="FAILURE">
+<![CDATA[  [webkit] › models.spec.ts:8:7 › Models Page › should display model tabs ──────────────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/webkit-2203/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Models Page › should display model providers" classname="models.spec.ts" time="0.001">
+<failure message="models.spec.ts:16:7 should display model providers" type="FAILURE">
+<![CDATA[  [webkit] › models.spec.ts:16:7 › Models Page › should display model providers ────────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/webkit-2203/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Models Page › should display model cards" classname="models.spec.ts" time="0.001">
+<failure message="models.spec.ts:25:7 should display model cards" type="FAILURE">
+<![CDATA[  [webkit] › models.spec.ts:25:7 › Models Page › should display model cards ────────────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/webkit-2203/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Models Page › should show model details" classname="models.spec.ts" time="0.001">
+<failure message="models.spec.ts:38:7 should show model details" type="FAILURE">
+<![CDATA[  [webkit] › models.spec.ts:38:7 › Models Page › should show model details ─────────────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/webkit-2203/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Models Page › should switch between model tabs" classname="models.spec.ts" time="0.001">
+<failure message="models.spec.ts:52:7 should switch between model tabs" type="FAILURE">
+<![CDATA[  [webkit] › models.spec.ts:52:7 › Models Page › should switch between model tabs ──────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/webkit-2203/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+</testsuite>
+<testsuite name="app.spec.ts" timestamp="2025-08-29T16:45:59.337Z" hostname="Mobile Chrome" tests="6" failures="6" skipped="0" time="0.009" errors="0">
+<testcase name="ZheroHero AI Chat Interface › should load the homepage" classname="app.spec.ts" time="0.003">
+<failure message="app.spec.ts:8:7 should load the homepage" type="FAILURE">
+<![CDATA[  [Mobile Chrome] › app.spec.ts:8:7 › ZheroHero AI Chat Interface › should load the homepage ───────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/chromium_headless_shell-1187/chrome-mac/headless_shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="ZheroHero AI Chat Interface › should display new chat buttons" classname="app.spec.ts" time="0.001">
+<failure message="app.spec.ts:16:7 should display new chat buttons" type="FAILURE">
+<![CDATA[  [Mobile Chrome] › app.spec.ts:16:7 › ZheroHero AI Chat Interface › should display new chat buttons 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/chromium_headless_shell-1187/chrome-mac/headless_shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="ZheroHero AI Chat Interface › should navigate to models page" classname="app.spec.ts" time="0.002">
+<failure message="app.spec.ts:26:7 should navigate to models page" type="FAILURE">
+<![CDATA[  [Mobile Chrome] › app.spec.ts:26:7 › ZheroHero AI Chat Interface › should navigate to models page 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/chromium_headless_shell-1187/chrome-mac/headless_shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="ZheroHero AI Chat Interface › should navigate to MCP servers page" classname="app.spec.ts" time="0.001">
+<failure message="app.spec.ts:37:7 should navigate to MCP servers page" type="FAILURE">
+<![CDATA[  [Mobile Chrome] › app.spec.ts:37:7 › ZheroHero AI Chat Interface › should navigate to MCP servers page 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/chromium_headless_shell-1187/chrome-mac/headless_shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="ZheroHero AI Chat Interface › should have working theme toggle" classname="app.spec.ts" time="0.001">
+<failure message="app.spec.ts:48:7 should have working theme toggle" type="FAILURE">
+<![CDATA[  [Mobile Chrome] › app.spec.ts:48:7 › ZheroHero AI Chat Interface › should have working theme toggle 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/chromium_headless_shell-1187/chrome-mac/headless_shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="ZheroHero AI Chat Interface › should display sidebar navigation" classname="app.spec.ts" time="0.001">
+<failure message="app.spec.ts:61:7 should display sidebar navigation" type="FAILURE">
+<![CDATA[  [Mobile Chrome] › app.spec.ts:61:7 › ZheroHero AI Chat Interface › should display sidebar navigation 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/chromium_headless_shell-1187/chrome-mac/headless_shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+</testsuite>
+<testsuite name="mcp-servers.spec.ts" timestamp="2025-08-29T16:45:59.337Z" hostname="Mobile Chrome" tests="6" failures="6" skipped="0" time="0.009" errors="0">
+<testcase name="MCP Servers Page › should display MCP servers page" classname="mcp-servers.spec.ts" time="0.003">
+<failure message="mcp-servers.spec.ts:8:7 should display MCP servers page" type="FAILURE">
+<![CDATA[  [Mobile Chrome] › mcp-servers.spec.ts:8:7 › MCP Servers Page › should display MCP servers page ───
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/chromium_headless_shell-1187/chrome-mac/headless_shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="MCP Servers Page › should display MCP server tabs" classname="mcp-servers.spec.ts" time="0.001">
+<failure message="mcp-servers.spec.ts:16:7 should display MCP server tabs" type="FAILURE">
+<![CDATA[  [Mobile Chrome] › mcp-servers.spec.ts:16:7 › MCP Servers Page › should display MCP server tabs ───
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/chromium_headless_shell-1187/chrome-mac/headless_shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="MCP Servers Page › should display Tavily Search server" classname="mcp-servers.spec.ts" time="0.001">
+<failure message="mcp-servers.spec.ts:23:7 should display Tavily Search server" type="FAILURE">
+<![CDATA[  [Mobile Chrome] › mcp-servers.spec.ts:23:7 › MCP Servers Page › should display Tavily Search server 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/chromium_headless_shell-1187/chrome-mac/headless_shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="MCP Servers Page › should show server status indicators" classname="mcp-servers.spec.ts" time="0.001">
+<failure message="mcp-servers.spec.ts:32:7 should show server status indicators" type="FAILURE">
+<![CDATA[  [Mobile Chrome] › mcp-servers.spec.ts:32:7 › MCP Servers Page › should show server status indicators 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/chromium_headless_shell-1187/chrome-mac/headless_shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="MCP Servers Page › should switch to custom servers tab" classname="mcp-servers.spec.ts" time="0.002">
+<failure message="mcp-servers.spec.ts:42:7 should switch to custom servers tab" type="FAILURE">
+<![CDATA[  [Mobile Chrome] › mcp-servers.spec.ts:42:7 › MCP Servers Page › should switch to custom servers tab 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/chromium_headless_shell-1187/chrome-mac/headless_shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="MCP Servers Page › should display info banner" classname="mcp-servers.spec.ts" time="0.001">
+<failure message="mcp-servers.spec.ts:53:7 should display info banner" type="FAILURE">
+<![CDATA[  [Mobile Chrome] › mcp-servers.spec.ts:53:7 › MCP Servers Page › should display info banner ───────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/chromium_headless_shell-1187/chrome-mac/headless_shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+</testsuite>
+<testsuite name="models.spec.ts" timestamp="2025-08-29T16:45:59.337Z" hostname="Mobile Chrome" tests="5" failures="5" skipped="0" time="0.005" errors="0">
+<testcase name="Models Page › should display model tabs" classname="models.spec.ts" time="0.001">
+<failure message="models.spec.ts:8:7 should display model tabs" type="FAILURE">
+<![CDATA[  [Mobile Chrome] › models.spec.ts:8:7 › Models Page › should display model tabs ───────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/chromium_headless_shell-1187/chrome-mac/headless_shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Models Page › should display model providers" classname="models.spec.ts" time="0.001">
+<failure message="models.spec.ts:16:7 should display model providers" type="FAILURE">
+<![CDATA[  [Mobile Chrome] › models.spec.ts:16:7 › Models Page › should display model providers ─────────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/chromium_headless_shell-1187/chrome-mac/headless_shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Models Page › should display model cards" classname="models.spec.ts" time="0.001">
+<failure message="models.spec.ts:25:7 should display model cards" type="FAILURE">
+<![CDATA[  [Mobile Chrome] › models.spec.ts:25:7 › Models Page › should display model cards ─────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/chromium_headless_shell-1187/chrome-mac/headless_shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Models Page › should show model details" classname="models.spec.ts" time="0.001">
+<failure message="models.spec.ts:38:7 should show model details" type="FAILURE">
+<![CDATA[  [Mobile Chrome] › models.spec.ts:38:7 › Models Page › should show model details ──────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/chromium_headless_shell-1187/chrome-mac/headless_shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Models Page › should switch between model tabs" classname="models.spec.ts" time="0.001">
+<failure message="models.spec.ts:52:7 should switch between model tabs" type="FAILURE">
+<![CDATA[  [Mobile Chrome] › models.spec.ts:52:7 › Models Page › should switch between model tabs ───────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/chromium_headless_shell-1187/chrome-mac/headless_shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+</testsuite>
+<testsuite name="app.spec.ts" timestamp="2025-08-29T16:45:59.337Z" hostname="Mobile Safari" tests="6" failures="6" skipped="0" time="0.007" errors="0">
+<testcase name="ZheroHero AI Chat Interface › should load the homepage" classname="app.spec.ts" time="0.001">
+<failure message="app.spec.ts:8:7 should load the homepage" type="FAILURE">
+<![CDATA[  [Mobile Safari] › app.spec.ts:8:7 › ZheroHero AI Chat Interface › should load the homepage ───────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/webkit-2203/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="ZheroHero AI Chat Interface › should display new chat buttons" classname="app.spec.ts" time="0.002">
+<failure message="app.spec.ts:16:7 should display new chat buttons" type="FAILURE">
+<![CDATA[  [Mobile Safari] › app.spec.ts:16:7 › ZheroHero AI Chat Interface › should display new chat buttons 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/webkit-2203/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="ZheroHero AI Chat Interface › should navigate to models page" classname="app.spec.ts" time="0.001">
+<failure message="app.spec.ts:26:7 should navigate to models page" type="FAILURE">
+<![CDATA[  [Mobile Safari] › app.spec.ts:26:7 › ZheroHero AI Chat Interface › should navigate to models page 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/webkit-2203/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="ZheroHero AI Chat Interface › should navigate to MCP servers page" classname="app.spec.ts" time="0.001">
+<failure message="app.spec.ts:37:7 should navigate to MCP servers page" type="FAILURE">
+<![CDATA[  [Mobile Safari] › app.spec.ts:37:7 › ZheroHero AI Chat Interface › should navigate to MCP servers page 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/webkit-2203/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="ZheroHero AI Chat Interface › should have working theme toggle" classname="app.spec.ts" time="0.001">
+<failure message="app.spec.ts:48:7 should have working theme toggle" type="FAILURE">
+<![CDATA[  [Mobile Safari] › app.spec.ts:48:7 › ZheroHero AI Chat Interface › should have working theme toggle 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/webkit-2203/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="ZheroHero AI Chat Interface › should display sidebar navigation" classname="app.spec.ts" time="0.001">
+<failure message="app.spec.ts:61:7 should display sidebar navigation" type="FAILURE">
+<![CDATA[  [Mobile Safari] › app.spec.ts:61:7 › ZheroHero AI Chat Interface › should display sidebar navigation 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/webkit-2203/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+</testsuite>
+<testsuite name="mcp-servers.spec.ts" timestamp="2025-08-29T16:45:59.337Z" hostname="Mobile Safari" tests="6" failures="6" skipped="0" time="0.008" errors="0">
+<testcase name="MCP Servers Page › should display MCP servers page" classname="mcp-servers.spec.ts" time="0.001">
+<failure message="mcp-servers.spec.ts:8:7 should display MCP servers page" type="FAILURE">
+<![CDATA[  [Mobile Safari] › mcp-servers.spec.ts:8:7 › MCP Servers Page › should display MCP servers page ───
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/webkit-2203/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="MCP Servers Page › should display MCP server tabs" classname="mcp-servers.spec.ts" time="0.001">
+<failure message="mcp-servers.spec.ts:16:7 should display MCP server tabs" type="FAILURE">
+<![CDATA[  [Mobile Safari] › mcp-servers.spec.ts:16:7 › MCP Servers Page › should display MCP server tabs ───
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/webkit-2203/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="MCP Servers Page › should display Tavily Search server" classname="mcp-servers.spec.ts" time="0.001">
+<failure message="mcp-servers.spec.ts:23:7 should display Tavily Search server" type="FAILURE">
+<![CDATA[  [Mobile Safari] › mcp-servers.spec.ts:23:7 › MCP Servers Page › should display Tavily Search server 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/webkit-2203/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="MCP Servers Page › should show server status indicators" classname="mcp-servers.spec.ts" time="0.002">
+<failure message="mcp-servers.spec.ts:32:7 should show server status indicators" type="FAILURE">
+<![CDATA[  [Mobile Safari] › mcp-servers.spec.ts:32:7 › MCP Servers Page › should show server status indicators 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/webkit-2203/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="MCP Servers Page › should switch to custom servers tab" classname="mcp-servers.spec.ts" time="0.002">
+<failure message="mcp-servers.spec.ts:42:7 should switch to custom servers tab" type="FAILURE">
+<![CDATA[  [Mobile Safari] › mcp-servers.spec.ts:42:7 › MCP Servers Page › should switch to custom servers tab 
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/webkit-2203/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="MCP Servers Page › should display info banner" classname="mcp-servers.spec.ts" time="0.001">
+<failure message="mcp-servers.spec.ts:53:7 should display info banner" type="FAILURE">
+<![CDATA[  [Mobile Safari] › mcp-servers.spec.ts:53:7 › MCP Servers Page › should display info banner ───────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/webkit-2203/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+</testsuite>
+<testsuite name="models.spec.ts" timestamp="2025-08-29T16:45:59.337Z" hostname="Mobile Safari" tests="5" failures="5" skipped="0" time="0.005" errors="0">
+<testcase name="Models Page › should display model tabs" classname="models.spec.ts" time="0.001">
+<failure message="models.spec.ts:8:7 should display model tabs" type="FAILURE">
+<![CDATA[  [Mobile Safari] › models.spec.ts:8:7 › Models Page › should display model tabs ───────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/webkit-2203/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Models Page › should display model providers" classname="models.spec.ts" time="0.001">
+<failure message="models.spec.ts:16:7 should display model providers" type="FAILURE">
+<![CDATA[  [Mobile Safari] › models.spec.ts:16:7 › Models Page › should display model providers ─────────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/webkit-2203/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Models Page › should display model cards" classname="models.spec.ts" time="0.001">
+<failure message="models.spec.ts:25:7 should display model cards" type="FAILURE">
+<![CDATA[  [Mobile Safari] › models.spec.ts:25:7 › Models Page › should display model cards ─────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/webkit-2203/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Models Page › should show model details" classname="models.spec.ts" time="0.001">
+<failure message="models.spec.ts:38:7 should show model details" type="FAILURE">
+<![CDATA[  [Mobile Safari] › models.spec.ts:38:7 › Models Page › should show model details ──────────────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/webkit-2203/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+<testcase name="Models Page › should switch between model tabs" classname="models.spec.ts" time="0.001">
+<failure message="models.spec.ts:52:7 should switch between model tabs" type="FAILURE">
+<![CDATA[  [Mobile Safari] › models.spec.ts:52:7 › Models Page › should switch between model tabs ───────────
+
+    Error: browserType.launch: Executable doesn't exist at /Users/federicocesconi/Library/Caches/ms-playwright/webkit-2203/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+]]>
+</failure>
+</testcase>
+</testsuite>
 </testsuites>

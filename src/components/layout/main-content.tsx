@@ -5,7 +5,7 @@ import { Menu, Edit3, Crown, ChevronDown } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Tooltip } from '../ui/tooltip';
 import { cn } from '../../lib/utils';
-import { useChatStore } from '../../../lib/stores/chat-store';
+import { useChatStore } from '../../lib/stores/chat-store';
 
 interface MainContentProps {
   children: React.ReactNode;

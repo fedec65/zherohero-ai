@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { clsx } from 'clsx';
 import { Plus, ExternalLink } from 'lucide-react';
-import { useModelStore } from '../../../lib/stores/model-store';
+import { useModelStore } from '../../lib/stores/model-store';
 import { AddCustomModelDialog } from './add-custom-model-dialog';
 
 interface Tab {

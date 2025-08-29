@@ -3,7 +3,7 @@
  */
 
 import OpenAI from 'openai';
-import { Message, ModelConfig } from '../../../lib/stores/types';
+import { Message, ModelConfig } from '../../lib/stores/types';
 import { 
   BaseAPIClient, 
   ChatCompletionParams, 

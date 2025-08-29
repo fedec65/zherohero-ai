@@ -9,7 +9,7 @@ import { SearchResults } from './search-results';
 import { SearchFilters } from './search-filters';
 import { cn } from '../../lib/utils';
 import { debounce } from '../../lib/utils/search';
-import { SearchOptions, FilterOptions, SearchResult, SearchHistory } from '../../../lib/stores/types';
+import { SearchOptions, FilterOptions, SearchResult, SearchHistory } from '../../lib/stores/types';
 
 interface EnhancedSearchProps {
   value: string;

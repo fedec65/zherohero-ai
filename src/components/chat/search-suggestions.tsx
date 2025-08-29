@@ -4,7 +4,7 @@ import React from 'react';
 import { Clock, Search, TrendingUp, X, ArrowUpRight } from 'lucide-react';
 import { Button } from '../ui/button';
 import { cn } from '../../lib/utils';
-import { SearchHistory } from '../../../lib/stores/types';
+import { SearchHistory } from '../../lib/stores/types';
 
 interface SearchSuggestionsProps {
   suggestions: string[];

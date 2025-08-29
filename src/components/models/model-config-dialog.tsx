@@ -5,7 +5,7 @@ import { X } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
-import type { Model, CustomModel, ModelConfig } from '../../../lib/stores/types';
+import type { Model, CustomModel, ModelConfig } from '../../lib/stores/types';
 
 interface ModelConfigDialogProps {
   model: Model | CustomModel;

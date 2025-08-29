@@ -17,7 +17,7 @@ import {
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { Tooltip } from '../ui/tooltip';
-import type { OpenRouterModel } from '../../../lib/stores/types';
+import type { OpenRouterModel } from '../../lib/stores/types';
 
 interface OpenRouterModelCardProps {
   model: OpenRouterModel;

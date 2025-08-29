@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { cn } from '../../lib/utils';
-import { FilterOptions } from '../../../lib/stores/types';
+import { FilterOptions } from '../../lib/stores/types';
 
 interface SearchFiltersProps {
   filters: FilterOptions;

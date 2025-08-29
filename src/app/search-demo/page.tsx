@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { ChatSidebar } from '../../components/layout/chat-sidebar';
-import { useChatStore } from '../../../lib/stores/chat-store';
+import { useChatStore } from '../../lib/stores/chat-store';
 import { loadSearchDemoData } from '../../components/chat/search-demo-data';
 
 export default function SearchDemoPage() {

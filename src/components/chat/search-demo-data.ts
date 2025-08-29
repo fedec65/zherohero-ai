@@ -2,7 +2,7 @@
  * Demo data for testing search functionality
  */
 
-import { Chat, Message } from '../../../lib/stores/types';
+import { Chat, Message } from '../../lib/stores/types';
 
 export const searchDemoChats: Record<string, Chat> = {
   'chat-1': {

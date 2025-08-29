@@ -2,9 +2,9 @@
 
 import React, { useEffect, useRef, useCallback, useMemo } from 'react';
 import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
-import { useChatStore } from '../../../lib/stores/chat-store';
+import { useChatStore } from '../../lib/stores/chat-store';
 import { MessageItem } from './message-item';
-import { Message } from '../../../lib/stores/types';
+import { Message } from '../../lib/stores/types';
 import { ChatMessageSkeleton } from '../ui/skeleton';
 import { cn } from '../../lib/utils';
 

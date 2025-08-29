@@ -7,8 +7,8 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { Dialog } from '../ui/dialog';
-import { useModelStore } from '../../../lib/stores/model-store';
-import type { CustomModel, ModelCapability } from '../../../lib/stores/types';
+import { useModelStore } from '../../lib/stores/model-store';
+import type { CustomModel, ModelCapability } from '../../lib/stores/types';
 
 interface AddCustomModelDialogProps {
   open: boolean;

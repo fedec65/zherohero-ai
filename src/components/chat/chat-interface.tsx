@@ -8,8 +8,8 @@ import { Tooltip } from '../ui/tooltip';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { MessageList } from './message-list';
 import { ChatInputComponent } from './chat-input';
-import { useChatStore } from '../../../lib/stores/chat-store';
-import { useModelStore } from '../../../lib/stores/model-store';
+import { useChatStore } from '../../lib/stores/chat-store';
+import { useModelStore } from '../../lib/stores/model-store';
 import { cn } from '../../lib/utils';
 
 interface ChatInterfaceProps {

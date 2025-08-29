@@ -3,7 +3,7 @@
  * Optimized for Node.js/Next.js environment
  */
 
-import { AIProvider } from '../../../lib/stores/types';
+import { AIProvider } from '../../lib/stores/types';
 
 // Performance metrics interfaces
 export interface RequestMetrics {

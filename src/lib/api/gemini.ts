@@ -3,7 +3,7 @@
  */
 
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
-import { Message, ModelConfig } from '../../../lib/stores/types';
+import { Message, ModelConfig } from '../../lib/stores/types';
 import { 
   BaseAPIClient, 
   ChatCompletionParams, 

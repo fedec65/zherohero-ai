@@ -2,7 +2,7 @@
  * Core API types and interfaces for AI provider integration
  */
 
-import { Message, ModelConfig, AIProvider } from '../../../lib/stores/types';
+import { Message, ModelConfig, AIProvider } from '../../lib/stores/types';
 
 // Chat completion request types
 export interface ChatCompletionParams {

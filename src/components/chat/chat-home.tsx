@@ -3,7 +3,7 @@
 import React from 'react';
 import { Plus, Shield, Database } from 'lucide-react';
 import { Button } from '../ui/button';
-import { useChatStore } from '../../../lib/stores/chat-store';
+import { useChatStore } from '../../lib/stores/chat-store';
 import { loadDemoData } from './demo-data';
 
 export function ChatHome() {

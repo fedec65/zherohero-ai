@@ -3,7 +3,7 @@
  * Handles backpressure and concurrent request management
  */
 
-import { AIProvider } from '../../../lib/stores/types';
+import { AIProvider } from '../../lib/stores/types';
 
 // Queue and stream management interfaces
 interface QueuedRequest {

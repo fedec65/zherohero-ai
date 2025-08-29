@@ -6,8 +6,8 @@ import { Button } from '../ui/button';
 import { SearchInput } from '../ui/input';
 import { Tooltip } from '../ui/tooltip';
 import { EnhancedSearch } from '../chat/enhanced-search';
-import { useChatStore } from '../../../lib/stores/chat-store';
-import { useSettingsStore } from '../../../lib/stores/settings-store';
+import { useChatStore } from '../../lib/stores/chat-store';
+import { useSettingsStore } from '../../lib/stores/settings-store';
 import { cn } from '../../lib/utils';
 
 interface ChatSidebarProps {

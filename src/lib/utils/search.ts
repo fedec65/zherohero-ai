@@ -2,7 +2,7 @@
  * Advanced search utilities for chat and message searching
  */
 
-import { Chat, Message, SearchResult, SearchOptions, FilterOptions } from '../../../lib/stores/types';
+import { Chat, Message, SearchResult, SearchOptions, FilterOptions } from '../../lib/stores/types';
 
 // Text search and highlight utilities
 export class SearchEngine {

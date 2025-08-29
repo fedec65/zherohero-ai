@@ -2,7 +2,7 @@
  * DeepSeek API Client - Supports all 2 DeepSeek models
  */
 
-import { Message, ModelConfig } from '../../../lib/stores/types';
+import { Message, ModelConfig } from '../../lib/stores/types';
 import { 
   BaseAPIClient, 
   ChatCompletionParams, 

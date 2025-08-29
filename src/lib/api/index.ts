@@ -2,7 +2,7 @@
  * Unified AI API Interface - Provider Factory and Main Interface
  */
 
-import { AIProvider } from '../../../lib/stores/types';
+import { AIProvider } from '../../lib/stores/types';
 import { 
   BaseAPIClient, 
   ProviderConfig, 

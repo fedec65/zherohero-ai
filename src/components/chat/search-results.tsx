@@ -4,7 +4,7 @@ import React from 'react';
 import { MessageCircle, FileText, Clock, Star, ArrowRight, Search } from 'lucide-react';
 import { Button } from '../ui/button';
 import { cn } from '../../lib/utils';
-import { SearchResult } from '../../../lib/stores/types';
+import { SearchResult } from '../../lib/stores/types';
 
 interface SearchResultsProps {
   results: SearchResult[];

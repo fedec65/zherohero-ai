@@ -3,7 +3,7 @@
  */
 
 import Anthropic from '@anthropic-ai/sdk';
-import { Message, ModelConfig } from '../../../lib/stores/types';
+import { Message, ModelConfig } from '../../lib/stores/types';
 import { 
   BaseAPIClient, 
   ChatCompletionParams, 

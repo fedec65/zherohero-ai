@@ -6,8 +6,8 @@ import Image from 'next/image';
 import { clsx } from 'clsx';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
-import type { Model, CustomModel, AIProvider } from '../../../lib/stores/types';
-import { useModelTest, useModelTestResults } from '../../../lib/stores/hooks';
+import type { Model, CustomModel, AIProvider } from '../../lib/stores/types';
+import { useModelTest, useModelTestResults } from '../../lib/stores/hooks';
 import { withPerformanceMonitor } from '../dev/performance-monitor';
 
 interface ModelCardProps {

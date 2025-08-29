@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useChatStore } from '../../../lib/stores/chat-store';
+import { useChatStore } from '../../lib/stores/chat-store';
 import { ChatInterface } from './chat-interface';
 import { ChatHome } from './chat-home';
 

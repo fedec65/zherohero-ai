@@ -4,7 +4,7 @@
  */
 
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { AIProvider } from '../../../lib/stores/types';
+import { AIProvider } from '../../lib/stores/types';
 
 interface StreamingOptions {
   provider: AIProvider;

@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid';
-import { Chat, Message } from '../../../lib/stores/types';
+import { Chat, Message } from '../../lib/stores/types';
 
 // Demo chat data for testing
 export const DEMO_CHATS: Record<string, Chat> = {

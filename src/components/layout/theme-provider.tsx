@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { useSettingsStore } from '../../../lib/stores/settings-store';
+import { useSettingsStore } from '../../lib/stores/settings-store';
 import { applyThemeWithTransition, createSystemThemeListener } from '../../lib/theme-utils';
 
 interface ThemeContextType {

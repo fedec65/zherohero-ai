@@ -2,7 +2,7 @@
  * xAI Grok API Client - Supports all 3 Grok models
  */
 
-import { Message, ModelConfig } from '../../../lib/stores/types';
+import { Message, ModelConfig } from '../../lib/stores/types';
 import { 
   BaseAPIClient, 
   ChatCompletionParams, 

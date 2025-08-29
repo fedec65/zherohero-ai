@@ -2,11 +2,11 @@
 
 import React, { useState, useMemo } from 'react';
 import { Copy, Edit3, RefreshCw, MoreVertical, Check, X, Clock, AlertCircle, User, Bot } from 'lucide-react';
-import { Message } from '../../../lib/stores/types';
+import { Message } from '../../lib/stores/types';
 import { Button } from '../ui/button';
 import { Tooltip } from '../ui/tooltip';
 import { Badge } from '../ui/badge';
-import { useChatStore } from '../../../lib/stores/chat-store';
+import { useChatStore } from '../../lib/stores/chat-store';
 import { cn } from '../../lib/utils';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';

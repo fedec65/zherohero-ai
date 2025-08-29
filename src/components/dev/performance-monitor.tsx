@@ -106,7 +106,8 @@ export const usePerformanceMonitor = (componentName: string) => {
       const endTime = performance.now();
       setRenderTime(endTime - startTime);
     };
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Note: Intentionally runs on every render for performance monitoring
 
   return { renderCount, renderTime };
 };

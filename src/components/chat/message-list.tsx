@@ -15,7 +15,7 @@ interface MessageListProps {
 
 export function MessageList({ chatId, className }: MessageListProps) {
   const { messages, streamingMessage } = useChatStore();
-  const chatMessages = messages[chatId] || [];
+  const chatMessages = useMemo(() => messages[chatId] || [], [messages, chatId]);
   const listRef = useRef<List>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerHeight, setContainerHeight] = React.useState(400);

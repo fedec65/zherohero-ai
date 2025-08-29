@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="3" failures="0" errors="0" time="0.275">
-  <testsuite name="Utils Tests" errors="0" failures="0" skipped="0" timestamp="2025-08-29T16:12:15" time="0.116" tests="3">
-    <testcase classname="Utils Tests should pass a basic test" name="Utils Tests should pass a basic test" time="0.001">
+<testsuites name="jest tests" tests="3" failures="0" errors="0" time="0.236">
+  <testsuite name="Utils Tests" errors="0" failures="0" skipped="0" timestamp="2025-08-29T16:26:43" time="0.107" tests="3">
+    <testcase classname="Utils Tests should pass a basic test" name="Utils Tests should pass a basic test" time="0">
     </testcase>
     <testcase classname="Utils Tests should handle environment variables" name="Utils Tests should handle environment variables" time="0">
     </testcase>

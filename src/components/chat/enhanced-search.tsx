@@ -56,15 +56,15 @@ export function EnhancedSearch({
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Debounced search function
-  const debouncedSearch = useCallback(
-    debounce(async (query: string) => {
-      if (!query.trim()) {
+  const debouncedSearch = useCallback((query: string) => {
+    const searchFn = debounce(async (q: string) => {
+      if (!q.trim()) {
         onClear();
         return;
       }
 
       const searchOptions: SearchOptions = {
-        query: query.trim(),
+        query: q.trim(),
         type: "all",
         regex: isRegex,
         exact: isExact,
@@ -73,9 +73,10 @@ export function EnhancedSearch({
       };
 
       await onSearch(searchOptions);
-    }, 300),
-    [onSearch, onClear, isRegex, isExact, isCaseSensitive],
-  );
+    }, 300);
+    
+    searchFn(query);
+  }, [onSearch, onClear, isRegex, isExact, isCaseSensitive]);
 
   // Handle input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

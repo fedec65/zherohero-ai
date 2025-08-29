@@ -105,7 +105,7 @@ export function MicrophoneButton({
       speechService.removeEventListener("result", handleResult);
       speechService.removeEventListener("error", handleError);
     };
-  }, [speechService, onTranscription, onError]);
+  }, [speechService, onTranscription, onError, startDurationTimer, stopDurationTimer]);
 
   // Duration timer functions
   const startDurationTimer = useCallback(() => {
@@ -127,7 +127,7 @@ export function MicrophoneButton({
     return () => {
       stopDurationTimer();
     };
-  }, [stopDurationTimer]);
+  }, [startDurationTimer, stopDurationTimer]);
 
   // Handle button click
   const handleClick = async () => {

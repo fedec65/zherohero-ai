@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import {
   MessageSquare,
   Edit3,
@@ -45,7 +45,7 @@ export function ChatInterface({ chatId, className }: ChatInterfaceProps) {
   const { models, selectedModel } = useModelStore();
 
   const chat = chats[chatId];
-  const chatMessages = messages[chatId] || [];
+  const chatMessages = useMemo(() => messages[chatId] || [], [messages, chatId]);
   const messageCount = getChatMessageCount(chatId);
   const isStreaming = streamingMessage?.chatId === chatId;
 

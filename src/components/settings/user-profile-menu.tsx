@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import Image from "next/image";
 import {
   Settings,
   User,
@@ -131,10 +132,11 @@ export function UserProfileMenu({
         aria-haspopup="menu"
       >
         {userImage ? (
-          <img
+          <Image
             src={userImage}
             alt={userName}
-            className="h-full w-full object-cover"
+            fill
+            className="object-cover"
           />
         ) : (
           <span className="text-white text-sm font-medium">{initial}</span>
@@ -166,10 +168,11 @@ export function UserProfileMenu({
                 )}
               >
                 {userImage ? (
-                  <img
+                  <Image
                     src={userImage}
                     alt={userName}
-                    className="h-full w-full object-cover"
+                    fill
+                    className="object-cover"
                   />
                 ) : (
                   <span className="text-white text-sm font-medium">

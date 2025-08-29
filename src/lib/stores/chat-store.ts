@@ -2,15 +2,31 @@
  * Chat Store - Manages conversations, messages, and chat operations
  */
 
-import { createWithEqualityFn } from 'zustand/traditional';
-import { subscribeWithSelector } from 'zustand/middleware';
-import { persist } from 'zustand/middleware';
-import { immer } from 'zustand/middleware/immer';
-import { Chat, Message, Folder, AsyncState, Patch, SearchResult, SearchOptions, FilterOptions, SearchHistory, SearchState, AIProvider } from './types';
-import { createStorage, createPartializer, PersistOptions } from './middleware/persistence';
-import { SearchEngine, applyFilters, debounce } from '../utils/search';
-import { aiClientAPI, AIClientAPI } from '../api/client';
-import { nanoid } from 'nanoid';
+import { createWithEqualityFn } from "zustand/traditional";
+import { subscribeWithSelector } from "zustand/middleware";
+import { persist } from "zustand/middleware";
+import { immer } from "zustand/middleware/immer";
+import {
+  Chat,
+  Message,
+  Folder,
+  AsyncState,
+  Patch,
+  SearchResult,
+  SearchOptions,
+  FilterOptions,
+  SearchHistory,
+  SearchState,
+  AIProvider,
+} from "./types";
+import {
+  createStorage,
+  createPartializer,
+  PersistOptions,
+} from "./middleware/persistence";
+import { SearchEngine, applyFilters, debounce } from "../utils/search";
+import { aiClientAPI, AIClientAPI } from "../api/client";
+import { nanoid } from "nanoid";
 
 // Chat store state interface
 interface ChatState {
@@ -18,21 +34,21 @@ interface ChatState {
   chats: Record<string, Chat>;
   messages: Record<string, Message[]>;
   folders: Record<string, Folder>;
-  
+
   // Current state
   activeChat: string | null;
   searchQuery: string;
-  
+
   // Enhanced search state
   search: SearchState;
-  
+
   // UI state
   loading: {
     sendMessage: boolean;
     deleteChat: boolean;
     createChat: boolean;
   };
-  
+
   // Streaming state
   streamingMessage: {
     chatId: string | null;
@@ -44,45 +60,53 @@ interface ChatState {
 // Chat store actions interface
 interface ChatActions {
   // Chat management
-  createChat: (options?: { title?: string; isIncognito?: boolean; folderId?: string }) => Promise<string>;
+  createChat: (options?: {
+    title?: string;
+    isIncognito?: boolean;
+    folderId?: string;
+  }) => Promise<string>;
   deleteChat: (chatId: string) => Promise<void>;
   updateChat: (chatId: string, updates: Patch<Chat>) => void;
   duplicateChat: (chatId: string) => Promise<string>;
   starChat: (chatId: string, starred: boolean) => void;
   moveToFolder: (chatId: string, folderId: string | null) => void;
-  
+
   // Message management
-  sendMessage: (chatId: string, content: string, attachments?: File[]) => Promise<void>;
+  sendMessage: (
+    chatId: string,
+    content: string,
+    attachments?: File[],
+  ) => Promise<void>;
   editMessage: (messageId: string, content: string) => void;
   deleteMessage: (messageId: string) => void;
   regenerateMessage: (messageId: string) => Promise<void>;
-  
+
   // Streaming
   startStreamingMessage: (chatId: string, messageId: string) => void;
   updateStreamingContent: (content: string) => void;
   finishStreamingMessage: () => void;
   cancelStreaming: () => void;
-  
+
   // Navigation
   setActiveChat: (chatId: string | null) => void;
   setSearchQuery: (query: string) => void;
-  
+
   // Folder management
   createFolder: (name: string, parentId?: string) => string;
   updateFolder: (folderId: string, updates: Patch<Folder>) => void;
   deleteFolder: (folderId: string) => void;
-  
+
   // Bulk operations
   deleteMultipleChats: (chatIds: string[]) => Promise<void>;
   exportChats: (chatIds: string[]) => Promise<Blob>;
   importChats: (file: File) => Promise<void>;
-  
+
   // Search and filtering
   searchChats: (query: string) => Chat[];
   getRecentChats: (limit?: number) => Chat[];
   getStarredChats: () => Chat[];
   getChatsByFolder: (folderId: string | null) => Chat[];
-  
+
   // Advanced search functionality
   performSearch: (options: SearchOptions) => Promise<SearchResult[]>;
   clearSearch: () => void;
@@ -91,16 +115,16 @@ interface ChatActions {
   addToSearchHistory: (query: string, resultsCount: number) => void;
   getSearchSuggestions: (query: string) => string[];
   selectSearchResult: (resultId: string) => void;
-  
+
   // Utility
   getChatTitle: (chatId: string) => string;
   getChatMessageCount: (chatId: string) => number;
   getLastMessage: (chatId: string) => Message | null;
-  
+
   // Cleanup
   clearAllChats: () => void;
   archiveOldChats: (olderThanDays: number) => void;
-  
+
   // AI Integration
   sendAIMessage: (chatId: string, messageId: string) => Promise<void>;
 }
@@ -117,16 +141,16 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
         messages: {},
         folders: {},
         activeChat: null,
-        searchQuery: '',
+        searchQuery: "",
         search: {
-          query: '',
+          query: "",
           results: [],
           isSearching: false,
           searchHistory: [],
           filters: {
-            chatType: 'all',
-            sortBy: 'date',
-            sortOrder: 'desc',
+            chatType: "all",
+            sortBy: "date",
+            sortOrder: "desc",
           },
           suggestions: [],
         },
@@ -141,7 +165,7 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
         createChat: async (options = {}) => {
           const chatId = nanoid();
           const now = new Date();
-          
+
           set((state) => {
             state.loading.createChat = true;
           });
@@ -149,11 +173,11 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
           try {
             const newChat: Chat = {
               id: chatId,
-              title: options.title || 'New Chat',
+              title: options.title || "New Chat",
               folderId: options.folderId,
               starred: false,
               isIncognito: options.isIncognito || false,
-              modelId: '', // Will be set from model store
+              modelId: "", // Will be set from model store
               lastMessageAt: now,
               messageCount: 0,
               createdAt: now,
@@ -185,12 +209,13 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
             set((state) => {
               delete state.chats[chatId];
               delete state.messages[chatId];
-              
+
               if (state.activeChat === chatId) {
                 const remainingChats = Object.keys(state.chats);
-                state.activeChat = remainingChats.length > 0 ? remainingChats[0] : null;
+                state.activeChat =
+                  remainingChats.length > 0 ? remainingChats[0] : null;
               }
-              
+
               state.loading.deleteChat = false;
             });
           } catch (error) {
@@ -213,8 +238,8 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
         duplicateChat: async (chatId: string) => {
           const originalChat = get().chats[chatId];
           const originalMessages = get().messages[chatId] || [];
-          
-          if (!originalChat) return '';
+
+          if (!originalChat) return "";
 
           const newChatId = nanoid();
           const now = new Date();
@@ -227,8 +252,8 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
               createdAt: now,
               updatedAt: now,
             };
-            
-            state.messages[newChatId] = originalMessages.map(msg => ({
+
+            state.messages[newChatId] = originalMessages.map((msg) => ({
               ...msg,
               id: nanoid(),
               chatId: newChatId,
@@ -260,7 +285,11 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
           });
         },
 
-        sendMessage: async (chatId: string, content: string, attachments = []) => {
+        sendMessage: async (
+          chatId: string,
+          content: string,
+          attachments = [],
+        ) => {
           const messageId = nanoid();
           const now = new Date();
 
@@ -273,13 +302,13 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
             const userMessage: Message = {
               id: messageId,
               chatId,
-              role: 'user',
+              role: "user",
               content,
               createdAt: now,
               updatedAt: now,
-              attachments: attachments.map(file => ({
+              attachments: attachments.map((file) => ({
                 id: nanoid(),
-                type: file.type.startsWith('image/') ? 'image' : 'file',
+                type: file.type.startsWith("image/") ? "image" : "file",
                 name: file.name,
                 size: file.size,
               })),
@@ -290,16 +319,17 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
                 state.messages[chatId] = [];
               }
               state.messages[chatId].push(userMessage);
-              
+
               const chat = state.chats[chatId];
               if (chat) {
                 chat.messageCount++;
                 chat.lastMessageAt = now;
                 chat.updatedAt = now;
-                
+
                 // Auto-generate title from first message
-                if (chat.messageCount === 1 && chat.title === 'New Chat') {
-                  chat.title = content.slice(0, 50) + (content.length > 50 ? '...' : '');
+                if (chat.messageCount === 1 && chat.title === "New Chat") {
+                  chat.title =
+                    content.slice(0, 50) + (content.length > 50 ? "..." : "");
                 }
               }
             });
@@ -309,9 +339,9 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
             const assistantMessage: Message = {
               id: assistantMessageId,
               chatId,
-              role: 'assistant',
-              content: '',
-              streamingState: 'pending',
+              role: "assistant",
+              content: "",
+              streamingState: "pending",
               createdAt: now,
               updatedAt: now,
             };
@@ -321,14 +351,13 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
               state.streamingMessage = {
                 chatId,
                 messageId: assistantMessageId,
-                content: '',
+                content: "",
               };
               state.loading.sendMessage = false;
             });
 
             // Integrate with AI providers
             await get().sendAIMessage(chatId, assistantMessageId);
-            
           } catch (error) {
             set((state) => {
               state.loading.sendMessage = false;
@@ -340,7 +369,7 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
         editMessage: (messageId: string, content: string) => {
           set((state) => {
             for (const chatMessages of Object.values(state.messages)) {
-              const message = chatMessages.find(m => m.id === messageId);
+              const message = chatMessages.find((m) => m.id === messageId);
               if (message) {
                 message.content = content;
                 message.updatedAt = new Date();
@@ -352,11 +381,15 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
 
         deleteMessage: (messageId: string) => {
           set((state) => {
-            for (const [chatId, chatMessages] of Object.entries(state.messages)) {
-              const messageIndex = chatMessages.findIndex(m => m.id === messageId);
+            for (const [chatId, chatMessages] of Object.entries(
+              state.messages,
+            )) {
+              const messageIndex = chatMessages.findIndex(
+                (m) => m.id === messageId,
+              );
               if (messageIndex >= 0) {
                 chatMessages.splice(messageIndex, 1);
-                
+
                 const chat = state.chats[chatId];
                 if (chat) {
                   chat.messageCount = Math.max(0, chat.messageCount - 1);
@@ -379,13 +412,13 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
             state.streamingMessage = {
               chatId,
               messageId,
-              content: '',
+              content: "",
             };
-            
+
             const messages = state.messages[chatId];
-            const message = messages?.find(m => m.id === messageId);
+            const message = messages?.find((m) => m.id === messageId);
             if (message) {
-              message.streamingState = 'streaming';
+              message.streamingState = "streaming";
             }
           });
         },
@@ -394,10 +427,10 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
           set((state) => {
             if (state.streamingMessage) {
               state.streamingMessage.content = content;
-              
+
               const { chatId, messageId } = state.streamingMessage;
               const messages = state.messages[chatId];
-              const message = messages?.find(m => m.id === messageId);
+              const message = messages?.find((m) => m.id === messageId);
               if (message) {
                 message.content = content;
                 message.updatedAt = new Date();
@@ -411,12 +444,12 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
             if (state.streamingMessage) {
               const { chatId, messageId } = state.streamingMessage;
               const messages = state.messages[chatId];
-              const message = messages?.find(m => m.id === messageId);
+              const message = messages?.find((m) => m.id === messageId);
               if (message) {
-                message.streamingState = 'complete';
+                message.streamingState = "complete";
                 message.updatedAt = new Date();
               }
-              
+
               state.streamingMessage = null;
             }
           });
@@ -427,12 +460,13 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
             if (state.streamingMessage) {
               const { chatId, messageId } = state.streamingMessage;
               const messages = state.messages[chatId];
-              const messageIndex = messages?.findIndex(m => m.id === messageId) ?? -1;
-              
+              const messageIndex =
+                messages?.findIndex((m) => m.id === messageId) ?? -1;
+
               if (messageIndex >= 0) {
                 messages!.splice(messageIndex, 1);
               }
-              
+
               state.streamingMessage = null;
             }
           });
@@ -481,12 +515,12 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
         deleteFolder: (folderId: string) => {
           set((state) => {
             // Move chats out of deleted folder
-            Object.values(state.chats).forEach(chat => {
+            Object.values(state.chats).forEach((chat) => {
               if (chat.folderId === folderId) {
                 chat.folderId = undefined;
               }
             });
-            
+
             delete state.folders[folderId];
           });
         },
@@ -494,14 +528,15 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
         // Bulk operations
         deleteMultipleChats: async (chatIds: string[]) => {
           set((state) => {
-            chatIds.forEach(chatId => {
+            chatIds.forEach((chatId) => {
               delete state.chats[chatId];
               delete state.messages[chatId];
             });
-            
+
             if (state.activeChat && chatIds.includes(state.activeChat)) {
               const remainingChats = Object.keys(state.chats);
-              state.activeChat = remainingChats.length > 0 ? remainingChats[0] : null;
+              state.activeChat =
+                remainingChats.length > 0 ? remainingChats[0] : null;
             }
           });
         },
@@ -509,27 +544,33 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
         exportChats: async (chatIds: string[]) => {
           const state = get();
           const exportData = {
-            chats: chatIds.reduce((acc, id) => {
-              acc[id] = state.chats[id];
-              return acc;
-            }, {} as Record<string, Chat>),
-            messages: chatIds.reduce((acc, id) => {
-              acc[id] = state.messages[id] || [];
-              return acc;
-            }, {} as Record<string, Message[]>),
+            chats: chatIds.reduce(
+              (acc, id) => {
+                acc[id] = state.chats[id];
+                return acc;
+              },
+              {} as Record<string, Chat>,
+            ),
+            messages: chatIds.reduce(
+              (acc, id) => {
+                acc[id] = state.messages[id] || [];
+                return acc;
+              },
+              {} as Record<string, Message[]>,
+            ),
           };
-          
+
           const blob = new Blob([JSON.stringify(exportData, null, 2)], {
-            type: 'application/json',
+            type: "application/json",
           });
-          
+
           return blob;
         },
 
         importChats: async (file: File) => {
           const text = await file.text();
           const importData = JSON.parse(text);
-          
+
           set((state) => {
             Object.assign(state.chats, importData.chats);
             Object.assign(state.messages, importData.messages);
@@ -540,35 +581,39 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
         searchChats: (query: string) => {
           const state = get();
           const lowerQuery = query.toLowerCase();
-          
-          return Object.values(state.chats).filter(chat =>
-            chat.title.toLowerCase().includes(lowerQuery)
+
+          return Object.values(state.chats).filter((chat) =>
+            chat.title.toLowerCase().includes(lowerQuery),
           );
         },
 
         getRecentChats: (limit = 10) => {
           const state = get();
           return Object.values(state.chats)
-            .sort((a, b) => (b.lastMessageAt?.getTime() || 0) - (a.lastMessageAt?.getTime() || 0))
+            .sort(
+              (a, b) =>
+                (b.lastMessageAt?.getTime() || 0) -
+                (a.lastMessageAt?.getTime() || 0),
+            )
             .slice(0, limit);
         },
 
         getStarredChats: () => {
           const state = get();
-          return Object.values(state.chats).filter(chat => chat.starred);
+          return Object.values(state.chats).filter((chat) => chat.starred);
         },
 
         getChatsByFolder: (folderId: string | null) => {
           const state = get();
-          return Object.values(state.chats).filter(chat => 
-            chat.folderId === folderId
+          return Object.values(state.chats).filter(
+            (chat) => chat.folderId === folderId,
           );
         },
 
         // Utility
         getChatTitle: (chatId: string) => {
           const chat = get().chats[chatId];
-          return chat?.title || 'Unknown Chat';
+          return chat?.title || "Unknown Chat";
         },
 
         getChatMessageCount: (chatId: string) => {
@@ -578,7 +623,9 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
 
         getLastMessage: (chatId: string) => {
           const messages = get().messages[chatId];
-          return messages && messages.length > 0 ? messages[messages.length - 1] : null;
+          return messages && messages.length > 0
+            ? messages[messages.length - 1]
+            : null;
         },
 
         // Cleanup
@@ -593,24 +640,25 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
         archiveOldChats: (olderThanDays: number) => {
           const cutoffDate = new Date();
           cutoffDate.setDate(cutoffDate.getDate() - olderThanDays);
-          
+
           set((state) => {
             const toDelete: string[] = [];
-            
+
             Object.entries(state.chats).forEach(([id, chat]) => {
               if (chat.lastMessageAt && chat.lastMessageAt < cutoffDate) {
                 toDelete.push(id);
               }
             });
-            
-            toDelete.forEach(id => {
+
+            toDelete.forEach((id) => {
               delete state.chats[id];
               delete state.messages[id];
             });
-            
+
             if (state.activeChat && toDelete.includes(state.activeChat)) {
               const remainingChats = Object.keys(state.chats);
-              state.activeChat = remainingChats.length > 0 ? remainingChats[0] : null;
+              state.activeChat =
+                remainingChats.length > 0 ? remainingChats[0] : null;
             }
           });
         },
@@ -618,7 +666,7 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
         // Advanced search functionality
         performSearch: async (options: SearchOptions) => {
           const state = get();
-          
+
           set((draft) => {
             draft.search.isSearching = true;
             draft.search.query = options.query;
@@ -626,13 +674,17 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
 
           try {
             const searchEngine = SearchEngine.getInstance();
-            
+
             // Build/update search index if needed
             searchEngine.buildIndex(state.chats, state.messages);
-            
+
             // Perform search
-            const results = searchEngine.search(options, state.chats, state.messages);
-            
+            const results = searchEngine.search(
+              options,
+              state.chats,
+              state.messages,
+            );
+
             set((draft) => {
               draft.search.results = results;
               draft.search.isSearching = false;
@@ -655,10 +707,10 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
 
         clearSearch: () => {
           set((state) => {
-            state.search.query = '';
+            state.search.query = "";
             state.search.results = [];
             state.search.selectedResultId = undefined;
-            state.searchQuery = '';
+            state.searchQuery = "";
           });
         },
 
@@ -678,9 +730,9 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
           set((state) => {
             // Remove existing entry with same query
             state.search.searchHistory = state.search.searchHistory.filter(
-              h => h.query !== query
+              (h) => h.query !== query,
             );
-            
+
             // Add new entry at the beginning
             state.search.searchHistory.unshift({
               id: nanoid(),
@@ -688,35 +740,38 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
               timestamp: new Date(),
               resultsCount,
             });
-            
+
             // Keep only last 20 searches
-            state.search.searchHistory = state.search.searchHistory.slice(0, 20);
+            state.search.searchHistory = state.search.searchHistory.slice(
+              0,
+              20,
+            );
           });
         },
 
         getSearchSuggestions: (query: string) => {
           const state = get();
           const searchEngine = SearchEngine.getInstance();
-          
+
           return searchEngine.generateSuggestions(
             query,
             state.search.searchHistory,
-            state.chats
+            state.chats,
           );
         },
 
         selectSearchResult: (resultId: string) => {
           const state = get();
-          const result = state.search.results.find(r => r.id === resultId);
-          
+          const result = state.search.results.find((r) => r.id === resultId);
+
           if (result) {
             set((draft) => {
               draft.search.selectedResultId = resultId;
-              
+
               // Navigate to the relevant chat
-              if (result.type === 'chat') {
+              if (result.type === "chat") {
                 draft.activeChat = result.id;
-              } else if (result.type === 'message' && result.chatId) {
+              } else if (result.type === "message" && result.chatId) {
                 draft.activeChat = result.chatId;
               }
             });
@@ -729,48 +784,50 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
             const state = get();
             const chat = state.chats[chatId];
             const messages = state.messages[chatId] || [];
-            
+
             if (!chat) {
-              throw new Error('Chat not found');
+              throw new Error("Chat not found");
             }
 
             // Import stores dynamically to avoid circular dependencies
-            const { useModelStore } = await import('./model-store');
-            const { useSettingsStore } = await import('./settings-store');
-            const { aiClientAPI } = await import('../api/client');
-            
+            const { useModelStore } = await import("./model-store");
+            const { useSettingsStore } = await import("./settings-store");
+            const { aiClientAPI } = await import("../api/client");
+
             const modelState = useModelStore.getState();
             const settingsState = useSettingsStore.getState();
-            
+
             // Get the selected model and provider
             const selectedModel = modelState.selectedModel;
             if (!selectedModel) {
-              throw new Error('No model selected');
+              throw new Error("No model selected");
             }
-            
+
             const { provider, modelId } = selectedModel;
-            
+
             // Check if API key is available
             if (!settingsState.hasApiKey(provider)) {
-              throw new Error(`Please configure your ${provider.toUpperCase()} API key in Settings`);
+              throw new Error(
+                `Please configure your ${provider.toUpperCase()} API key in Settings`,
+              );
             }
-            
+
             // Get model configuration
             const modelConfig = modelState.getModelConfig(provider, modelId);
-            
+
             // Get conversation messages (exclude the assistant placeholder)
             const conversationMessages = messages
-              .filter(msg => msg.id !== messageId)
-              .map(msg => ({
+              .filter((msg) => msg.id !== messageId)
+              .map((msg) => ({
                 role: msg.role,
-                content: msg.content
+                content: msg.content,
               }));
 
             // Add system prompt if configured
             if (modelConfig.systemPrompt) {
               conversationMessages.unshift({
-                role: 'system',
-                content: modelConfig.systemPrompt
+                role: "system",
+                content: modelConfig.systemPrompt,
               });
             }
 
@@ -790,20 +847,20 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
                 topK: modelConfig.topK,
                 frequencyPenalty: modelConfig.frequencyPenalty,
                 presencePenalty: modelConfig.presencePenalty,
-                stopSequences: modelConfig.stopSequences
+                stopSequences: modelConfig.stopSequences,
               },
               {
                 onContent: (content: string, isComplete: boolean) => {
                   get().updateStreamingContent(content);
                 },
                 onError: (error: string) => {
-                  console.error('AI streaming error:', error);
-                  
+                  console.error("AI streaming error:", error);
+
                   set((state) => {
                     const messages = state.messages[chatId];
-                    const message = messages?.find(m => m.id === messageId);
+                    const message = messages?.find((m) => m.id === messageId);
                     if (message) {
-                      message.streamingState = 'error';
+                      message.streamingState = "error";
                       message.error = error;
                       message.content = `Sorry, I encountered an error: ${error}`;
                     }
@@ -813,13 +870,13 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
                 onComplete: (fullContent: string) => {
                   set((state) => {
                     const messages = state.messages[chatId];
-                    const message = messages?.find(m => m.id === messageId);
+                    const message = messages?.find((m) => m.id === messageId);
                     if (message) {
                       message.content = fullContent;
-                      message.streamingState = 'complete';
+                      message.streamingState = "complete";
                       message.updatedAt = new Date();
                     }
-                    
+
                     // Update chat
                     const chat = state.chats[chatId];
                     if (chat) {
@@ -828,50 +885,54 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
                       chat.updatedAt = new Date();
                     }
                   });
-                  
-                  get().finishStreamingMessage();
-                }
-              }
-            );
 
+                  get().finishStreamingMessage();
+                },
+              },
+            );
           } catch (error) {
-            console.error('AI message error:', error);
-            
+            console.error("AI message error:", error);
+
             set((state) => {
               const messages = state.messages[chatId];
-              const message = messages?.find(m => m.id === messageId);
+              const message = messages?.find((m) => m.id === messageId);
               if (message) {
-                message.streamingState = 'error';
-                message.error = error instanceof Error ? error.message : 'Unknown error';
-                
+                message.streamingState = "error";
+                message.error =
+                  error instanceof Error ? error.message : "Unknown error";
+
                 // Provide helpful error messages
-                let errorMessage = 'Sorry, I encountered an error while processing your request.';
+                let errorMessage =
+                  "Sorry, I encountered an error while processing your request.";
                 if (error instanceof Error) {
-                  if (error.message.includes('API key')) {
+                  if (error.message.includes("API key")) {
                     errorMessage = `API Key Error: ${error.message}`;
-                  } else if (error.message.includes('quota') || error.message.includes('limit')) {
+                  } else if (
+                    error.message.includes("quota") ||
+                    error.message.includes("limit")
+                  ) {
                     errorMessage = `Rate Limit: ${error.message}`;
-                  } else if (error.message.includes('model')) {
+                  } else if (error.message.includes("model")) {
                     errorMessage = `Model Error: ${error.message}`;
                   } else {
                     errorMessage = `Error: ${error.message}`;
                   }
                 }
-                
+
                 message.content = errorMessage;
               }
               state.streamingMessage = null;
             });
-            
+
             throw error;
           }
         },
       })),
       {
-        name: 'minddeck-chat-store',
-        storage: createStorage('indexedDB'),
+        name: "minddeck-chat-store",
+        storage: createStorage("indexedDB"),
         version: 1,
-        partialize: createPartializer(['loading', 'streamingMessage']),
+        partialize: createPartializer(["loading", "streamingMessage"]),
         onRehydrateStorage: () => (state) => {
           // Reset transient state after rehydration
           if (state) {
@@ -883,7 +944,7 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
             state.streamingMessage = null;
           }
         },
-      } as any
-    )
-  )
+      } as any,
+    ),
+  ),
 );

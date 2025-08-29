@@ -1,29 +1,35 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { MessageSquare, Brain, Server, Settings, HelpCircle } from 'lucide-react';
-import { NavItem, UserAvatar } from './nav-item';
-import { ThemeToggle } from './theme-toggle';
-import { SettingsModal } from '../settings/settings-modal';
+import React, { useState } from "react";
+import {
+  MessageSquare,
+  Brain,
+  Server,
+  Settings,
+  HelpCircle,
+} from "lucide-react";
+import { NavItem, UserAvatar } from "./nav-item";
+import { ThemeToggle } from "./theme-toggle";
+import { SettingsModal } from "../settings/settings-modal";
 
 export function SidebarNavigation() {
   const [settingsOpen, setSettingsOpen] = useState(false);
-  
+
   const navItems = [
-    { 
-      href: '/', 
-      icon: MessageSquare, 
-      label: 'Chat' 
+    {
+      href: "/",
+      icon: MessageSquare,
+      label: "Chat",
     },
-    { 
-      href: '/models', 
-      icon: Brain, 
-      label: 'Models' 
+    {
+      href: "/models",
+      icon: Brain,
+      label: "Models",
     },
-    { 
-      href: '/mcp-servers', 
-      icon: Server, 
-      label: 'MCP Servers' 
+    {
+      href: "/mcp-servers",
+      icon: Server,
+      label: "MCP Servers",
     },
   ];
 
@@ -31,17 +37,17 @@ export function SidebarNavigation() {
     {
       onClick: () => setSettingsOpen(true),
       icon: Settings,
-      label: 'Settings'
+      label: "Settings",
     },
     {
-      href: '/help',
+      href: "/help",
       icon: HelpCircle,
-      label: 'Help'
-    }
+      label: "Help",
+    },
   ];
 
   return (
-    <nav 
+    <nav
       className="w-16 h-full bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col"
       role="navigation"
       aria-label="Main navigation"
@@ -65,7 +71,7 @@ export function SidebarNavigation() {
           {bottomItems.map((item, index) => (
             <NavItem
               key={item.href || `bottom-item-${index}`}
-              href={item.href || '#'}
+              href={item.href || "#"}
               icon={item.icon}
               label={item.label}
               onClick={item.onClick}
@@ -84,10 +90,7 @@ export function SidebarNavigation() {
       </div>
 
       {/* Settings Modal */}
-      <SettingsModal 
-        open={settingsOpen} 
-        onOpenChange={setSettingsOpen} 
-      />
+      <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
     </nav>
   );
 }

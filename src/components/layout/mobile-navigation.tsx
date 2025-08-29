@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { X } from 'lucide-react';
-import { Button } from '../ui/button';
-import { SidebarNavigation } from './sidebar-navigation';
-import { ChatSidebar } from './chat-sidebar';
-import { cn } from '../../lib/utils';
+import React from "react";
+import { X } from "lucide-react";
+import { Button } from "../ui/button";
+import { SidebarNavigation } from "./sidebar-navigation";
+import { ChatSidebar } from "./chat-sidebar";
+import { cn } from "../../lib/utils";
 
 interface MobileNavigationProps {
   isOpen: boolean;
@@ -13,16 +13,16 @@ interface MobileNavigationProps {
   showChatSidebar?: boolean;
 }
 
-export function MobileNavigation({ 
-  isOpen, 
-  onClose, 
-  showChatSidebar = true 
+export function MobileNavigation({
+  isOpen,
+  onClose,
+  showChatSidebar = true,
 }: MobileNavigationProps) {
   return (
     <>
       {/* Backdrop */}
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
           onClick={onClose}
           aria-hidden="true"
@@ -30,10 +30,12 @@ export function MobileNavigation({
       )}
 
       {/* Mobile sidebar */}
-      <div className={cn(
-        'fixed inset-y-0 left-0 z-50 flex transform transition-transform duration-300 ease-in-out lg:hidden',
-        isOpen ? 'translate-x-0' : '-translate-x-full'
-      )}>
+      <div
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 flex transform transition-transform duration-300 ease-in-out lg:hidden",
+          isOpen ? "translate-x-0" : "-translate-x-full",
+        )}
+      >
         {/* Navigation sidebar */}
         <div className="w-16 flex-shrink-0">
           <SidebarNavigation />
@@ -41,9 +43,14 @@ export function MobileNavigation({
 
         {/* Chat sidebar */}
         {showChatSidebar && (
-          <div className="bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700" style={{ width: '320px' }}>
+          <div
+            className="bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700"
+            style={{ width: "320px" }}
+          >
             <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Chats</h2>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Chats
+              </h2>
               <Button
                 variant="ghost"
                 size="sm"
@@ -54,7 +61,7 @@ export function MobileNavigation({
                 <X className="h-5 w-5" />
               </Button>
             </div>
-            
+
             <div className="h-full">
               <ChatSidebar />
             </div>

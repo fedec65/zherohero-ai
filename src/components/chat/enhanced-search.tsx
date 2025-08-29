@@ -1,15 +1,20 @@
-'use client';
+"use client";
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Search, X, Settings, Zap, ChevronDown, ChevronUp } from 'lucide-react';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { SearchSuggestions } from './search-suggestions';
-import { SearchResults } from './search-results';
-import { SearchFilters } from './search-filters';
-import { cn } from '../../lib/utils';
-import { debounce } from '../../lib/utils/search';
-import { SearchOptions, FilterOptions, SearchResult, SearchHistory } from '../../lib/stores/types';
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import { Search, X, Settings, Zap, ChevronDown, ChevronUp } from "lucide-react";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { SearchSuggestions } from "./search-suggestions";
+import { SearchResults } from "./search-results";
+import { SearchFilters } from "./search-filters";
+import { cn } from "../../lib/utils";
+import { debounce } from "../../lib/utils/search";
+import {
+  SearchOptions,
+  FilterOptions,
+  SearchResult,
+  SearchHistory,
+} from "../../lib/stores/types";
 
 interface EnhancedSearchProps {
   value: string;
@@ -42,11 +47,11 @@ export function EnhancedSearch({
 }: EnhancedSearchProps) {
   const [inputValue, setInputValue] = useState(value);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [searchMode, setSearchMode] = useState<'simple' | 'advanced'>('simple');
+  const [searchMode, setSearchMode] = useState<"simple" | "advanced">("simple");
   const [isRegex, setIsRegex] = useState(false);
   const [isExact, setIsExact] = useState(false);
   const [isCaseSensitive, setIsCaseSensitive] = useState(false);
-  
+
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -60,7 +65,7 @@ export function EnhancedSearch({
 
       const searchOptions: SearchOptions = {
         query: query.trim(),
-        type: 'all',
+        type: "all",
         regex: isRegex,
         exact: isExact,
         caseSensitive: isCaseSensitive,
@@ -69,7 +74,7 @@ export function EnhancedSearch({
 
       await onSearch(searchOptions);
     }, 300),
-    [onSearch, onClear, isRegex, isExact, isCaseSensitive]
+    [onSearch, onClear, isRegex, isExact, isCaseSensitive],
   );
 
   // Handle input changes
@@ -77,7 +82,7 @@ export function EnhancedSearch({
     const newValue = e.target.value;
     setInputValue(newValue);
     debouncedSearch(newValue);
-    
+
     // Show suggestions dropdown when typing
     if (newValue) {
       setShowDropdown(true);
@@ -94,7 +99,7 @@ export function EnhancedSearch({
 
   // Handle clear search
   const handleClear = () => {
-    setInputValue('');
+    setInputValue("");
     setShowDropdown(false);
     onClear();
     inputRef.current?.focus();
@@ -102,10 +107,10 @@ export function EnhancedSearch({
 
   // Handle keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') {
+    if (e.key === "Escape") {
       setShowDropdown(false);
       inputRef.current?.blur();
-    } else if (e.key === 'Enter' && inputValue.trim()) {
+    } else if (e.key === "Enter" && inputValue.trim()) {
       setShowDropdown(false);
       debouncedSearch(inputValue);
     }
@@ -114,13 +119,16 @@ export function EnhancedSearch({
   // Handle click outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
         setShowDropdown(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Sync with external value changes
@@ -133,13 +141,13 @@ export function EnhancedSearch({
   const showResults = hasQuery && (results.length > 0 || !isSearching);
 
   return (
-    <div ref={searchRef} className={cn('relative', className)}>
+    <div ref={searchRef} className={cn("relative", className)}>
       {/* Search input container */}
       <div className="relative">
         {/* Main search input */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-          
+
           <Input
             ref={inputRef}
             type="text"
@@ -149,27 +157,30 @@ export function EnhancedSearch({
             onKeyDown={handleKeyDown}
             onFocus={() => setShowDropdown(true)}
             className={cn(
-              'pl-10 pr-20',
-              (isRegex || isExact || isCaseSensitive) && 'border-blue-300 dark:border-blue-700'
+              "pl-10 pr-20",
+              (isRegex || isExact || isCaseSensitive) &&
+                "border-blue-300 dark:border-blue-700",
             )}
           />
-          
+
           {/* Search controls */}
           <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-1">
             {/* Advanced search toggle */}
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setSearchMode(searchMode === 'simple' ? 'advanced' : 'simple')}
+              onClick={() =>
+                setSearchMode(searchMode === "simple" ? "advanced" : "simple")
+              }
               className={cn(
-                'h-6 w-6 p-0',
-                searchMode === 'advanced' && 'text-blue-600 dark:text-blue-400'
+                "h-6 w-6 p-0",
+                searchMode === "advanced" && "text-blue-600 dark:text-blue-400",
               )}
               title="Advanced search options"
             >
               <Settings className="h-3 w-3" />
             </Button>
-            
+
             {/* Clear button */}
             {hasQuery && (
               <Button
@@ -186,7 +197,7 @@ export function EnhancedSearch({
         </div>
 
         {/* Advanced search options */}
-        {searchMode === 'advanced' && (
+        {searchMode === "advanced" && (
           <div className="mt-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
             <div className="flex items-center space-x-4 text-sm">
               <label className="flex items-center space-x-2 cursor-pointer">
@@ -198,7 +209,7 @@ export function EnhancedSearch({
                 />
                 <span className="text-gray-700 dark:text-gray-300">Regex</span>
               </label>
-              
+
               <label className="flex items-center space-x-2 cursor-pointer">
                 <input
                   type="checkbox"
@@ -206,9 +217,11 @@ export function EnhancedSearch({
                   onChange={(e) => setIsExact(e.target.checked)}
                   className="rounded border-gray-300 dark:border-gray-600"
                 />
-                <span className="text-gray-700 dark:text-gray-300">Exact match</span>
+                <span className="text-gray-700 dark:text-gray-300">
+                  Exact match
+                </span>
               </label>
-              
+
               <label className="flex items-center space-x-2 cursor-pointer">
                 <input
                   type="checkbox"
@@ -216,7 +229,9 @@ export function EnhancedSearch({
                   onChange={(e) => setIsCaseSensitive(e.target.checked)}
                   className="rounded border-gray-300 dark:border-gray-600"
                 />
-                <span className="text-gray-700 dark:text-gray-300">Case sensitive</span>
+                <span className="text-gray-700 dark:text-gray-300">
+                  Case sensitive
+                </span>
               </label>
             </div>
           </div>
@@ -231,13 +246,15 @@ export function EnhancedSearch({
             <SearchFilters
               filters={filters}
               onFiltersChange={onFiltersChange}
-              onClearFilters={() => onFiltersChange({
-                starred: undefined,
-                chatType: 'all',
-                dateRange: undefined,
-                hasMessages: undefined,
-                folders: [],
-              })}
+              onClearFilters={() =>
+                onFiltersChange({
+                  starred: undefined,
+                  chatType: "all",
+                  dateRange: undefined,
+                  hasMessages: undefined,
+                  folders: [],
+                })
+              }
               resultsCount={results.length}
             />
 
@@ -272,12 +289,16 @@ export function EnhancedSearch({
 }
 
 // Quick search shortcuts component
-export function SearchShortcuts({ onSearch }: { onSearch: (query: string) => void }) {
+export function SearchShortcuts({
+  onSearch,
+}: {
+  onSearch: (query: string) => void;
+}) {
   const shortcuts = [
-    { label: 'Recent', query: '*', icon: '⏰' },
-    { label: 'Starred', query: 'starred:true', icon: '⭐' },
-    { label: 'Incognito', query: 'type:incognito', icon: '🔒' },
-    { label: 'This Week', query: 'date:week', icon: '📅' },
+    { label: "Recent", query: "*", icon: "⏰" },
+    { label: "Starred", query: "starred:true", icon: "⭐" },
+    { label: "Incognito", query: "type:incognito", icon: "🔒" },
+    { label: "This Week", query: "date:week", icon: "📅" },
   ];
 
   return (

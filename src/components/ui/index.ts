@@ -2,12 +2,12 @@
 export { Button, buttonVariants, type ButtonProps } from "./button";
 
 // Input components
-export { 
-  Input, 
-  SearchInput, 
+export {
+  Input,
+  SearchInput,
   inputVariants,
   type InputProps,
-  type SearchInputProps 
+  type SearchInputProps,
 } from "./input";
 
 // Textarea components
@@ -16,7 +16,7 @@ export {
   ChatInput,
   textareaVariants,
   type TextareaProps,
-  type ChatInputProps
+  type ChatInputProps,
 } from "./textarea";
 
 // Dialog components
@@ -39,15 +39,11 @@ export {
   type DialogFooterProps,
   type DialogTitleProps,
   type DialogDescriptionProps,
-  type DialogCloseProps
+  type DialogCloseProps,
 } from "./dialog";
 
 // Tooltip components
-export {
-  Tooltip,
-  useTooltip,
-  type TooltipProps
-} from "./tooltip";
+export { Tooltip, useTooltip, type TooltipProps } from "./tooltip";
 
 // Card components
 export {
@@ -65,7 +61,7 @@ export {
   type CardTitleProps,
   type CardDescriptionProps,
   type CardContentProps,
-  type ModelCardProps
+  type ModelCardProps,
 } from "./card";
 
 // Badge components
@@ -82,7 +78,7 @@ export {
   type CountBadgeProps,
   type ModelBadgeProps,
   type ContextBadgeProps,
-  type NotificationBadgeProps
+  type NotificationBadgeProps,
 } from "./badge";
 
 // Dropdown components
@@ -91,7 +87,7 @@ export {
   ModelSelector,
   type DropdownProps,
   type DropdownOption,
-  type ModelSelectorProps
+  type ModelSelectorProps,
 } from "./dropdown";
 
 // Skeleton components
@@ -110,5 +106,5 @@ export {
   type CardSkeletonProps,
   type ChatMessageSkeletonProps,
   type ModelGridSkeletonProps,
-  type ChatListSkeletonProps
+  type ChatListSkeletonProps,
 } from "./skeleton";

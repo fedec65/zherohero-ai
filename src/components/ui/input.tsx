@@ -9,8 +9,10 @@ const inputVariants = cva(
     variants: {
       variant: {
         default: "border-gray-200 dark:border-gray-700",
-        error: "border-red-500 focus-visible:ring-red-500 focus-visible:border-red-500 bg-red-50/50 dark:bg-red-900/10 dark:border-red-500",
-        success: "border-green-500 focus-visible:ring-green-500 focus-visible:border-green-500 bg-green-50/50 dark:bg-green-900/10 dark:border-green-500",
+        error:
+          "border-red-500 focus-visible:ring-red-500 focus-visible:border-red-500 bg-red-50/50 dark:bg-red-900/10 dark:border-red-500",
+        success:
+          "border-green-500 focus-visible:ring-green-500 focus-visible:border-green-500 bg-green-50/50 dark:bg-green-900/10 dark:border-green-500",
       },
       inputSize: {
         default: "h-10 px-3",
@@ -22,7 +24,7 @@ const inputVariants = cva(
       variant: "default",
       inputSize: "default",
     },
-  }
+  },
 );
 
 export interface InputProps
@@ -38,22 +40,25 @@ export interface InputProps
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ 
-    className, 
-    type = "text",
-    variant, 
-    inputSize,
-    leftIcon,
-    rightIcon,
-    clearable = false,
-    onClear,
-    error,
-    label,
-    helperText,
-    value,
-    id,
-    ...props 
-  }, ref) => {
+  (
+    {
+      className,
+      type = "text",
+      variant,
+      inputSize,
+      leftIcon,
+      rightIcon,
+      clearable = false,
+      onClear,
+      error,
+      label,
+      helperText,
+      value,
+      id,
+      ...props
+    },
+    ref,
+  ) => {
     const generatedId = React.useId();
     const inputId = id || generatedId;
     const showClearButton = clearable && value && value !== "";
@@ -62,38 +67,38 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="w-full">
         {label && (
-          <label 
+          <label
             htmlFor={inputId}
             className="mb-2 block text-sm font-semibold text-gray-800 dark:text-gray-200"
           >
             {label}
           </label>
         )}
-        
+
         <div className="relative group">
           {leftIcon && (
             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400 transition-colors duration-200">
               {leftIcon}
             </div>
           )}
-          
+
           <input
             id={inputId}
             type={type}
             className={clsx(
-              inputVariants({ 
-                variant: hasError ? "error" : variant, 
-                inputSize, 
-                className 
+              inputVariants({
+                variant: hasError ? "error" : variant,
+                inputSize,
+                className,
               }),
               leftIcon && "pl-10",
-              (rightIcon || showClearButton) && "pr-10"
+              (rightIcon || showClearButton) && "pr-10",
             )}
             ref={ref}
             value={value}
             {...props}
           />
-          
+
           {(rightIcon || showClearButton) && (
             <div className="absolute right-3 top-1/2 -translate-y-1/2">
               {showClearButton ? (
@@ -113,26 +118,29 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             </div>
           )}
         </div>
-        
+
         {(error || helperText) && (
-          <p className={clsx(
-            "mt-2 text-xs transition-colors duration-200",
-            hasError 
-              ? "text-red-600 dark:text-red-400 font-medium" 
-              : "text-gray-600 dark:text-gray-400"
-          )}>
+          <p
+            className={clsx(
+              "mt-2 text-xs transition-colors duration-200",
+              hasError
+                ? "text-red-600 dark:text-red-400 font-medium"
+                : "text-gray-600 dark:text-gray-400",
+            )}
+          >
             {error || helperText}
           </p>
         )}
       </div>
     );
-  }
+  },
 );
 
 Input.displayName = "Input";
 
 // Search Input Component
-export interface SearchInputProps extends Omit<InputProps, "leftIcon" | "type"> {
+export interface SearchInputProps
+  extends Omit<InputProps, "leftIcon" | "type"> {
   onSearch?: (value: string) => void;
 }
 
@@ -152,7 +160,7 @@ const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
         {...props}
       />
     );
-  }
+  },
 );
 
 SearchInput.displayName = "SearchInput";

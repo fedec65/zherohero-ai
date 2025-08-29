@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import React, { useState, useRef, useEffect } from 'react';
-import { Send, Paperclip, Smile } from 'lucide-react';
-import { Button } from '../ui/button';
-import { ChatInput as BaseChatInput } from '../ui/textarea';
-import { ModelSelector, DropdownOption } from '../ui/dropdown';
-import { Tooltip } from '../ui/tooltip';
-import { Badge } from '../ui/badge';
-import { MicrophoneButton } from '../ui/microphone-button';
-import { useChatStore } from '../../lib/stores/chat-store';
-import { useModelStore } from '../../lib/stores/model-store';
-import { useSettingsStore } from '../../lib/stores/settings-store';
-import { cn } from '../../lib/utils';
-import { SpeechRecognitionError } from '../../lib/services/speech-recognition';
-import { toast } from 'react-hot-toast';
+import React, { useState, useRef, useEffect } from "react";
+import { Send, Paperclip, Smile } from "lucide-react";
+import { Button } from "../ui/button";
+import { ChatInput as BaseChatInput } from "../ui/textarea";
+import { ModelSelector, DropdownOption } from "../ui/dropdown";
+import { Tooltip } from "../ui/tooltip";
+import { Badge } from "../ui/badge";
+import { MicrophoneButton } from "../ui/microphone-button";
+import { useChatStore } from "../../lib/stores/chat-store";
+import { useModelStore } from "../../lib/stores/model-store";
+import { useSettingsStore } from "../../lib/stores/settings-store";
+import { cn } from "../../lib/utils";
+import { SpeechRecognitionError } from "../../lib/services/speech-recognition";
+import { toast } from "react-hot-toast";
 
 interface ChatInputProps {
   chatId: string;
@@ -22,16 +22,16 @@ interface ChatInputProps {
   disabled?: boolean;
 }
 
-export function ChatInputComponent({ 
-  chatId, 
-  className, 
+export function ChatInputComponent({
+  chatId,
+  className,
   placeholder = "Message AI...",
-  disabled = false 
+  disabled = false,
 }: ChatInputProps) {
   const { sendMessage, loading } = useChatStore();
   const { models, selectedModel, setSelectedModel } = useModelStore();
   const { hasApiKey, settings } = useSettingsStore();
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
   const [attachments, setAttachments] = useState<File[]>([]);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -51,16 +51,16 @@ export function ChatInputComponent({
 
     try {
       await sendMessage(chatId, message.trim(), attachments);
-      setMessage('');
+      setMessage("");
       setAttachments([]);
     } catch (error) {
-      console.error('Failed to send message:', error);
+      console.error("Failed to send message:", error);
     }
   };
 
   // Handle key press
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey && !e.altKey) {
+    if (e.key === "Enter" && !e.shiftKey && !e.ctrlKey && !e.altKey) {
       e.preventDefault();
       handleSend();
     }
@@ -69,11 +69,11 @@ export function ChatInputComponent({
   // Handle file attachment
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    setAttachments(prev => [...prev, ...files]);
-    
+    setAttachments((prev) => [...prev, ...files]);
+
     // Reset file input
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = "";
     }
   };
 
@@ -81,10 +81,10 @@ export function ChatInputComponent({
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setDragOver(false);
-    
+
     const files = Array.from(e.dataTransfer.files);
     if (files.length > 0) {
-      setAttachments(prev => [...prev, ...files]);
+      setAttachments((prev) => [...prev, ...files]);
     }
   };
 
@@ -100,7 +100,7 @@ export function ChatInputComponent({
 
   // Remove attachment
   const removeAttachment = (index: number) => {
-    setAttachments(prev => prev.filter((_, i) => i !== index));
+    setAttachments((prev) => prev.filter((_, i) => i !== index));
   };
 
   // Voice input handlers
@@ -110,7 +110,7 @@ export function ChatInputComponent({
       const currentText = message.trim();
       const newText = currentText ? `${currentText} ${text}` : text;
       setMessage(newText);
-      
+
       // Focus input after transcription
       if (inputRef.current) {
         inputRef.current.focus();
@@ -130,37 +130,37 @@ export function ChatInputComponent({
   const handleVoiceError = (error: SpeechRecognitionError) => {
     // Show error toast with appropriate message
     let errorMessage = error.message;
-    
+
     switch (error.type) {
-      case 'api-key-missing':
-        errorMessage = 'OpenAI API key required for voice input';
+      case "api-key-missing":
+        errorMessage = "OpenAI API key required for voice input";
         break;
-      case 'permission-denied':
-        errorMessage = 'Microphone access denied';
+      case "permission-denied":
+        errorMessage = "Microphone access denied";
         break;
-      case 'no-microphone':
-        errorMessage = 'No microphone found';
+      case "no-microphone":
+        errorMessage = "No microphone found";
         break;
-      case 'network-error':
-        errorMessage = 'Network error during transcription';
+      case "network-error":
+        errorMessage = "Network error during transcription";
         break;
-      case 'transcription-error':
-        errorMessage = 'Failed to transcribe audio';
+      case "transcription-error":
+        errorMessage = "Failed to transcribe audio";
         break;
-      case 'recording-error':
-        errorMessage = 'Recording failed';
+      case "recording-error":
+        errorMessage = "Recording failed";
         break;
       default:
-        errorMessage = error.message || 'Voice input failed';
+        errorMessage = error.message || "Voice input failed";
     }
 
     toast.error(errorMessage);
-    console.error('Voice input error:', error);
+    console.error("Voice input error:", error);
   };
 
   // Get available models for dropdown
   const allModels = Object.values(models).flat();
-  const modelOptions: DropdownOption[] = allModels.map(model => ({
+  const modelOptions: DropdownOption[] = allModels.map((model) => ({
     value: model.id,
     label: model.name,
     description: `${model.contextWindow.toLocaleString()} tokens`,
@@ -171,18 +171,21 @@ export function ChatInputComponent({
   }));
 
   const currentSelectedModel = selectedModel?.modelId || null;
-  const hasValidApiKey = selectedModel ? hasApiKey(selectedModel.provider) : false;
+  const hasValidApiKey = selectedModel
+    ? hasApiKey(selectedModel.provider)
+    : false;
 
-  const canSend = message.trim().length > 0 && 
-                  !loading.sendMessage && 
-                  selectedModel && 
-                  hasValidApiKey;
+  const canSend =
+    message.trim().length > 0 &&
+    !loading.sendMessage &&
+    selectedModel &&
+    hasValidApiKey;
 
   return (
-    <div 
+    <div
       className={cn(
-        'border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900',
-        className
+        "border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900",
+        className,
       )}
       onDrop={handleDrop}
       onDragOver={handleDragOver}
@@ -193,7 +196,9 @@ export function ChatInputComponent({
         <div className="absolute inset-0 bg-blue-500/10 border-2 border-blue-500 border-dashed rounded-lg flex items-center justify-center z-10">
           <div className="text-center">
             <Paperclip className="h-8 w-8 text-blue-500 mx-auto mb-2" />
-            <p className="text-blue-600 dark:text-blue-400 font-medium">Drop files to attach</p>
+            <p className="text-blue-600 dark:text-blue-400 font-medium">
+              Drop files to attach
+            </p>
           </div>
         </div>
       )}
@@ -208,7 +213,7 @@ export function ChatInputComponent({
                 className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 rounded-lg px-3 py-2 text-sm"
               >
                 <div className="text-gray-500">
-                  {file.type.startsWith('image/') ? '🖼️' : '📁'}
+                  {file.type.startsWith("image/") ? "🖼️" : "📁"}
                 </div>
                 <span className="truncate max-w-[150px]">{file.name}</span>
                 <span className="text-gray-400 text-xs">
@@ -233,7 +238,7 @@ export function ChatInputComponent({
         {/* Model selector */}
         <div className="mb-3 flex items-center gap-2">
           <ModelSelector
-            models={allModels.map(model => ({
+            models={allModels.map((model) => ({
               id: model.id,
               name: model.name,
               provider: model.provider,
@@ -243,7 +248,7 @@ export function ChatInputComponent({
             }))}
             selectedModel={currentSelectedModel}
             onModelChange={(modelId) => {
-              const model = allModels.find(m => m.id === modelId);
+              const model = allModels.find((m) => m.id === modelId);
               if (model) {
                 setSelectedModel(model.provider, modelId);
               }
@@ -252,21 +257,23 @@ export function ChatInputComponent({
             className="w-64"
             triggerClassName="h-9 text-sm"
           />
-          
-          <Badge 
-            variant="outline" 
+
+          <Badge
+            variant="outline"
             className={cn(
               "text-xs",
-              hasValidApiKey ? "text-green-600 dark:text-green-400 border-green-300" : 
-              selectedModel ? "text-red-600 dark:text-red-400 border-red-300" :
-              "text-gray-500 dark:text-gray-400"
+              hasValidApiKey
+                ? "text-green-600 dark:text-green-400 border-green-300"
+                : selectedModel
+                  ? "text-red-600 dark:text-red-400 border-red-300"
+                  : "text-gray-500 dark:text-gray-400",
             )}
           >
-            {selectedModel ? (
-              hasValidApiKey ? 
-                `${selectedModel.provider} ✓` : 
-                `${selectedModel.provider} ⚠️`
-            ) : 'No model'}
+            {selectedModel
+              ? hasValidApiKey
+                ? `${selectedModel.provider} ✓`
+                : `${selectedModel.provider} ⚠️`
+              : "No model"}
           </Badge>
         </div>
 
@@ -280,10 +287,10 @@ export function ChatInputComponent({
             placeholder={placeholder}
             disabled={disabled || loading.sendMessage}
             className={cn(
-              'pr-24 pb-12', // Extra space for buttons
-              'border-gray-200 dark:border-gray-700',
-              'focus:border-blue-500 dark:focus:border-blue-400',
-              loading.sendMessage && 'opacity-50'
+              "pr-24 pb-12", // Extra space for buttons
+              "border-gray-200 dark:border-gray-700",
+              "focus:border-blue-500 dark:focus:border-blue-400",
+              loading.sendMessage && "opacity-50",
             )}
             maxLength={4000}
             showCharCount={true}
@@ -331,12 +338,17 @@ export function ChatInputComponent({
             </div>
 
             {/* Send button */}
-            <Tooltip content={
-              !selectedModel ? "Select a model first" :
-              !hasValidApiKey ? `Configure ${selectedModel.provider.toUpperCase()} API key in Settings` :
-              !message.trim() ? "Enter a message" :
-              "Send message"
-            }>
+            <Tooltip
+              content={
+                !selectedModel
+                  ? "Select a model first"
+                  : !hasValidApiKey
+                    ? `Configure ${selectedModel.provider.toUpperCase()} API key in Settings`
+                    : !message.trim()
+                      ? "Enter a message"
+                      : "Send message"
+              }
+            >
               <Button
                 type="button"
                 size="sm"
@@ -344,9 +356,9 @@ export function ChatInputComponent({
                 disabled={!canSend}
                 className={cn(
                   "h-8 px-4 transition-all",
-                  canSend 
-                    ? "bg-blue-600 hover:bg-blue-700 text-white" 
-                    : "bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed"
+                  canSend
+                    ? "bg-blue-600 hover:bg-blue-700 text-white"
+                    : "bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed",
                 )}
               >
                 {loading.sendMessage ? (
@@ -377,12 +389,8 @@ export function ChatInputComponent({
 
         {/* Keyboard shortcut hint */}
         <div className="mt-2 flex items-center justify-between text-xs text-gray-400 dark:text-gray-500">
-          <span>
-            Press Enter to send, Shift + Enter for new line
-          </span>
-          {message.length > 0 && (
-            <span>{message.length}/4000</span>
-          )}
+          <span>Press Enter to send, Shift + Enter for new line</span>
+          {message.length > 0 && <span>{message.length}/4000</span>}
         </div>
       </div>
 

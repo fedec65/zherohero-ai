@@ -1,53 +1,67 @@
 /** @type {import('next').NextConfig} */
+const withBundleAnalyzer = require("@next/bundle-analyzer")({
+  enabled: process.env.ANALYZE === "true",
+  openAnalyzer: true,
+});
+
 const nextConfig = {
   // Enable experimental features for better performance
   experimental: {
-    serverComponentsExternalPackages: ['@vercel/analytics', '@vercel/speed-insights'],
-    optimizePackageImports: ['lucide-react', 'framer-motion'],
+    serverComponentsExternalPackages: [
+      "@vercel/analytics",
+      "@vercel/speed-insights",
+    ],
+    optimizePackageImports: ["lucide-react", "framer-motion"],
   },
 
   // Compiler options
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production' ? {
-      exclude: ['error', 'warn']
-    } : false,
+    removeConsole:
+      process.env.NODE_ENV === "production"
+        ? {
+            exclude: ["error", "warn"],
+          }
+        : false,
   },
 
   // Performance optimizations
   poweredByHeader: false,
   compress: true,
-  
+
   // Image optimization
   images: {
-    formats: ['image/avif', 'image/webp'],
+    formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 31536000,
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 
   // Bundle analysis and optimization
-  webpack: (config, { buildId, dev, isServer, defaultLoaders, nextRuntime, webpack }) => {
+  webpack: (
+    config,
+    { buildId, dev, isServer, defaultLoaders, nextRuntime, webpack },
+  ) => {
     // Bundle analyzer in development
     if (dev && !isServer) {
       try {
-        const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
-        if (process.env.ANALYZE === 'true') {
+        const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
+        if (process.env.ANALYZE === "true") {
           config.plugins.push(
             new BundleAnalyzerPlugin({
-              analyzerMode: 'server',
+              analyzerMode: "server",
               openAnalyzer: true,
-            })
+            }),
           );
         }
       } catch (error) {
-        console.warn('Bundle analyzer not available:', error.message);
+        console.warn("Bundle analyzer not available:", error.message);
       }
     }
 
     // Optimize chunks and reduce bundle size
     if (!dev) {
       config.optimization.splitChunks = {
-        chunks: 'all',
+        chunks: "all",
         minSize: 20000,
         minRemainingSize: 0,
         minChunks: 1,
@@ -57,22 +71,22 @@ const nextConfig = {
         cacheGroups: {
           ...config.optimization.splitChunks.cacheGroups,
           ai: {
-            name: 'ai-providers',
-            chunks: 'all',
+            name: "ai-providers",
+            chunks: "all",
             test: /[\\/]node_modules[\\/](openai|@anthropic-ai|@google\/generative-ai)[\\/]/,
             priority: 40,
             enforce: true,
           },
           ui: {
-            name: 'ui-components', 
-            chunks: 'all',
+            name: "ui-components",
+            chunks: "all",
             test: /[\\/]node_modules[\\/](@headlessui|framer-motion|lucide-react)[\\/]/,
             priority: 30,
             enforce: true,
           },
           sentry: {
-            name: 'sentry',
-            chunks: 'all',
+            name: "sentry",
+            chunks: "all",
             test: /[\\/]node_modules[\\/](@sentry)[\\/]/,
             priority: 20,
             enforce: true,
@@ -121,19 +135,21 @@ const nextConfig = {
       form-action 'self';
       frame-ancestors 'none';
       upgrade-insecure-requests;
-    `.replace(/\s{2,}/g, ' ').trim();
+    `
+      .replace(/\s{2,}/g, " ")
+      .trim();
 
     return [
       {
-        source: '/:path*',
+        source: "/:path*",
         headers: [
           {
-            key: 'Content-Security-Policy',
+            key: "Content-Security-Policy",
             value: contentSecurityPolicy,
           },
           {
-            key: 'Strict-Transport-Security',
-            value: 'max-age=31536000; includeSubDomains; preload',
+            key: "Strict-Transport-Security",
+            value: "max-age=31536000; includeSubDomains; preload",
           },
         ],
       },
@@ -144,8 +160,8 @@ const nextConfig = {
   async redirects() {
     return [
       {
-        source: '/chat',
-        destination: '/',
+        source: "/chat",
+        destination: "/",
         permanent: false,
       },
     ];
@@ -155,11 +171,11 @@ const nextConfig = {
   async rewrites() {
     return [
       {
-        source: '/api/v1/:path*',
-        destination: '/api/:path*',
+        source: "/api/v1/:path*",
+        destination: "/api/:path*",
       },
     ];
   },
 };
 
-module.exports = nextConfig;
+module.exports = withBundleAnalyzer(nextConfig);

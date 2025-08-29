@@ -1,21 +1,34 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Code, Database, Shield, Zap, RotateCcw, AlertTriangle } from 'lucide-react';
-import { cn } from '../../../lib/utils';
-import { useSettingsStore } from '../../../lib/stores/settings-store';
+import React, { useState } from "react";
+import {
+  Code,
+  Database,
+  Shield,
+  Zap,
+  RotateCcw,
+  AlertTriangle,
+} from "lucide-react";
+import { cn } from "../../../lib/utils";
+import { useSettingsStore } from "../../../lib/stores/settings-store";
 
 export function AdvancedTab() {
-  const { settings, updateSettings, resetSettings, getDeveloperSettings, setDeveloperSetting } = useSettingsStore();
+  const {
+    settings,
+    updateSettings,
+    resetSettings,
+    getDeveloperSettings,
+    setDeveloperSetting,
+  } = useSettingsStore();
   const [showDeveloperOptions, setShowDeveloperOptions] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
-  
+
   const developerSettings = getDeveloperSettings();
 
   const handleSettingChange = (key: keyof typeof settings, value: any) => {
     updateSettings({
       ...settings,
-      [key]: value
+      [key]: value,
     });
   };
 
@@ -35,7 +48,11 @@ export function AdvancedTab() {
   };
 
   const handleClearStorage = () => {
-    if (window.confirm('This will clear all local storage data including chats and settings. Are you sure?')) {
+    if (
+      window.confirm(
+        "This will clear all local storage data including chats and settings. Are you sure?",
+      )
+    ) {
       localStorage.clear();
       sessionStorage.clear();
       window.location.reload();
@@ -49,7 +66,8 @@ export function AdvancedTab() {
           Advanced Settings
         </h2>
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          Configure advanced features and developer options. Use caution when changing these settings.
+          Configure advanced features and developer options. Use caution when
+          changing these settings.
         </p>
       </div>
 
@@ -71,17 +89,21 @@ export function AdvancedTab() {
               </p>
             </div>
             <button
-              onClick={() => handleSettingChange('autoSave', !settings.autoSave)}
+              onClick={() =>
+                handleSettingChange("autoSave", !settings.autoSave)
+              }
               className={cn(
                 "relative inline-flex h-6 w-11 items-center rounded-full transition-colors",
                 "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
-                settings.autoSave ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"
+                settings.autoSave
+                  ? "bg-blue-600"
+                  : "bg-gray-300 dark:bg-gray-600",
               )}
             >
               <span
                 className={cn(
                   "inline-block h-4 w-4 transform rounded-full bg-white transition-transform",
-                  settings.autoSave ? "translate-x-6" : "translate-x-1"
+                  settings.autoSave ? "translate-x-6" : "translate-x-1",
                 )}
               />
             </button>
@@ -97,17 +119,21 @@ export function AdvancedTab() {
               </p>
             </div>
             <button
-              onClick={() => handleSettingChange('showTokenCount', !settings.showTokenCount)}
+              onClick={() =>
+                handleSettingChange("showTokenCount", !settings.showTokenCount)
+              }
               className={cn(
                 "relative inline-flex h-6 w-11 items-center rounded-full transition-colors",
                 "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
-                settings.showTokenCount ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"
+                settings.showTokenCount
+                  ? "bg-blue-600"
+                  : "bg-gray-300 dark:bg-gray-600",
               )}
             >
               <span
                 className={cn(
                   "inline-block h-4 w-4 transform rounded-full bg-white transition-transform",
-                  settings.showTokenCount ? "translate-x-6" : "translate-x-1"
+                  settings.showTokenCount ? "translate-x-6" : "translate-x-1",
                 )}
               />
             </button>
@@ -124,14 +150,14 @@ export function AdvancedTab() {
             </div>
             <select
               value={settings.fontSize}
-              onChange={(e) => handleSettingChange('fontSize', e.target.value)}
+              onChange={(e) => handleSettingChange("fontSize", e.target.value)}
               className={cn(
                 "w-full px-3 py-2 border rounded-lg",
                 "bg-white dark:bg-gray-800",
                 "border-gray-300 dark:border-gray-600",
                 "text-gray-900 dark:text-white",
                 "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
-                "transition-colors"
+                "transition-colors",
               )}
             >
               <option value="small">Small (14px)</option>
@@ -160,20 +186,26 @@ export function AdvancedTab() {
               </p>
             </div>
             <button
-              onClick={() => handleSettingChange('privacy', { 
-                ...settings.privacy, 
-                telemetry: !settings.privacy.telemetry 
-              })}
+              onClick={() =>
+                handleSettingChange("privacy", {
+                  ...settings.privacy,
+                  telemetry: !settings.privacy.telemetry,
+                })
+              }
               className={cn(
                 "relative inline-flex h-6 w-11 items-center rounded-full transition-colors",
                 "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
-                settings.privacy.telemetry ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"
+                settings.privacy.telemetry
+                  ? "bg-blue-600"
+                  : "bg-gray-300 dark:bg-gray-600",
               )}
             >
               <span
                 className={cn(
                   "inline-block h-4 w-4 transform rounded-full bg-white transition-transform",
-                  settings.privacy.telemetry ? "translate-x-6" : "translate-x-1"
+                  settings.privacy.telemetry
+                    ? "translate-x-6"
+                    : "translate-x-1",
                 )}
               />
             </button>
@@ -189,20 +221,26 @@ export function AdvancedTab() {
               </p>
             </div>
             <button
-              onClick={() => handleSettingChange('privacy', { 
-                ...settings.privacy, 
-                crashReporting: !settings.privacy.crashReporting 
-              })}
+              onClick={() =>
+                handleSettingChange("privacy", {
+                  ...settings.privacy,
+                  crashReporting: !settings.privacy.crashReporting,
+                })
+              }
               className={cn(
                 "relative inline-flex h-6 w-11 items-center rounded-full transition-colors",
                 "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
-                settings.privacy.crashReporting ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"
+                settings.privacy.crashReporting
+                  ? "bg-blue-600"
+                  : "bg-gray-300 dark:bg-gray-600",
               )}
             >
               <span
                 className={cn(
                   "inline-block h-4 w-4 transform rounded-full bg-white transition-transform",
-                  settings.privacy.crashReporting ? "translate-x-6" : "translate-x-1"
+                  settings.privacy.crashReporting
+                    ? "translate-x-6"
+                    : "translate-x-1",
                 )}
               />
             </button>
@@ -224,16 +262,24 @@ export function AdvancedTab() {
             </h4>
             <div className="space-y-1">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600 dark:text-gray-400">Settings</span>
+                <span className="text-gray-600 dark:text-gray-400">
+                  Settings
+                </span>
                 <span className="text-gray-900 dark:text-white">~2KB</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600 dark:text-gray-400">Chat History</span>
-                <span className="text-gray-900 dark:text-white">~{Math.round(Math.random() * 500 + 50)}KB</span>
+                <span className="text-gray-600 dark:text-gray-400">
+                  Chat History
+                </span>
+                <span className="text-gray-900 dark:text-white">
+                  ~{Math.round(Math.random() * 500 + 50)}KB
+                </span>
               </div>
               <div className="flex justify-between text-sm font-medium border-t pt-1">
                 <span className="text-gray-900 dark:text-white">Total</span>
-                <span className="text-gray-900 dark:text-white">~{Math.round(Math.random() * 500 + 52)}KB</span>
+                <span className="text-gray-900 dark:text-white">
+                  ~{Math.round(Math.random() * 500 + 52)}KB
+                </span>
               </div>
             </div>
           </div>
@@ -248,7 +294,7 @@ export function AdvancedTab() {
                 "w-full px-3 py-2 border border-red-300 dark:border-red-600 rounded-lg",
                 "text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20",
                 "focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2",
-                "transition-colors text-sm"
+                "transition-colors text-sm",
               )}
             >
               Clear All Data
@@ -268,7 +314,7 @@ export function AdvancedTab() {
             onClick={() => setShowDeveloperOptions(!showDeveloperOptions)}
             className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
           >
-            {showDeveloperOptions ? 'Hide' : 'Show'}
+            {showDeveloperOptions ? "Hide" : "Show"}
           </button>
         </div>
 
@@ -277,7 +323,8 @@ export function AdvancedTab() {
             <div className="flex items-start gap-2 p-3 bg-amber-50 dark:bg-amber-900/20 rounded border border-amber-200 dark:border-amber-800">
               <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5" />
               <p className="text-sm text-amber-800 dark:text-amber-200">
-                These options are intended for developers and advanced users. Changing these settings may affect application stability.
+                These options are intended for developers and advanced users.
+                Changing these settings may affect application stability.
               </p>
             </div>
 
@@ -292,17 +339,26 @@ export function AdvancedTab() {
                   </p>
                 </div>
                 <button
-                  onClick={() => handleDeveloperSettingChange('debugMode', !developerSettings.debugMode)}
+                  onClick={() =>
+                    handleDeveloperSettingChange(
+                      "debugMode",
+                      !developerSettings.debugMode,
+                    )
+                  }
                   className={cn(
                     "relative inline-flex h-6 w-11 items-center rounded-full transition-colors",
                     "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
-                    developerSettings.debugMode ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"
+                    developerSettings.debugMode
+                      ? "bg-blue-600"
+                      : "bg-gray-300 dark:bg-gray-600",
                   )}
                 >
                   <span
                     className={cn(
                       "inline-block h-4 w-4 transform rounded-full bg-white transition-transform",
-                      developerSettings.debugMode ? "translate-x-6" : "translate-x-1"
+                      developerSettings.debugMode
+                        ? "translate-x-6"
+                        : "translate-x-1",
                     )}
                   />
                 </button>
@@ -318,17 +374,26 @@ export function AdvancedTab() {
                   </p>
                 </div>
                 <button
-                  onClick={() => handleDeveloperSettingChange('enableExperimentalFeatures', !developerSettings.enableExperimentalFeatures)}
+                  onClick={() =>
+                    handleDeveloperSettingChange(
+                      "enableExperimentalFeatures",
+                      !developerSettings.enableExperimentalFeatures,
+                    )
+                  }
                   className={cn(
                     "relative inline-flex h-6 w-11 items-center rounded-full transition-colors",
                     "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
-                    developerSettings.enableExperimentalFeatures ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"
+                    developerSettings.enableExperimentalFeatures
+                      ? "bg-blue-600"
+                      : "bg-gray-300 dark:bg-gray-600",
                   )}
                 >
                   <span
                     className={cn(
                       "inline-block h-4 w-4 transform rounded-full bg-white transition-transform",
-                      developerSettings.enableExperimentalFeatures ? "translate-x-6" : "translate-x-1"
+                      developerSettings.enableExperimentalFeatures
+                        ? "translate-x-6"
+                        : "translate-x-1",
                     )}
                   />
                 </button>
@@ -344,14 +409,19 @@ export function AdvancedTab() {
                     min="1"
                     max="10"
                     value={Number(developerSettings.maxConcurrentRequests) || 3}
-                    onChange={(e) => handleDeveloperSettingChange('maxConcurrentRequests', parseInt(e.target.value))}
+                    onChange={(e) =>
+                      handleDeveloperSettingChange(
+                        "maxConcurrentRequests",
+                        parseInt(e.target.value),
+                      )
+                    }
                     className={cn(
                       "w-full px-3 py-2 border rounded-lg",
                       "bg-white dark:bg-gray-800",
                       "border-gray-300 dark:border-gray-600",
                       "text-gray-900 dark:text-white",
                       "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
-                      "transition-colors"
+                      "transition-colors",
                     )}
                   />
                 </div>
@@ -366,14 +436,19 @@ export function AdvancedTab() {
                     max="120000"
                     step="1000"
                     value={Number(developerSettings.requestTimeout) || 30000}
-                    onChange={(e) => handleDeveloperSettingChange('requestTimeout', parseInt(e.target.value))}
+                    onChange={(e) =>
+                      handleDeveloperSettingChange(
+                        "requestTimeout",
+                        parseInt(e.target.value),
+                      )
+                    }
                     className={cn(
                       "w-full px-3 py-2 border rounded-lg",
                       "bg-white dark:bg-gray-800",
                       "border-gray-300 dark:border-gray-600",
                       "text-gray-900 dark:text-white",
                       "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
-                      "transition-colors"
+                      "transition-colors",
                     )}
                   />
                 </div>
@@ -392,7 +467,8 @@ export function AdvancedTab() {
 
         <div className="p-4 border border-red-200 dark:border-red-800 rounded-lg bg-red-50 dark:bg-red-900/20">
           <p className="text-sm text-red-800 dark:text-red-200 mb-3">
-            This will reset all settings to their default values. Your chat history will not be affected.
+            This will reset all settings to their default values. Your chat
+            history will not be affected.
           </p>
           <button
             onClick={handleResetSettings}
@@ -401,10 +477,10 @@ export function AdvancedTab() {
               confirmReset
                 ? "bg-red-600 text-white hover:bg-red-700"
                 : "border border-red-300 dark:border-red-600 text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20",
-              "focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+              "focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2",
             )}
           >
-            {confirmReset ? 'Click again to confirm' : 'Reset All Settings'}
+            {confirmReset ? "Click again to confirm" : "Reset All Settings"}
           </button>
         </div>
       </div>

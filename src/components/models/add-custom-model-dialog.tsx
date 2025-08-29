@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import React, { useState, useCallback } from 'react';
-import { X, Globe, Check, AlertCircle, Loader2 } from 'lucide-react';
-import { clsx } from 'clsx';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Textarea } from '../ui/textarea';
-import { Dialog } from '../ui/dialog';
-import { useModelStore } from '../../lib/stores/model-store';
-import type { CustomModel, ModelCapability } from '../../lib/stores/types';
+import React, { useState, useCallback } from "react";
+import { X, Globe, Check, AlertCircle, Loader2 } from "lucide-react";
+import { clsx } from "clsx";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
+import { Dialog } from "../ui/dialog";
+import { useModelStore } from "../../lib/stores/model-store";
+import type { CustomModel, ModelCapability } from "../../lib/stores/types";
 
 interface AddCustomModelDialogProps {
   open: boolean;
@@ -27,32 +27,37 @@ interface FormData {
 }
 
 const defaultFormData: FormData = {
-  name: '',
-  apiEndpoint: '',
+  name: "",
+  apiEndpoint: "",
   apiKeyRequired: true,
   contextWindow: 4096,
   maxTokens: 2048,
-  description: '',
-  capabilities: ['text-generation'],
+  description: "",
+  capabilities: ["text-generation"],
   headers: {},
 };
 
 const availableCapabilities: { value: ModelCapability; label: string }[] = [
-  { value: 'text-generation', label: 'Text Generation' },
-  { value: 'code-generation', label: 'Code Generation' },
-  { value: 'image-understanding', label: 'Image Understanding' },
-  { value: 'function-calling', label: 'Function Calling' },
-  { value: 'json-mode', label: 'JSON Mode' },
-  { value: 'streaming', label: 'Streaming' },
+  { value: "text-generation", label: "Text Generation" },
+  { value: "code-generation", label: "Code Generation" },
+  { value: "image-understanding", label: "Image Understanding" },
+  { value: "function-calling", label: "Function Calling" },
+  { value: "json-mode", label: "JSON Mode" },
+  { value: "streaming", label: "Streaming" },
 ];
 
-export function AddCustomModelDialog({ open, onOpenChange }: AddCustomModelDialogProps) {
+export function AddCustomModelDialog({
+  open,
+  onOpenChange,
+}: AddCustomModelDialogProps) {
   const [formData, setFormData] = useState<FormData>(defaultFormData);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isTestingEndpoint, setIsTestingEndpoint] = useState(false);
-  const [endpointTestResult, setEndpointTestResult] = useState<'success' | 'error' | null>(null);
+  const [endpointTestResult, setEndpointTestResult] = useState<
+    "success" | "error" | null
+  >(null);
 
-  const { addCustomModel, loading } = useModelStore(state => ({
+  const { addCustomModel, loading } = useModelStore((state) => ({
     addCustomModel: state.addCustomModel,
     loading: state.loading.addCustomModel,
   }));
@@ -61,29 +66,29 @@ export function AddCustomModelDialog({ open, onOpenChange }: AddCustomModelDialo
     const newErrors: Record<string, string> = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = 'Model name is required';
+      newErrors.name = "Model name is required";
     }
 
     if (!formData.apiEndpoint.trim()) {
-      newErrors.apiEndpoint = 'API endpoint is required';
+      newErrors.apiEndpoint = "API endpoint is required";
     } else {
       try {
         new URL(formData.apiEndpoint);
       } catch {
-        newErrors.apiEndpoint = 'Please enter a valid URL';
+        newErrors.apiEndpoint = "Please enter a valid URL";
       }
     }
 
     if (formData.contextWindow <= 0) {
-      newErrors.contextWindow = 'Context window must be greater than 0';
+      newErrors.contextWindow = "Context window must be greater than 0";
     }
 
     if (formData.maxTokens <= 0) {
-      newErrors.maxTokens = 'Max tokens must be greater than 0';
+      newErrors.maxTokens = "Max tokens must be greater than 0";
     }
 
     if (formData.capabilities.length === 0) {
-      newErrors.capabilities = 'At least one capability must be selected';
+      newErrors.capabilities = "At least one capability must be selected";
     }
 
     setErrors(newErrors);
@@ -99,60 +104,66 @@ export function AddCustomModelDialog({ open, onOpenChange }: AddCustomModelDialo
     try {
       // Simple connectivity test - try to reach the endpoint
       const response = await fetch(formData.apiEndpoint, {
-        method: 'HEAD',
-        mode: 'no-cors',
+        method: "HEAD",
+        mode: "no-cors",
       });
-      setEndpointTestResult('success');
+      setEndpointTestResult("success");
     } catch (error) {
-      setEndpointTestResult('error');
+      setEndpointTestResult("error");
     } finally {
       setIsTestingEndpoint(false);
     }
   }, [formData.apiEndpoint]);
 
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateForm()) return;
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
 
-    try {
-      const customModel: Omit<CustomModel, 'id'> = {
-        name: formData.name.trim(),
-        provider: 'custom',
-        contextWindow: formData.contextWindow,
-        maxTokens: formData.maxTokens,
-        capabilities: formData.capabilities,
-        apiEndpoint: formData.apiEndpoint.trim(),
-        apiKeyRequired: formData.apiKeyRequired,
-        headers: formData.headers,
-      };
+      if (!validateForm()) return;
 
-      await addCustomModel(customModel);
-      
-      // Reset form and close dialog
-      setFormData(defaultFormData);
-      setErrors({});
-      setEndpointTestResult(null);
-      onOpenChange(false);
-    } catch (error) {
-      console.error('Failed to add custom model:', error);
-      setErrors({ submit: 'Failed to add model. Please try again.' });
-    }
-  }, [formData, validateForm, addCustomModel, onOpenChange]);
+      try {
+        const customModel: Omit<CustomModel, "id"> = {
+          name: formData.name.trim(),
+          provider: "custom",
+          contextWindow: formData.contextWindow,
+          maxTokens: formData.maxTokens,
+          capabilities: formData.capabilities,
+          apiEndpoint: formData.apiEndpoint.trim(),
+          apiKeyRequired: formData.apiKeyRequired,
+          headers: formData.headers,
+        };
 
-  const handleInputChange = useCallback((field: keyof FormData, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
-    }
-  }, [errors]);
+        await addCustomModel(customModel);
+
+        // Reset form and close dialog
+        setFormData(defaultFormData);
+        setErrors({});
+        setEndpointTestResult(null);
+        onOpenChange(false);
+      } catch (error) {
+        console.error("Failed to add custom model:", error);
+        setErrors({ submit: "Failed to add model. Please try again." });
+      }
+    },
+    [formData, validateForm, addCustomModel, onOpenChange],
+  );
+
+  const handleInputChange = useCallback(
+    (field: keyof FormData, value: any) => {
+      setFormData((prev) => ({ ...prev, [field]: value }));
+      // Clear error when user starts typing
+      if (errors[field]) {
+        setErrors((prev) => ({ ...prev, [field]: "" }));
+      }
+    },
+    [errors],
+  );
 
   const handleCapabilityToggle = useCallback((capability: ModelCapability) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       capabilities: prev.capabilities.includes(capability)
-        ? prev.capabilities.filter(c => c !== capability)
+        ? prev.capabilities.filter((c) => c !== capability)
         : [...prev.capabilities, capability],
     }));
   }, []);
@@ -205,12 +216,16 @@ export function AddCustomModelDialog({ open, onOpenChange }: AddCustomModelDialo
                 type="text"
                 placeholder="e.g., My Custom GPT"
                 value={formData.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
+                onChange={(e) => handleInputChange("name", e.target.value)}
                 error={errors.name}
-                className={clsx(errors.name && 'border-red-300 dark:border-red-700')}
+                className={clsx(
+                  errors.name && "border-red-300 dark:border-red-700",
+                )}
               />
               {errors.name && (
-                <p className="text-sm text-red-600 dark:text-red-400">{errors.name}</p>
+                <p className="text-sm text-red-600 dark:text-red-400">
+                  {errors.name}
+                </p>
               )}
             </div>
 
@@ -224,11 +239,13 @@ export function AddCustomModelDialog({ open, onOpenChange }: AddCustomModelDialo
                   type="url"
                   placeholder="https://api.example.com/v1/chat/completions"
                   value={formData.apiEndpoint}
-                  onChange={(e) => handleInputChange('apiEndpoint', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("apiEndpoint", e.target.value)
+                  }
                   error={errors.apiEndpoint}
                   className={clsx(
-                    'flex-1',
-                    errors.apiEndpoint && 'border-red-300 dark:border-red-700'
+                    "flex-1",
+                    errors.apiEndpoint && "border-red-300 dark:border-red-700",
                   )}
                 />
                 <Button
@@ -241,25 +258,27 @@ export function AddCustomModelDialog({ open, onOpenChange }: AddCustomModelDialo
                 >
                   {isTestingEndpoint ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : endpointTestResult === 'success' ? (
+                  ) : endpointTestResult === "success" ? (
                     <Check className="w-4 h-4 text-green-600" />
-                  ) : endpointTestResult === 'error' ? (
+                  ) : endpointTestResult === "error" ? (
                     <AlertCircle className="w-4 h-4 text-red-600" />
                   ) : (
-                    'Test'
+                    "Test"
                   )}
                 </Button>
               </div>
               {errors.apiEndpoint && (
-                <p className="text-sm text-red-600 dark:text-red-400">{errors.apiEndpoint}</p>
+                <p className="text-sm text-red-600 dark:text-red-400">
+                  {errors.apiEndpoint}
+                </p>
               )}
-              {endpointTestResult === 'success' && (
+              {endpointTestResult === "success" && (
                 <p className="text-sm text-green-600 dark:text-green-400 flex items-center gap-1">
                   <Check className="w-4 h-4" />
                   Endpoint is reachable
                 </p>
               )}
-              {endpointTestResult === 'error' && (
+              {endpointTestResult === "error" && (
                 <p className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
                   <AlertCircle className="w-4 h-4" />
                   Unable to reach endpoint
@@ -279,11 +298,18 @@ export function AddCustomModelDialog({ open, onOpenChange }: AddCustomModelDialo
                   max="2000000"
                   placeholder="4096"
                   value={formData.contextWindow}
-                  onChange={(e) => handleInputChange('contextWindow', parseInt(e.target.value) || 0)}
+                  onChange={(e) =>
+                    handleInputChange(
+                      "contextWindow",
+                      parseInt(e.target.value) || 0,
+                    )
+                  }
                   error={errors.contextWindow}
                 />
                 {errors.contextWindow && (
-                  <p className="text-sm text-red-600 dark:text-red-400">{errors.contextWindow}</p>
+                  <p className="text-sm text-red-600 dark:text-red-400">
+                    {errors.contextWindow}
+                  </p>
                 )}
               </div>
               <div className="space-y-2">
@@ -296,11 +322,18 @@ export function AddCustomModelDialog({ open, onOpenChange }: AddCustomModelDialo
                   max="100000"
                   placeholder="2048"
                   value={formData.maxTokens}
-                  onChange={(e) => handleInputChange('maxTokens', parseInt(e.target.value) || 0)}
+                  onChange={(e) =>
+                    handleInputChange(
+                      "maxTokens",
+                      parseInt(e.target.value) || 0,
+                    )
+                  }
                   error={errors.maxTokens}
                 />
                 {errors.maxTokens && (
-                  <p className="text-sm text-red-600 dark:text-red-400">{errors.maxTokens}</p>
+                  <p className="text-sm text-red-600 dark:text-red-400">
+                    {errors.maxTokens}
+                  </p>
                 )}
               </div>
             </div>
@@ -311,10 +344,15 @@ export function AddCustomModelDialog({ open, onOpenChange }: AddCustomModelDialo
                 type="checkbox"
                 id="apiKeyRequired"
                 checked={formData.apiKeyRequired}
-                onChange={(e) => handleInputChange('apiKeyRequired', e.target.checked)}
+                onChange={(e) =>
+                  handleInputChange("apiKeyRequired", e.target.checked)
+                }
                 className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
               />
-              <label htmlFor="apiKeyRequired" className="text-sm text-gray-700 dark:text-gray-300">
+              <label
+                htmlFor="apiKeyRequired"
+                className="text-sm text-gray-700 dark:text-gray-300"
+              >
                 Requires API key authentication
               </label>
             </div>
@@ -336,12 +374,16 @@ export function AddCustomModelDialog({ open, onOpenChange }: AddCustomModelDialo
                       onChange={() => handleCapabilityToggle(value)}
                       className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
                     />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">{label}</span>
+                    <span className="text-sm text-gray-700 dark:text-gray-300">
+                      {label}
+                    </span>
                   </label>
                 ))}
               </div>
               {errors.capabilities && (
-                <p className="text-sm text-red-600 dark:text-red-400">{errors.capabilities}</p>
+                <p className="text-sm text-red-600 dark:text-red-400">
+                  {errors.capabilities}
+                </p>
               )}
             </div>
 
@@ -353,7 +395,9 @@ export function AddCustomModelDialog({ open, onOpenChange }: AddCustomModelDialo
               <Textarea
                 placeholder="Describe your custom model..."
                 value={formData.description}
-                onChange={(e) => handleInputChange('description', e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("description", e.target.value)
+                }
                 rows={3}
               />
             </div>
@@ -362,7 +406,9 @@ export function AddCustomModelDialog({ open, onOpenChange }: AddCustomModelDialo
           {/* Submit Error */}
           {errors.submit && (
             <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-              <p className="text-sm text-red-600 dark:text-red-400">{errors.submit}</p>
+              <p className="text-sm text-red-600 dark:text-red-400">
+                {errors.submit}
+              </p>
             </div>
           )}
 
@@ -380,9 +426,13 @@ export function AddCustomModelDialog({ open, onOpenChange }: AddCustomModelDialo
               type="submit"
               variant="primary"
               disabled={loading}
-              leftIcon={loading ? <Loader2 className="w-4 h-4 animate-spin" /> : undefined}
+              leftIcon={
+                loading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : undefined
+              }
             >
-              {loading ? 'Adding Model...' : 'Add Model'}
+              {loading ? "Adding Model..." : "Add Model"}
             </Button>
           </div>
         </form>

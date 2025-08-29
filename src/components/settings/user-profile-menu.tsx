@@ -1,8 +1,15 @@
-'use client';
+"use client";
 
-import React, { useState, useRef, useEffect } from 'react';
-import { Settings, User, LogOut, HelpCircle, Keyboard, Shield } from 'lucide-react';
-import { cn } from '../../lib/utils';
+import React, { useState, useRef, useEffect } from "react";
+import {
+  Settings,
+  User,
+  LogOut,
+  HelpCircle,
+  Keyboard,
+  Shield,
+} from "lucide-react";
+import { cn } from "../../lib/utils";
 
 interface UserProfileMenuProps {
   onSettingsClick: () => void;
@@ -11,11 +18,11 @@ interface UserProfileMenuProps {
   userImage?: string;
 }
 
-export function UserProfileMenu({ 
-  onSettingsClick, 
-  userName = 'User',
+export function UserProfileMenu({
+  onSettingsClick,
+  userName = "User",
   userEmail,
-  userImage 
+  userImage,
 }: UserProfileMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -30,22 +37,23 @@ export function UserProfileMenu({
     };
 
     if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
+      return () =>
+        document.removeEventListener("mousedown", handleClickOutside);
     }
   }, [isOpen]);
 
   // Close menu on escape key
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
+      if (event.key === "Escape") {
         setIsOpen(false);
       }
     };
 
     if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
-      return () => document.removeEventListener('keydown', handleEscape);
+      document.addEventListener("keydown", handleEscape);
+      return () => document.removeEventListener("keydown", handleEscape);
     }
   }, [isOpen]);
 
@@ -57,48 +65,48 @@ export function UserProfileMenu({
   const menuItems = [
     {
       icon: User,
-      label: 'Profile',
+      label: "Profile",
       action: () => {
         // TODO: Implement profile management
-        console.log('Profile clicked');
-      }
+        console.log("Profile clicked");
+      },
     },
     {
       icon: Settings,
-      label: 'Settings',
-      action: onSettingsClick
+      label: "Settings",
+      action: onSettingsClick,
     },
     {
       icon: Keyboard,
-      label: 'Keyboard Shortcuts',
+      label: "Keyboard Shortcuts",
       action: () => {
         // TODO: Implement keyboard shortcuts modal
-        console.log('Keyboard shortcuts clicked');
-      }
+        console.log("Keyboard shortcuts clicked");
+      },
     },
     {
       icon: HelpCircle,
-      label: 'Help & Support',
+      label: "Help & Support",
       action: () => {
-        window.open('/help', '_blank');
-      }
+        window.open("/help", "_blank");
+      },
     },
     {
       icon: Shield,
-      label: 'Privacy',
+      label: "Privacy",
       action: () => {
-        window.open('/privacy', '_blank');
-      }
+        window.open("/privacy", "_blank");
+      },
     },
     {
       icon: LogOut,
-      label: 'Sign Out',
+      label: "Sign Out",
       action: () => {
         // TODO: Implement sign out functionality
-        console.log('Sign out clicked');
+        console.log("Sign out clicked");
       },
-      divider: true
-    }
+      divider: true,
+    },
   ];
 
   const initial = userName.charAt(0).toUpperCase();
@@ -109,12 +117,14 @@ export function UserProfileMenu({
         ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          'h-8 w-8 rounded-full flex items-center justify-center',
-          'ring-2 ring-gray-200 dark:ring-gray-700',
-          'hover:ring-blue-300 dark:hover:ring-blue-600 transition-all',
-          'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
-          'cursor-pointer',
-          userImage ? 'overflow-hidden' : 'bg-gradient-to-br from-blue-500 to-purple-600'
+          "h-8 w-8 rounded-full flex items-center justify-center",
+          "ring-2 ring-gray-200 dark:ring-gray-700",
+          "hover:ring-blue-300 dark:hover:ring-blue-600 transition-all",
+          "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
+          "cursor-pointer",
+          userImage
+            ? "overflow-hidden"
+            : "bg-gradient-to-br from-blue-500 to-purple-600",
         )}
         aria-label="User menu"
         aria-expanded={isOpen}
@@ -127,21 +137,19 @@ export function UserProfileMenu({
             className="h-full w-full object-cover"
           />
         ) : (
-          <span className="text-white text-sm font-medium">
-            {initial}
-          </span>
+          <span className="text-white text-sm font-medium">{initial}</span>
         )}
       </button>
 
       {isOpen && (
         <div
           className={cn(
-            'absolute bottom-full right-0 mb-2 w-56',
-            'bg-white dark:bg-gray-900',
-            'border border-gray-200 dark:border-gray-700',
-            'rounded-lg shadow-lg',
-            'py-1',
-            'z-50'
+            "absolute bottom-full right-0 mb-2 w-56",
+            "bg-white dark:bg-gray-900",
+            "border border-gray-200 dark:border-gray-700",
+            "rounded-lg shadow-lg",
+            "py-1",
+            "z-50",
           )}
           role="menu"
           aria-orientation="vertical"
@@ -149,10 +157,14 @@ export function UserProfileMenu({
           {/* User info header */}
           <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center gap-3">
-              <div className={cn(
-                'h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0',
-                userImage ? 'overflow-hidden' : 'bg-gradient-to-br from-blue-500 to-purple-600'
-              )}>
+              <div
+                className={cn(
+                  "h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0",
+                  userImage
+                    ? "overflow-hidden"
+                    : "bg-gradient-to-br from-blue-500 to-purple-600",
+                )}
+              >
                 {userImage ? (
                   <img
                     src={userImage}
@@ -190,11 +202,11 @@ export function UserProfileMenu({
                   <button
                     onClick={() => handleMenuItemClick(item.action)}
                     className={cn(
-                      'w-full flex items-center gap-3 px-4 py-2 text-left',
-                      'text-sm text-gray-700 dark:text-gray-300',
-                      'hover:bg-gray-50 dark:hover:bg-gray-800',
-                      'focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-800',
-                      'transition-colors'
+                      "w-full flex items-center gap-3 px-4 py-2 text-left",
+                      "text-sm text-gray-700 dark:text-gray-300",
+                      "hover:bg-gray-50 dark:hover:bg-gray-800",
+                      "focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-800",
+                      "transition-colors",
                     )}
                     role="menuitem"
                   >

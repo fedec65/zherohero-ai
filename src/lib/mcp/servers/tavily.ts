@@ -1,26 +1,26 @@
 /**
  * Tavily Search MCP Server Implementation
- * 
+ *
  * Implements the Model Context Protocol for Tavily Search integration,
  * providing web search tools and resources for AI models.
  */
 
-import { 
-  TavilySearchClient, 
-  TavilyConfig, 
+import {
+  TavilySearchClient,
+  TavilyConfig,
   TavilyError,
   formatSearchResultsForAI,
   validateSearchQuery,
-  extractDomain
-} from '../../services/tavily-search';
-import { MCPServer, MCPCapability } from '../../stores/types';
+  extractDomain,
+} from "../../services/tavily-search";
+import { MCPServer, MCPCapability } from "../../stores/types";
 
 // MCP Protocol types
 export interface MCPTool {
   name: string;
   description: string;
   inputSchema: {
-    type: 'object';
+    type: "object";
     properties: Record<string, unknown>;
     required?: string[];
   };
@@ -40,7 +40,7 @@ export interface MCPToolCallParams {
 
 export interface MCPToolResult {
   content: Array<{
-    type: 'text' | 'image' | 'resource';
+    type: "text" | "image" | "resource";
     text?: string;
     data?: string;
     mimeType?: string;
@@ -71,25 +71,28 @@ export class TavilyMCPServer {
    */
   async initialize(): Promise<void> {
     const apiKey = this.config.config.apiKey as string;
-    
+
     if (!apiKey) {
-      throw new Error('Tavily API key is required');
+      throw new Error("Tavily API key is required");
     }
 
     try {
       this.client = new TavilySearchClient({
         apiKey,
         maxResults: (this.config.config.maxResults as number) || 10,
-        searchDepth: (this.config.config.searchDepth as 'basic' | 'advanced') || 'advanced',
+        searchDepth:
+          (this.config.config.searchDepth as "basic" | "advanced") ||
+          "advanced",
         includeImages: (this.config.config.includeImages as boolean) || false,
         includeAnswer: (this.config.config.includeAnswer as boolean) ?? true,
-        includeRawContent: (this.config.config.includeRawContent as boolean) || false,
+        includeRawContent:
+          (this.config.config.includeRawContent as boolean) || false,
       });
 
       // Test the connection
       const testResult = await this.client.testConnection();
       if (!testResult.success) {
-        throw new Error(testResult.error || 'Connection test failed');
+        throw new Error(testResult.error || "Connection test failed");
       }
 
       this.isConnected = true;
@@ -114,7 +117,11 @@ export class TavilyMCPServer {
   /**
    * Check if server is healthy
    */
-  async healthCheck(): Promise<{ healthy: boolean; latency: number; capabilities: MCPCapability[] }> {
+  async healthCheck(): Promise<{
+    healthy: boolean;
+    latency: number;
+    capabilities: MCPCapability[];
+  }> {
     if (!this.client || !this.isConnected) {
       return {
         healthy: false,
@@ -126,7 +133,7 @@ export class TavilyMCPServer {
     try {
       const testResult = await this.client.testConnection();
       this.lastHealthCheck = new Date();
-      
+
       return {
         healthy: testResult.success,
         latency: testResult.latency,
@@ -145,7 +152,7 @@ export class TavilyMCPServer {
    * Get server capabilities
    */
   getCapabilities(): MCPCapability[] {
-    return ['tools', 'resources'];
+    return ["tools", "resources"];
   }
 
   /**
@@ -154,91 +161,95 @@ export class TavilyMCPServer {
   getTools(): MCPTool[] {
     return [
       {
-        name: 'tavily_search',
-        description: 'Search the web using Tavily API for real-time information, news, and content. Returns relevant search results with content summaries.',
+        name: "tavily_search",
+        description:
+          "Search the web using Tavily API for real-time information, news, and content. Returns relevant search results with content summaries.",
         inputSchema: {
-          type: 'object',
+          type: "object",
           properties: {
             query: {
-              type: 'string',
-              description: 'The search query to execute',
+              type: "string",
+              description: "The search query to execute",
             },
             search_depth: {
-              type: 'string',
-              enum: ['basic', 'advanced'],
-              description: 'Search depth: basic for quick results, advanced for comprehensive search',
-              default: 'advanced',
+              type: "string",
+              enum: ["basic", "advanced"],
+              description:
+                "Search depth: basic for quick results, advanced for comprehensive search",
+              default: "advanced",
             },
             max_results: {
-              type: 'integer',
+              type: "integer",
               minimum: 1,
               maximum: 20,
-              description: 'Maximum number of search results to return',
+              description: "Maximum number of search results to return",
               default: 10,
             },
             include_answer: {
-              type: 'boolean',
-              description: 'Include a quick answer summary if available',
+              type: "boolean",
+              description: "Include a quick answer summary if available",
               default: true,
             },
             include_images: {
-              type: 'boolean',
-              description: 'Include related images in results',
+              type: "boolean",
+              description: "Include related images in results",
               default: false,
             },
             include_domains: {
-              type: 'array',
-              items: { type: 'string' },
-              description: 'Only include results from these domains',
+              type: "array",
+              items: { type: "string" },
+              description: "Only include results from these domains",
             },
             exclude_domains: {
-              type: 'array',
-              items: { type: 'string' },
-              description: 'Exclude results from these domains',
+              type: "array",
+              items: { type: "string" },
+              description: "Exclude results from these domains",
             },
             days: {
-              type: 'integer',
+              type: "integer",
               minimum: 1,
               maximum: 365,
-              description: 'Restrict results to content from the last N days',
+              description: "Restrict results to content from the last N days",
             },
             topic: {
-              type: 'string',
-              enum: ['general', 'news', 'finance', 'academic'],
-              description: 'Search topic focus',
-              default: 'general',
+              type: "string",
+              enum: ["general", "news", "finance", "academic"],
+              description: "Search topic focus",
+              default: "general",
             },
           },
-          required: ['query'],
+          required: ["query"],
         },
       },
       {
-        name: 'tavily_extract',
-        description: 'Extract and summarize content from specific URLs using Tavily API. Useful for getting clean, readable content from web pages.',
+        name: "tavily_extract",
+        description:
+          "Extract and summarize content from specific URLs using Tavily API. Useful for getting clean, readable content from web pages.",
         inputSchema: {
-          type: 'object',
+          type: "object",
           properties: {
             urls: {
-              type: 'array',
-              items: { type: 'string' },
+              type: "array",
+              items: { type: "string" },
               minItems: 1,
               maxItems: 5,
-              description: 'URLs to extract content from (max 5)',
+              description: "URLs to extract content from (max 5)",
             },
             include_raw_content: {
-              type: 'boolean',
-              description: 'Include raw HTML content along with processed text',
+              type: "boolean",
+              description: "Include raw HTML content along with processed text",
               default: false,
             },
           },
-          required: ['urls'],
+          required: ["urls"],
         },
       },
       {
-        name: 'tavily_get_usage',
-        description: 'Get current API usage statistics and remaining quota for Tavily API.',
+        name: "tavily_get_usage",
+        description:
+          "Get current API usage statistics and remaining quota for Tavily API.",
         inputSchema: {
-          type: 'object',
+          type: "object",
           properties: {},
         },
       },
@@ -251,16 +262,16 @@ export class TavilyMCPServer {
   getResources(): MCPResource[] {
     const resources: MCPResource[] = [
       {
-        uri: 'tavily://search-history',
-        name: 'Search History',
-        description: 'Recent search queries and their results',
-        mimeType: 'application/json',
+        uri: "tavily://search-history",
+        name: "Search History",
+        description: "Recent search queries and their results",
+        mimeType: "application/json",
       },
       {
-        uri: 'tavily://cache-stats',
-        name: 'Cache Statistics',
-        description: 'Current cache usage and performance statistics',
-        mimeType: 'application/json',
+        uri: "tavily://cache-stats",
+        name: "Cache Statistics",
+        description: "Current cache usage and performance statistics",
+        mimeType: "application/json",
       },
     ];
 
@@ -268,9 +279,9 @@ export class TavilyMCPServer {
     this.searchHistory.forEach((entry, index) => {
       resources.push({
         uri: `tavily://search-history/${index}`,
-        name: `Search: "${entry.query.substring(0, 50)}${entry.query.length > 50 ? '...' : ''}"`,
+        name: `Search: "${entry.query.substring(0, 50)}${entry.query.length > 50 ? "..." : ""}"`,
         description: `Search performed on ${entry.timestamp.toLocaleString()} (${entry.resultCount} results)`,
-        mimeType: 'application/json',
+        mimeType: "application/json",
       });
     });
 
@@ -283,31 +294,35 @@ export class TavilyMCPServer {
   async executeTool(params: MCPToolCallParams): Promise<MCPToolResult> {
     if (!this.client || !this.isConnected) {
       return {
-        content: [{
-          type: 'text',
-          text: 'Tavily Search server is not connected. Please check your API key and connection.',
-        }],
+        content: [
+          {
+            type: "text",
+            text: "Tavily Search server is not connected. Please check your API key and connection.",
+          },
+        ],
         isError: true,
       };
     }
 
     try {
       switch (params.name) {
-        case 'tavily_search':
+        case "tavily_search":
           return await this.executeSearch(params.arguments);
-        case 'tavily_extract':
+        case "tavily_extract":
           return await this.executeExtract(params.arguments);
-        case 'tavily_get_usage':
+        case "tavily_get_usage":
           return await this.executeGetUsage();
         default:
           throw new Error(`Unknown tool: ${params.name}`);
       }
     } catch (error) {
       return {
-        content: [{
-          type: 'text',
-          text: `Error executing ${params.name}: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        }],
+        content: [
+          {
+            type: "text",
+            text: `Error executing ${params.name}: ${error instanceof Error ? error.message : "Unknown error"}`,
+          },
+        ],
         isError: true,
       };
     }
@@ -316,17 +331,21 @@ export class TavilyMCPServer {
   /**
    * Execute search tool
    */
-  private async executeSearch(args: Record<string, unknown>): Promise<MCPToolResult> {
+  private async executeSearch(
+    args: Record<string, unknown>,
+  ): Promise<MCPToolResult> {
     const query = args.query as string;
-    
+
     // Validate query
     const validation = validateSearchQuery(query);
     if (!validation.isValid) {
       return {
-        content: [{
-          type: 'text',
-          text: `Invalid search query: ${validation.error}`,
-        }],
+        content: [
+          {
+            type: "text",
+            text: `Invalid search query: ${validation.error}`,
+          },
+        ],
         isError: true,
       };
     }
@@ -334,25 +353,27 @@ export class TavilyMCPServer {
     try {
       const searchParams = {
         query,
-        search_depth: (args.search_depth as 'basic' | 'advanced') || 'advanced',
+        search_depth: (args.search_depth as "basic" | "advanced") || "advanced",
         max_results: (args.max_results as number) || 10,
         include_answer: (args.include_answer as boolean) ?? true,
         include_images: (args.include_images as boolean) || false,
         include_domains: args.include_domains as string[] | undefined,
         exclude_domains: args.exclude_domains as string[] | undefined,
         days: args.days as number | undefined,
-        topic: (args.topic as 'general' | 'news' | 'finance' | 'academic') || 'general',
+        topic:
+          (args.topic as "general" | "news" | "finance" | "academic") ||
+          "general",
       };
 
       const result = await this.client!.search(searchParams);
-      
+
       // Add to search history
       this.searchHistory.unshift({
         query,
         timestamp: new Date(),
         resultCount: result.results.length,
       });
-      
+
       // Keep only last 50 searches
       if (this.searchHistory.length > 50) {
         this.searchHistory = this.searchHistory.slice(0, 50);
@@ -360,29 +381,34 @@ export class TavilyMCPServer {
 
       // Format results for AI consumption
       const formattedResults = formatSearchResultsForAI(result);
-      
-      const content: MCPToolResult['content'] = [{
-        type: 'text',
-        text: formattedResults,
-      }];
+
+      const content: MCPToolResult["content"] = [
+        {
+          type: "text",
+          text: formattedResults,
+        },
+      ];
 
       // Add structured data as JSON
       content.push({
-        type: 'text',
+        type: "text",
         text: `\n\n--- RAW DATA ---\n${JSON.stringify(result, null, 2)}`,
       });
 
       return { content };
     } catch (error) {
-      const errorMessage = error instanceof TavilyError 
-        ? `Tavily API Error: ${error.message}` 
-        : `Search failed: ${error instanceof Error ? error.message : 'Unknown error'}`;
+      const errorMessage =
+        error instanceof TavilyError
+          ? `Tavily API Error: ${error.message}`
+          : `Search failed: ${error instanceof Error ? error.message : "Unknown error"}`;
 
       return {
-        content: [{
-          type: 'text',
-          text: errorMessage,
-        }],
+        content: [
+          {
+            type: "text",
+            text: errorMessage,
+          },
+        ],
         isError: true,
       };
     }
@@ -391,25 +417,31 @@ export class TavilyMCPServer {
   /**
    * Execute extract tool
    */
-  private async executeExtract(args: Record<string, unknown>): Promise<MCPToolResult> {
+  private async executeExtract(
+    args: Record<string, unknown>,
+  ): Promise<MCPToolResult> {
     const urls = args.urls as string[];
-    
+
     if (!urls || !Array.isArray(urls) || urls.length === 0) {
       return {
-        content: [{
-          type: 'text',
-          text: 'URLs array is required and cannot be empty',
-        }],
+        content: [
+          {
+            type: "text",
+            text: "URLs array is required and cannot be empty",
+          },
+        ],
         isError: true,
       };
     }
 
     if (urls.length > 5) {
       return {
-        content: [{
-          type: 'text',
-          text: 'Maximum 5 URLs allowed per extraction request',
-        }],
+        content: [
+          {
+            type: "text",
+            text: "Maximum 5 URLs allowed per extraction request",
+          },
+        ],
         isError: true,
       };
     }
@@ -421,7 +453,7 @@ export class TavilyMCPServer {
       };
 
       const result = await this.client!.extract(extractParams);
-      
+
       let formattedContent = `Content Extraction Results:\n\n`;
       formattedContent += `Successfully extracted: ${result.results.length} URLs\n`;
       formattedContent += `Failed extractions: ${result.failed_results.length} URLs\n\n`;
@@ -442,28 +474,33 @@ export class TavilyMCPServer {
         });
       }
 
-      const content: MCPToolResult['content'] = [{
-        type: 'text',
-        text: formattedContent,
-      }];
+      const content: MCPToolResult["content"] = [
+        {
+          type: "text",
+          text: formattedContent,
+        },
+      ];
 
       // Add raw data
       content.push({
-        type: 'text',
+        type: "text",
         text: `\n\n--- RAW DATA ---\n${JSON.stringify(result, null, 2)}`,
       });
 
       return { content };
     } catch (error) {
-      const errorMessage = error instanceof TavilyError 
-        ? `Tavily API Error: ${error.message}` 
-        : `Extraction failed: ${error instanceof Error ? error.message : 'Unknown error'}`;
+      const errorMessage =
+        error instanceof TavilyError
+          ? `Tavily API Error: ${error.message}`
+          : `Extraction failed: ${error instanceof Error ? error.message : "Unknown error"}`;
 
       return {
-        content: [{
-          type: 'text',
-          text: errorMessage,
-        }],
+        content: [
+          {
+            type: "text",
+            text: errorMessage,
+          },
+        ],
         isError: true,
       };
     }
@@ -476,13 +513,13 @@ export class TavilyMCPServer {
     try {
       const usage = await this.client!.getUsageStats();
       const cacheStats = this.client!.getCacheStats();
-      
+
       const usageInfo = `Tavily API Usage Statistics:
 
 API Usage:
 - Requests Made: ${usage.requests_made}
-- Requests Remaining: ${usage.requests_remaining || 'Unknown'}
-- Reset Date: ${usage.reset_date || 'Unknown'}
+- Requests Remaining: ${usage.requests_remaining || "Unknown"}
+- Reset Date: ${usage.reset_date || "Unknown"}
 
 Cache Statistics:
 - Search Cache Size: ${cacheStats.searchCacheSize}
@@ -490,7 +527,7 @@ Cache Statistics:
 
 Server Status:
 - Connected: ${this.isConnected}
-- Last Health Check: ${this.lastHealthCheck?.toLocaleString() || 'Never'}
+- Last Health Check: ${this.lastHealthCheck?.toLocaleString() || "Never"}
 - Search History Entries: ${this.searchHistory.length}
 
 Configuration:
@@ -500,17 +537,21 @@ Configuration:
 - Include Images: ${this.config.config.includeImages}`;
 
       return {
-        content: [{
-          type: 'text',
-          text: usageInfo,
-        }],
+        content: [
+          {
+            type: "text",
+            text: usageInfo,
+          },
+        ],
       };
     } catch (error) {
       return {
-        content: [{
-          type: 'text',
-          text: `Failed to get usage statistics: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        }],
+        content: [
+          {
+            type: "text",
+            text: `Failed to get usage statistics: ${error instanceof Error ? error.message : "Unknown error"}`,
+          },
+        ],
         isError: true,
       };
     }
@@ -519,19 +560,24 @@ Configuration:
   /**
    * Get resource content
    */
-  async getResource(uri: string): Promise<{ content: string; mimeType: string }> {
+  async getResource(
+    uri: string,
+  ): Promise<{ content: string; mimeType: string }> {
     switch (uri) {
-      case 'tavily://search-history':
+      case "tavily://search-history":
         return {
           content: JSON.stringify(this.searchHistory, null, 2),
-          mimeType: 'application/json',
+          mimeType: "application/json",
         };
 
-      case 'tavily://cache-stats':
-        const cacheStats = this.client?.getCacheStats() || { searchCacheSize: 0, extractCacheSize: 0 };
+      case "tavily://cache-stats":
+        const cacheStats = this.client?.getCacheStats() || {
+          searchCacheSize: 0,
+          extractCacheSize: 0,
+        };
         return {
           content: JSON.stringify(cacheStats, null, 2),
-          mimeType: 'application/json',
+          mimeType: "application/json",
         };
 
       default:
@@ -542,7 +588,7 @@ Configuration:
           if (index >= 0 && index < this.searchHistory.length) {
             return {
               content: JSON.stringify(this.searchHistory[index], null, 2),
-              mimeType: 'application/json',
+              mimeType: "application/json",
             };
           }
         }
@@ -554,9 +600,9 @@ Configuration:
   /**
    * Update server configuration
    */
-  async updateConfig(updates: Partial<MCPServer['config']>): Promise<void> {
+  async updateConfig(updates: Partial<MCPServer["config"]>): Promise<void> {
     this.config.config = { ...this.config.config, ...updates };
-    
+
     // If API key changed, reinitialize
     if (updates.apiKey && this.client) {
       await this.disconnect();
@@ -565,10 +611,13 @@ Configuration:
       // Update client configuration
       this.client.updateConfig({
         maxResults: (this.config.config.maxResults as number) || 10,
-        searchDepth: (this.config.config.searchDepth as 'basic' | 'advanced') || 'advanced',
+        searchDepth:
+          (this.config.config.searchDepth as "basic" | "advanced") ||
+          "advanced",
         includeImages: (this.config.config.includeImages as boolean) || false,
         includeAnswer: (this.config.config.includeAnswer as boolean) ?? true,
-        includeRawContent: (this.config.config.includeRawContent as boolean) || false,
+        includeRawContent:
+          (this.config.config.includeRawContent as boolean) || false,
       });
     }
   }
@@ -581,16 +630,16 @@ Configuration:
     description: string;
     version: string;
     capabilities: MCPCapability[];
-    status: 'connected' | 'disconnected' | 'error';
+    status: "connected" | "disconnected" | "error";
     tools: number;
     resources: number;
   } {
     return {
       name: this.config.name,
       description: this.config.description,
-      version: '1.0.0',
+      version: "1.0.0",
       capabilities: this.getCapabilities(),
-      status: this.isConnected ? 'connected' : 'disconnected',
+      status: this.isConnected ? "connected" : "disconnected",
       tools: this.getTools().length,
       resources: this.getResources().length,
     };

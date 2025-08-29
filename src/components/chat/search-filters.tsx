@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Filter,
   ChevronDown,
@@ -14,11 +14,11 @@ import {
   X,
   Clock,
   Hash,
-  FileText
-} from 'lucide-react';
-import { Button } from '../ui/button';
-import { cn } from '../../lib/utils';
-import { FilterOptions } from '../../lib/stores/types';
+  FileText,
+} from "lucide-react";
+import { Button } from "../ui/button";
+import { cn } from "../../lib/utils";
+import { FilterOptions } from "../../lib/stores/types";
 
 interface SearchFiltersProps {
   filters: FilterOptions;
@@ -40,7 +40,7 @@ export function SearchFilters({
   const hasActiveFilters = () => {
     return (
       filters.starred !== undefined ||
-      filters.chatType !== 'all' ||
+      filters.chatType !== "all" ||
       filters.dateRange ||
       filters.hasMessages !== undefined ||
       filters.folders?.length
@@ -50,7 +50,7 @@ export function SearchFilters({
   const getActiveFiltersCount = () => {
     let count = 0;
     if (filters.starred !== undefined) count++;
-    if (filters.chatType !== 'all') count++;
+    if (filters.chatType !== "all") count++;
     if (filters.dateRange) count++;
     if (filters.hasMessages !== undefined) count++;
     if (filters.folders?.length) count++;
@@ -58,7 +58,9 @@ export function SearchFilters({
   };
 
   return (
-    <div className={cn('border-b border-gray-200 dark:border-gray-700', className)}>
+    <div
+      className={cn("border-b border-gray-200 dark:border-gray-700", className)}
+    >
       {/* Filter toggle button */}
       <div className="px-4 py-2">
         <Button
@@ -66,8 +68,8 @@ export function SearchFilters({
           size="sm"
           onClick={() => setIsExpanded(!isExpanded)}
           className={cn(
-            'w-full justify-between h-8 text-sm',
-            hasActiveFilters() && 'text-blue-600 dark:text-blue-400'
+            "w-full justify-between h-8 text-sm",
+            hasActiveFilters() && "text-blue-600 dark:text-blue-400",
           )}
         >
           <div className="flex items-center space-x-2">
@@ -94,27 +96,34 @@ export function SearchFilters({
           <div className="flex items-center space-x-2 flex-wrap gap-2">
             <QuickFilterButton
               active={filters.starred === true}
-              onClick={() => onFiltersChange({ 
-                starred: filters.starred === true ? undefined : true 
-              })}
+              onClick={() =>
+                onFiltersChange({
+                  starred: filters.starred === true ? undefined : true,
+                })
+              }
               icon={Star}
               label="Starred"
             />
-            
+
             <QuickFilterButton
-              active={filters.chatType === 'incognito'}
-              onClick={() => onFiltersChange({ 
-                chatType: filters.chatType === 'incognito' ? 'all' : 'incognito' 
-              })}
+              active={filters.chatType === "incognito"}
+              onClick={() =>
+                onFiltersChange({
+                  chatType:
+                    filters.chatType === "incognito" ? "all" : "incognito",
+                })
+              }
               icon={Shield}
               label="Incognito"
             />
-            
+
             <QuickFilterButton
               active={filters.hasMessages === true}
-              onClick={() => onFiltersChange({ 
-                hasMessages: filters.hasMessages === true ? undefined : true 
-              })}
+              onClick={() =>
+                onFiltersChange({
+                  hasMessages: filters.hasMessages === true ? undefined : true,
+                })
+              }
               icon={MessageCircle}
               label="Has Messages"
             />
@@ -127,22 +136,22 @@ export function SearchFilters({
             </label>
             <div className="flex items-center space-x-2">
               <SortButton
-                active={filters.sortBy === 'date'}
-                onClick={() => onFiltersChange({ sortBy: 'date' })}
+                active={filters.sortBy === "date"}
+                onClick={() => onFiltersChange({ sortBy: "date" })}
                 icon={Clock}
                 label="Date"
               />
-              
+
               <SortButton
-                active={filters.sortBy === 'title'}
-                onClick={() => onFiltersChange({ sortBy: 'title' })}
+                active={filters.sortBy === "title"}
+                onClick={() => onFiltersChange({ sortBy: "title" })}
                 icon={FileText}
                 label="Title"
               />
-              
+
               <SortButton
-                active={filters.sortBy === 'messageCount'}
-                onClick={() => onFiltersChange({ sortBy: 'messageCount' })}
+                active={filters.sortBy === "messageCount"}
+                onClick={() => onFiltersChange({ sortBy: "messageCount" })}
                 icon={Hash}
                 label="Messages"
               />
@@ -151,12 +160,14 @@ export function SearchFilters({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => onFiltersChange({ 
-                  sortOrder: filters.sortOrder === 'asc' ? 'desc' : 'asc' 
-                })}
+                onClick={() =>
+                  onFiltersChange({
+                    sortOrder: filters.sortOrder === "asc" ? "desc" : "asc",
+                  })
+                }
                 className="h-7 px-2"
               >
-                {filters.sortOrder === 'desc' ? (
+                {filters.sortOrder === "desc" ? (
                   <SortDesc className="h-3 w-3" />
                 ) : (
                   <SortAsc className="h-3 w-3" />
@@ -176,16 +187,20 @@ export function SearchFilters({
                 onClick={() => onFiltersChange({ dateRange: getTodayRange() })}
                 label="Today"
               />
-              
+
               <DateRangeButton
                 active={filters.dateRange && isThisWeek(filters.dateRange)}
-                onClick={() => onFiltersChange({ dateRange: getThisWeekRange() })}
+                onClick={() =>
+                  onFiltersChange({ dateRange: getThisWeekRange() })
+                }
                 label="This Week"
               />
-              
+
               <DateRangeButton
                 active={filters.dateRange && isThisMonth(filters.dateRange)}
-                onClick={() => onFiltersChange({ dateRange: getThisMonthRange() })}
+                onClick={() =>
+                  onFiltersChange({ dateRange: getThisMonthRange() })
+                }
                 label="This Month"
               />
             </div>
@@ -195,10 +210,10 @@ export function SearchFilters({
           <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-800">
             {resultsCount !== undefined && (
               <span className="text-xs text-gray-500 dark:text-gray-400">
-                {resultsCount} result{resultsCount !== 1 ? 's' : ''}
+                {resultsCount} result{resultsCount !== 1 ? "s" : ""}
               </span>
             )}
-            
+
             <Button
               variant="ghost"
               size="sm"
@@ -223,15 +238,20 @@ interface QuickFilterButtonProps {
   label: string;
 }
 
-function QuickFilterButton({ active, onClick, icon: Icon, label }: QuickFilterButtonProps) {
+function QuickFilterButton({
+  active,
+  onClick,
+  icon: Icon,
+  label,
+}: QuickFilterButtonProps) {
   return (
     <Button
       variant={active ? "secondary" : "outline"}
       size="sm"
       onClick={onClick}
       className={cn(
-        'h-7 px-3 text-xs',
-        active && 'bg-blue-600 text-white hover:bg-blue-700'
+        "h-7 px-3 text-xs",
+        active && "bg-blue-600 text-white hover:bg-blue-700",
       )}
     >
       <Icon className="h-3 w-3 mr-1" />
@@ -254,8 +274,8 @@ function SortButton({ active, onClick, icon: Icon, label }: SortButtonProps) {
       size="sm"
       onClick={onClick}
       className={cn(
-        'h-7 px-3 text-xs',
-        active && 'bg-blue-600 text-white hover:bg-blue-700'
+        "h-7 px-3 text-xs",
+        active && "bg-blue-600 text-white hover:bg-blue-700",
       )}
     >
       <Icon className="h-3 w-3 mr-1" />
@@ -277,8 +297,8 @@ function DateRangeButton({ active, onClick, label }: DateRangeButtonProps) {
       size="sm"
       onClick={onClick}
       className={cn(
-        'h-7 px-3 text-xs',
-        active && 'bg-blue-600 text-white hover:bg-blue-700'
+        "h-7 px-3 text-xs",
+        active && "bg-blue-600 text-white hover:bg-blue-700",
       )}
     >
       {label}
@@ -297,9 +317,17 @@ function getTodayRange() {
 
 function getThisWeekRange() {
   const now = new Date();
-  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
+  const start = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate() - now.getDay(),
+  );
   start.setHours(0, 0, 0, 0);
-  const end = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay() + 6);
+  const end = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate() - now.getDay() + 6,
+  );
   end.setHours(23, 59, 59, 999);
   return { start, end };
 }

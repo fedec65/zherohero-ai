@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { useChatStore } from '../../lib/stores/chat-store';
-import { ChatInterface } from './chat-interface';
-import { ChatHome } from './chat-home';
+import React from "react";
+import { useChatStore } from "../../lib/stores/chat-store";
+import { ChatInterface } from "./chat-interface";
+import { ChatHome } from "./chat-home";
 
 interface ChatContainerProps {
   className?: string;

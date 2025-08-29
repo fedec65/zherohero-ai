@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { X } from 'lucide-react';
-import { cn } from '../../lib/utils';
-import { useSettingsStore } from '../../lib/stores/settings-store';
-import { APIKeysTab } from './tabs/api-keys-tab';
-import { SpeechTab } from './tabs/speech-tab';
-import { ImportExportTab } from './tabs/import-export-tab';
-import { AdvancedTab } from './tabs/advanced-tab';
-import { AboutTab } from './tabs/about-tab';
+import React, { useState } from "react";
+import { X } from "lucide-react";
+import { cn } from "../../lib/utils";
+import { useSettingsStore } from "../../lib/stores/settings-store";
+import { APIKeysTab } from "./tabs/api-keys-tab";
+import { SpeechTab } from "./tabs/speech-tab";
+import { ImportExportTab } from "./tabs/import-export-tab";
+import { AdvancedTab } from "./tabs/advanced-tab";
+import { AboutTab } from "./tabs/about-tab";
 
-type SettingsTab = 'apis' | 'speech' | 'import-export' | 'advanced' | 'about';
+type SettingsTab = "apis" | "speech" | "import-export" | "advanced" | "about";
 
 interface SettingsModalProps {
   open: boolean;
@@ -18,15 +18,19 @@ interface SettingsModalProps {
   defaultTab?: SettingsTab;
 }
 
-export function SettingsModal({ open, onOpenChange, defaultTab = 'apis' }: SettingsModalProps) {
+export function SettingsModal({
+  open,
+  onOpenChange,
+  defaultTab = "apis",
+}: SettingsModalProps) {
   const [activeTab, setActiveTab] = useState<SettingsTab>(defaultTab);
-  
+
   const tabs: Array<{ id: SettingsTab; label: string }> = [
-    { id: 'apis', label: 'APIs' },
-    { id: 'speech', label: 'Speech' },
-    { id: 'import-export', label: 'Import/Export' },
-    { id: 'advanced', label: 'Advanced' },
-    { id: 'about', label: 'About' },
+    { id: "apis", label: "APIs" },
+    { id: "speech", label: "Speech" },
+    { id: "import-export", label: "Import/Export" },
+    { id: "advanced", label: "Advanced" },
+    { id: "about", label: "About" },
   ];
 
   const handleTabChange = (tabId: SettingsTab) => {
@@ -39,15 +43,15 @@ export function SettingsModal({ open, onOpenChange, defaultTab = 'apis' }: Setti
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'apis':
+      case "apis":
         return <APIKeysTab />;
-      case 'speech':
+      case "speech":
         return <SpeechTab />;
-      case 'import-export':
+      case "import-export":
         return <ImportExportTab />;
-      case 'advanced':
+      case "advanced":
         return <AdvancedTab />;
-      case 'about':
+      case "about":
         return <AboutTab />;
       default:
         return <APIKeysTab />;
@@ -63,7 +67,7 @@ export function SettingsModal({ open, onOpenChange, defaultTab = 'apis' }: Setti
           <div
             className={cn(
               "relative w-full max-w-4xl bg-white dark:bg-gray-900 rounded-lg shadow-xl",
-              "max-h-[90vh] flex flex-col"
+              "max-h-[90vh] flex flex-col",
             )}
             role="dialog"
             aria-modal="true"
@@ -71,7 +75,7 @@ export function SettingsModal({ open, onOpenChange, defaultTab = 'apis' }: Setti
           >
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-              <h1 
+              <h1
                 id="settings-title"
                 className="text-xl font-semibold text-gray-900 dark:text-white"
               >
@@ -83,7 +87,7 @@ export function SettingsModal({ open, onOpenChange, defaultTab = 'apis' }: Setti
                   "rounded-lg p-2 text-gray-400 hover:text-gray-600",
                   "hover:bg-gray-100 dark:hover:bg-gray-800",
                   "focus:outline-none focus:ring-2 focus:ring-blue-500",
-                  "transition-colors"
+                  "transition-colors",
                 )}
                 aria-label="Close settings"
               >
@@ -108,7 +112,7 @@ export function SettingsModal({ open, onOpenChange, defaultTab = 'apis' }: Setti
                         "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset",
                         activeTab === tab.id
                           ? "bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300"
-                          : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                          : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700",
                       )}
                     >
                       {tab.label}

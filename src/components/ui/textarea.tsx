@@ -21,7 +21,7 @@ const textareaVariants = cva(
       variant: "default",
       textareaSize: "default",
     },
-  }
+  },
 );
 
 export interface TextareaProps
@@ -36,21 +36,24 @@ export interface TextareaProps
 }
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ 
-    className, 
-    variant, 
-    textareaSize,
-    error,
-    label,
-    helperText,
-    autoResize = false,
-    maxRows = 10,
-    minRows = 3,
-    id,
-    onChange,
-    value,
-    ...props 
-  }, ref) => {
+  (
+    {
+      className,
+      variant,
+      textareaSize,
+      error,
+      label,
+      helperText,
+      autoResize = false,
+      maxRows = 10,
+      minRows = 3,
+      id,
+      onChange,
+      value,
+      ...props
+    },
+    ref,
+  ) => {
     const textareaRef = React.useRef<HTMLTextAreaElement | null>(null);
     const generatedId = React.useId();
     const inputId = id || generatedId;
@@ -59,18 +62,18 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     // Auto-resize functionality
     const adjustHeight = React.useCallback(() => {
       if (!autoResize || !textareaRef.current) return;
-      
+
       const textarea = textareaRef.current;
       const lineHeight = parseInt(getComputedStyle(textarea).lineHeight);
       const minHeight = lineHeight * minRows;
       const maxHeight = lineHeight * maxRows;
-      
+
       // Reset height to calculate scroll height
       textarea.style.height = "auto";
-      
+
       const scrollHeight = textarea.scrollHeight;
       const newHeight = Math.min(Math.max(scrollHeight, minHeight), maxHeight);
-      
+
       textarea.style.height = `${newHeight}px`;
     }, [autoResize, maxRows, minRows]);
 
@@ -94,29 +97,29 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           }
         }
       },
-      [ref]
+      [ref],
     );
 
     return (
       <div className="w-full">
         {label && (
-          <label 
+          <label
             htmlFor={inputId}
             className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
           >
             {label}
           </label>
         )}
-        
+
         <textarea
           id={inputId}
           className={clsx(
-            textareaVariants({ 
-              variant: hasError ? "error" : variant, 
-              textareaSize, 
-              className 
+            textareaVariants({
+              variant: hasError ? "error" : variant,
+              textareaSize,
+              className,
             }),
-            autoResize && "overflow-hidden"
+            autoResize && "overflow-hidden",
           )}
           ref={setRefs}
           value={value}
@@ -126,26 +129,29 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           }}
           {...props}
         />
-        
+
         {(error || helperText) && (
-          <p className={clsx(
-            "mt-1 text-xs",
-            hasError 
-              ? "text-red-600 dark:text-red-400" 
-              : "text-gray-500 dark:text-gray-400"
-          )}>
+          <p
+            className={clsx(
+              "mt-1 text-xs",
+              hasError
+                ? "text-red-600 dark:text-red-400"
+                : "text-gray-500 dark:text-gray-400",
+            )}
+          >
             {error || helperText}
           </p>
         )}
       </div>
     );
-  }
+  },
 );
 
 Textarea.displayName = "Textarea";
 
 // Chat Input Component - specialized for chat interface
-export interface ChatInputProps extends Omit<TextareaProps, "autoResize" | "minRows" | "maxRows"> {
+export interface ChatInputProps
+  extends Omit<TextareaProps, "autoResize" | "minRows" | "maxRows"> {
   onSend?: (message: string) => void;
   onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
   sendButton?: React.ReactNode;
@@ -154,17 +160,20 @@ export interface ChatInputProps extends Omit<TextareaProps, "autoResize" | "minR
 }
 
 const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
-  ({ 
-    onSend, 
-    onKeyDown, 
-    sendButton,
-    maxLength,
-    showCharCount = false,
-    value = "",
-    onChange,
-    placeholder = "Type your message...",
-    ...props 
-  }, ref) => {
+  (
+    {
+      onSend,
+      onKeyDown,
+      sendButton,
+      maxLength,
+      showCharCount = false,
+      value = "",
+      onChange,
+      placeholder = "Type your message...",
+      ...props
+    },
+    ref,
+  ) => {
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
       // Send on Enter, new line on Shift+Enter
       if (e.key === "Enter" && !e.shiftKey) {
@@ -193,26 +202,26 @@ const ChatInput = React.forwardRef<HTMLTextAreaElement, ChatInputProps>(
           className="pr-12" // Space for send button
           {...props}
         />
-        
+
         {sendButton && (
-          <div className="absolute bottom-2 right-2">
-            {sendButton}
-          </div>
+          <div className="absolute bottom-2 right-2">{sendButton}</div>
         )}
-        
+
         {showCharCount && maxLength && (
-          <div className={clsx(
-            "mt-1 text-right text-xs",
-            isOverLimit 
-              ? "text-red-600 dark:text-red-400" 
-              : "text-gray-500 dark:text-gray-400"
-          )}>
+          <div
+            className={clsx(
+              "mt-1 text-right text-xs",
+              isOverLimit
+                ? "text-red-600 dark:text-red-400"
+                : "text-gray-500 dark:text-gray-400",
+            )}
+          >
             {charCount}/{maxLength}
           </div>
         )}
       </div>
     );
-  }
+  },
 );
 
 ChatInput.displayName = "ChatInput";

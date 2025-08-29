@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import { X } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import type { Model, CustomModel, ModelConfig } from '../../lib/stores/types';
+import { useState, useEffect, useCallback } from "react";
+import { X } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import type { Model, CustomModel, ModelConfig } from "../../lib/stores/types";
 
 interface ModelConfigDialogProps {
   model: Model | CustomModel;
@@ -34,23 +34,26 @@ interface SliderControlProps {
   onChange: (value: number | undefined) => void;
 }
 
-function SliderControl({ 
-  label, 
-  value, 
-  defaultValue, 
-  min, 
-  max, 
-  step, 
-  description, 
-  onChange 
+function SliderControl({
+  label,
+  value,
+  defaultValue,
+  min,
+  max,
+  step,
+  description,
+  onChange,
 }: SliderControlProps) {
   const isDefault = value === undefined || value === defaultValue;
   const displayValue = isDefault ? defaultValue : value;
 
-  const handleSliderChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = parseFloat(e.target.value);
-    onChange(newValue === defaultValue ? undefined : newValue);
-  }, [defaultValue, onChange]);
+  const handleSliderChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newValue = parseFloat(e.target.value);
+      onChange(newValue === defaultValue ? undefined : newValue);
+    },
+    [defaultValue, onChange],
+  );
 
   const handleReset = useCallback(() => {
     onChange(undefined);
@@ -67,7 +70,7 @@ function SliderControl({
             DEFAULT
           </span>
         ) : (
-          <button 
+          <button
             onClick={handleReset}
             className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
           >
@@ -75,7 +78,7 @@ function SliderControl({
           </button>
         )}
       </div>
-      
+
       <div className="relative">
         <input
           type="range"
@@ -94,21 +97,21 @@ function SliderControl({
           <span>{max}</span>
         </div>
       </div>
-      
-      <p className="text-xs text-gray-500 dark:text-gray-400">
-        {description}
-      </p>
+
+      <p className="text-xs text-gray-500 dark:text-gray-400">{description}</p>
     </div>
   );
 }
 
-export function ModelConfigDialog({ 
-  model, 
-  open, 
+export function ModelConfigDialog({
+  model,
+  open,
   onOpenChange,
-  onConfigSave 
+  onConfigSave,
 }: ModelConfigDialogProps) {
-  const [config, setConfig] = useState<ModelConfig>(() => ({ ...DEFAULT_CONFIG }));
+  const [config, setConfig] = useState<ModelConfig>(() => ({
+    ...DEFAULT_CONFIG,
+  }));
   const [hasChanges, setHasChanges] = useState(false);
 
   // Reset config when dialog opens
@@ -119,10 +122,13 @@ export function ModelConfigDialog({
     }
   }, [open]);
 
-  const handleConfigChange = useCallback((field: keyof ModelConfig, value: number | string | undefined) => {
-    setConfig(prev => ({ ...prev, [field]: value }));
-    setHasChanges(true);
-  }, []);
+  const handleConfigChange = useCallback(
+    (field: keyof ModelConfig, value: number | string | undefined) => {
+      setConfig((prev) => ({ ...prev, [field]: value }));
+      setHasChanges(true);
+    },
+    [],
+  );
 
   const handleSave = useCallback(() => {
     onConfigSave?.(model.id, config);
@@ -154,7 +160,7 @@ export function ModelConfigDialog({
               Configure model parameters. Leave empty to use defaults.
             </p>
           </DialogHeader>
-          
+
           <button
             onClick={() => onOpenChange(false)}
             className="absolute right-4 top-4 p-1 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
@@ -174,9 +180,9 @@ export function ModelConfigDialog({
             max={2}
             step={0.1}
             description="Higher values make output more random, lower values more focused and deterministic"
-            onChange={(value) => handleConfigChange('temperature', value)}
+            onChange={(value) => handleConfigChange("temperature", value)}
           />
-          
+
           {/* Presence Penalty */}
           <SliderControl
             label="Presence Penalty"
@@ -186,9 +192,9 @@ export function ModelConfigDialog({
             max={2}
             step={0.1}
             description="Penalizes new tokens based on whether they appear in the text so far"
-            onChange={(value) => handleConfigChange('presencePenalty', value)}
+            onChange={(value) => handleConfigChange("presencePenalty", value)}
           />
-          
+
           {/* Frequency Penalty */}
           <SliderControl
             label="Frequency Penalty"
@@ -198,9 +204,9 @@ export function ModelConfigDialog({
             max={2}
             step={0.1}
             description="Penalizes new tokens based on their frequency in the text so far"
-            onChange={(value) => handleConfigChange('frequencyPenalty', value)}
+            onChange={(value) => handleConfigChange("frequencyPenalty", value)}
           />
-          
+
           {/* Top P */}
           <SliderControl
             label="Top P"
@@ -210,9 +216,9 @@ export function ModelConfigDialog({
             max={1}
             step={0.05}
             description="Nucleus sampling: model considers tokens with top_p probability mass"
-            onChange={(value) => handleConfigChange('topP', value)}
+            onChange={(value) => handleConfigChange("topP", value)}
           />
-          
+
           {/* Max Tokens */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
@@ -224,28 +230,29 @@ export function ModelConfigDialog({
                   DEFAULT
                 </span>
               ) : (
-                <button 
-                  onClick={() => handleConfigChange('maxTokens', undefined)}
+                <button
+                  onClick={() => handleConfigChange("maxTokens", undefined)}
                   className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
                 >
                   Reset
                 </button>
               )}
             </div>
-            
+
             <Input
               type="number"
-              value={config.maxTokens ?? ''}
+              value={config.maxTokens ?? ""}
               onChange={(e) => {
-                const value = e.target.value === '' ? undefined : Number(e.target.value);
-                handleConfigChange('maxTokens', value);
+                const value =
+                  e.target.value === "" ? undefined : Number(e.target.value);
+                handleConfigChange("maxTokens", value);
               }}
               placeholder="DEFAULT"
               min={1}
               max={100000}
               className="w-full"
             />
-            
+
             <p className="text-xs text-gray-500 dark:text-gray-400">
               Maximum number of tokens to generate
             </p>
@@ -261,7 +268,7 @@ export function ModelConfigDialog({
           >
             Reset to Defaults
           </Button>
-          
+
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"
@@ -270,7 +277,7 @@ export function ModelConfigDialog({
             >
               Cancel
             </Button>
-            
+
             <Button
               variant="primary"
               onClick={handleSave}

@@ -1,60 +1,61 @@
-import { nanoid } from 'nanoid';
-import { Chat, Message } from '../../lib/stores/types';
+import { nanoid } from "nanoid";
+import { Chat, Message } from "../../lib/stores/types";
 
 // Demo chat data for testing
 export const DEMO_CHATS: Record<string, Chat> = {
-  'chat-1': {
-    id: 'chat-1',
-    title: 'Getting Started with React',
+  "chat-1": {
+    id: "chat-1",
+    title: "Getting Started with React",
     folderId: undefined,
     starred: false,
     isIncognito: false,
-    modelId: 'gpt-4o-2024-11-20',
-    lastMessageAt: new Date('2024-01-20T10:30:00'),
+    modelId: "gpt-4o-2024-11-20",
+    lastMessageAt: new Date("2024-01-20T10:30:00"),
     messageCount: 6,
-    createdAt: new Date('2024-01-20T10:00:00'),
-    updatedAt: new Date('2024-01-20T10:30:00'),
+    createdAt: new Date("2024-01-20T10:00:00"),
+    updatedAt: new Date("2024-01-20T10:30:00"),
   },
-  'chat-2': {
-    id: 'chat-2',
-    title: 'Python Data Analysis Help',
+  "chat-2": {
+    id: "chat-2",
+    title: "Python Data Analysis Help",
     folderId: undefined,
     starred: true,
     isIncognito: false,
-    modelId: 'gpt-4o-2024-11-20',
-    lastMessageAt: new Date('2024-01-21T14:15:00'),
+    modelId: "gpt-4o-2024-11-20",
+    lastMessageAt: new Date("2024-01-21T14:15:00"),
     messageCount: 8,
-    createdAt: new Date('2024-01-21T14:00:00'),
-    updatedAt: new Date('2024-01-21T14:15:00'),
+    createdAt: new Date("2024-01-21T14:00:00"),
+    updatedAt: new Date("2024-01-21T14:15:00"),
   },
-  'chat-3': {
-    id: 'chat-3',
-    title: 'Creative Writing Ideas',
+  "chat-3": {
+    id: "chat-3",
+    title: "Creative Writing Ideas",
     folderId: undefined,
     starred: false,
     isIncognito: true,
-    modelId: 'claude-3-5-sonnet-20241022',
-    lastMessageAt: new Date('2024-01-22T09:45:00'),
+    modelId: "claude-3-5-sonnet-20241022",
+    lastMessageAt: new Date("2024-01-22T09:45:00"),
     messageCount: 4,
-    createdAt: new Date('2024-01-22T09:30:00'),
-    updatedAt: new Date('2024-01-22T09:45:00'),
+    createdAt: new Date("2024-01-22T09:30:00"),
+    updatedAt: new Date("2024-01-22T09:45:00"),
   },
 };
 
 export const DEMO_MESSAGES: Record<string, Message[]> = {
-  'chat-1': [
+  "chat-1": [
     {
-      id: 'msg-1',
-      chatId: 'chat-1',
-      role: 'user',
-      content: 'Can you help me understand React hooks? I\'m particularly confused about useEffect and its dependency array.',
-      createdAt: new Date('2024-01-20T10:00:00'),
-      updatedAt: new Date('2024-01-20T10:00:00'),
+      id: "msg-1",
+      chatId: "chat-1",
+      role: "user",
+      content:
+        "Can you help me understand React hooks? I'm particularly confused about useEffect and its dependency array.",
+      createdAt: new Date("2024-01-20T10:00:00"),
+      updatedAt: new Date("2024-01-20T10:00:00"),
     },
     {
-      id: 'msg-2',
-      chatId: 'chat-1',
-      role: 'assistant',
+      id: "msg-2",
+      chatId: "chat-1",
+      role: "assistant",
       content: `I'd be happy to help you understand React hooks, especially useEffect and its dependency array!
 
 ## useEffect Basics
@@ -87,24 +88,25 @@ useEffect(() => {
 3. **Array with dependencies**: Effect runs when any dependency changes
 
 Would you like me to show you some practical examples?`,
-      model: 'gpt-4o-2024-11-20',
+      model: "gpt-4o-2024-11-20",
       tokens: 245,
-      streamingState: 'complete',
-      createdAt: new Date('2024-01-20T10:01:00'),
-      updatedAt: new Date('2024-01-20T10:01:00'),
+      streamingState: "complete",
+      createdAt: new Date("2024-01-20T10:01:00"),
+      updatedAt: new Date("2024-01-20T10:01:00"),
     },
     {
-      id: 'msg-3',
-      chatId: 'chat-1',
-      role: 'user',
-      content: 'Yes, practical examples would be great! Can you show me how to fetch data with useEffect?',
-      createdAt: new Date('2024-01-20T10:02:00'),
-      updatedAt: new Date('2024-01-20T10:02:00'),
+      id: "msg-3",
+      chatId: "chat-1",
+      role: "user",
+      content:
+        "Yes, practical examples would be great! Can you show me how to fetch data with useEffect?",
+      createdAt: new Date("2024-01-20T10:02:00"),
+      updatedAt: new Date("2024-01-20T10:02:00"),
     },
     {
-      id: 'msg-4',
-      chatId: 'chat-1',
-      role: 'assistant',
+      id: "msg-4",
+      chatId: "chat-1",
+      role: "assistant",
       content: `Absolutely! Here are some practical examples of using \`useEffect\` for data fetching:
 
 ## Example 1: Basic Data Fetching
@@ -186,26 +188,27 @@ useEffect(() => {
 - ❌ Don't forget the dependency array (leads to infinite loops)
 
 Would you like to see more examples or have questions about any of these patterns?`,
-      model: 'gpt-4o-2024-11-20',
+      model: "gpt-4o-2024-11-20",
       tokens: 567,
-      streamingState: 'complete',
-      createdAt: new Date('2024-01-20T10:05:00'),
-      updatedAt: new Date('2024-01-20T10:05:00'),
+      streamingState: "complete",
+      createdAt: new Date("2024-01-20T10:05:00"),
+      updatedAt: new Date("2024-01-20T10:05:00"),
     },
   ],
-  'chat-2': [
+  "chat-2": [
     {
-      id: 'msg-5',
-      chatId: 'chat-2',
-      role: 'user',
-      content: 'I have a CSV file with sales data and I need to analyze trends. Can you help me write a Python script?',
-      createdAt: new Date('2024-01-21T14:00:00'),
-      updatedAt: new Date('2024-01-21T14:00:00'),
+      id: "msg-5",
+      chatId: "chat-2",
+      role: "user",
+      content:
+        "I have a CSV file with sales data and I need to analyze trends. Can you help me write a Python script?",
+      createdAt: new Date("2024-01-21T14:00:00"),
+      updatedAt: new Date("2024-01-21T14:00:00"),
     },
     {
-      id: 'msg-6',
-      chatId: 'chat-2',
-      role: 'assistant',
+      id: "msg-6",
+      chatId: "chat-2",
+      role: "assistant",
       content: `I'd be happy to help you analyze sales trends! Here's a comprehensive Python script using pandas and matplotlib:
 
 \`\`\`python
@@ -296,26 +299,27 @@ This script will help you:
 - Display key performance metrics
 
 Could you share more details about your CSV structure (column names) so I can customize the script further?`,
-      model: 'gpt-4o-2024-11-20',
+      model: "gpt-4o-2024-11-20",
       tokens: 789,
-      streamingState: 'complete',
-      createdAt: new Date('2024-01-21T14:02:00'),
-      updatedAt: new Date('2024-01-21T14:02:00'),
+      streamingState: "complete",
+      createdAt: new Date("2024-01-21T14:02:00"),
+      updatedAt: new Date("2024-01-21T14:02:00"),
     },
   ],
-  'chat-3': [
+  "chat-3": [
     {
-      id: 'msg-7',
-      chatId: 'chat-3',
-      role: 'user',
-      content: 'I\'m writing a sci-fi story set on Mars. Can you help me brainstorm some unique plot elements?',
-      createdAt: new Date('2024-01-22T09:30:00'),
-      updatedAt: new Date('2024-01-22T09:30:00'),
+      id: "msg-7",
+      chatId: "chat-3",
+      role: "user",
+      content:
+        "I'm writing a sci-fi story set on Mars. Can you help me brainstorm some unique plot elements?",
+      createdAt: new Date("2024-01-22T09:30:00"),
+      updatedAt: new Date("2024-01-22T09:30:00"),
     },
     {
-      id: 'msg-8',
-      chatId: 'chat-3',
-      role: 'assistant',
+      id: "msg-8",
+      chatId: "chat-3",
+      role: "assistant",
       content: `What an exciting setting! Mars offers incredible storytelling possibilities. Here are some unique plot elements to consider:
 
 ## Environmental Challenges as Plot Devices
@@ -351,24 +355,24 @@ Could you share more details about your CSV structure (column names) so I can cu
 **Magnetic Field Anomalies**: Areas where compasses spin wildly and strange phenomena occur.
 
 What genre within sci-fi are you leaning toward? Hard science fiction, space opera, or something more mysterious and atmospheric?`,
-      model: 'claude-3-5-sonnet-20241022',
+      model: "claude-3-5-sonnet-20241022",
       tokens: 456,
-      streamingState: 'complete',
-      createdAt: new Date('2024-01-22T09:32:00'),
-      updatedAt: new Date('2024-01-22T09:32:00'),
+      streamingState: "complete",
+      createdAt: new Date("2024-01-22T09:32:00"),
+      updatedAt: new Date("2024-01-22T09:32:00"),
     },
   ],
 };
 
 // Function to load demo data into the store (for development/testing)
 export function loadDemoData() {
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     const demoData = {
       chats: DEMO_CHATS,
       messages: DEMO_MESSAGES,
-      activeChat: 'chat-1',
+      activeChat: "chat-1",
       folders: {},
-      searchQuery: '',
+      searchQuery: "",
       loading: {
         sendMessage: false,
         deleteChat: false,
@@ -377,9 +381,12 @@ export function loadDemoData() {
       streamingMessage: null,
     };
 
-    localStorage.setItem('minddeck-chat-store', JSON.stringify({
-      state: demoData,
-      version: 1,
-    }));
+    localStorage.setItem(
+      "minddeck-chat-store",
+      JSON.stringify({
+        state: demoData,
+        version: 1,
+      }),
+    );
   }
 }

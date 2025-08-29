@@ -2,9 +2,9 @@
  * Speech Recognition Service - Handles audio recording and transcription via OpenAI Whisper
  */
 
-import { useSettingsStore } from '../stores/settings-store';
+import { useSettingsStore } from "../stores/settings-store";
 
-export type RecordingState = 'idle' | 'recording' | 'processing' | 'error';
+export type RecordingState = "idle" | "recording" | "processing" | "error";
 
 export interface SpeechRecognitionResult {
   text: string;
@@ -13,7 +13,13 @@ export interface SpeechRecognitionResult {
 }
 
 export interface SpeechRecognitionError {
-  type: 'permission-denied' | 'no-microphone' | 'network-error' | 'transcription-error' | 'api-key-missing' | 'recording-error';
+  type:
+    | "permission-denied"
+    | "no-microphone"
+    | "network-error"
+    | "transcription-error"
+    | "api-key-missing"
+    | "recording-error";
   message: string;
   details?: string;
 }
@@ -34,13 +40,14 @@ export class SpeechRecognitionService {
   private recordingTimeout: NodeJS.Timeout | null = null;
 
   // State management
-  private state: RecordingState = 'idle';
-  private listeners: Map<string, ((state: RecordingState) => void)[]> = new Map();
+  private state: RecordingState = "idle";
+  private listeners: Map<string, ((state: RecordingState) => void)[]> =
+    new Map();
 
   constructor() {
-    this.listeners.set('stateChange', []);
-    this.listeners.set('error', []);
-    this.listeners.set('result', []);
+    this.listeners.set("stateChange", []);
+    this.listeners.set("error", []);
+    this.listeners.set("result", []);
   }
 
   /**
@@ -55,13 +62,17 @@ export class SpeechRecognitionService {
    */
   public async checkPermission(): Promise<boolean> {
     try {
-      const permissions = await navigator.permissions.query({ name: 'microphone' as PermissionName });
-      return permissions.state === 'granted';
+      const permissions = await navigator.permissions.query({
+        name: "microphone" as PermissionName,
+      });
+      return permissions.state === "granted";
     } catch (error) {
       // Fallback: try to get user media to check permission
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        stream.getTracks().forEach(track => track.stop());
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+        });
+        stream.getTracks().forEach((track) => track.stop());
         return true;
       } catch {
         return false;
@@ -75,10 +86,10 @@ export class SpeechRecognitionService {
   public async requestPermission(): Promise<boolean> {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.getTracks().forEach(track => track.stop());
+      stream.getTracks().forEach((track) => track.stop());
       return true;
     } catch (error) {
-      console.error('Microphone permission denied:', error);
+      console.error("Microphone permission denied:", error);
       return false;
     }
   }
@@ -94,36 +105,36 @@ export class SpeechRecognitionService {
    * Check if currently recording
    */
   public isRecording(): boolean {
-    return this.state === 'recording';
+    return this.state === "recording";
   }
 
   /**
    * Start recording audio
    */
   public async startRecording(options: RecordingOptions = {}): Promise<void> {
-    if (this.state !== 'idle') {
-      throw new Error('Already recording or processing');
+    if (this.state !== "idle") {
+      throw new Error("Already recording or processing");
     }
 
     // Check if voice input is enabled in settings
     const settings = useSettingsStore.getState().settings;
     if (!settings.speech?.voiceInput) {
-      throw new Error('Voice input is disabled in settings');
+      throw new Error("Voice input is disabled in settings");
     }
 
     // Check if OpenAI API key is available
-    const hasOpenAIKey = useSettingsStore.getState().hasApiKey('openai');
+    const hasOpenAIKey = useSettingsStore.getState().hasApiKey("openai");
     if (!hasOpenAIKey) {
       const error: SpeechRecognitionError = {
-        type: 'api-key-missing',
-        message: 'OpenAI API key is required for voice transcription',
-        details: 'Please configure your OpenAI API key in Settings'
+        type: "api-key-missing",
+        message: "OpenAI API key is required for voice transcription",
+        details: "Please configure your OpenAI API key in Settings",
       };
       this.emitError(error);
       return;
     }
 
-    this.setState('recording');
+    this.setState("recording");
     this.maxDuration = (options.maxDuration || 60) * 1000;
 
     try {
@@ -135,12 +146,12 @@ export class SpeechRecognitionService {
           echoCancellation: true,
           noiseSuppression: true,
           autoGainControl: true,
-        }
+        },
       });
 
       // Determine the best supported MIME type for the browser
       const mimeType = this.getBestMimeType(options.mimeType);
-      
+
       // Create MediaRecorder
       this.mediaRecorder = new MediaRecorder(this.mediaStream, {
         mimeType,
@@ -163,9 +174,9 @@ export class SpeechRecognitionService {
 
       this.mediaRecorder.onerror = (event) => {
         const error: SpeechRecognitionError = {
-          type: 'recording-error',
-          message: 'Recording error occurred',
-          details: (event as any).error?.message || 'Unknown recording error'
+          type: "recording-error",
+          message: "Recording error occurred",
+          details: (event as any).error?.message || "Unknown recording error",
         };
         this.emitError(error);
       };
@@ -176,41 +187,46 @@ export class SpeechRecognitionService {
 
       // Set up auto-stop timer
       this.recordingTimeout = setTimeout(() => {
-        if (this.state === 'recording') {
+        if (this.state === "recording") {
           this.stopRecording();
         }
       }, this.maxDuration);
-
     } catch (error) {
-      this.setState('idle');
-      
+      this.setState("idle");
+
       let speechError: SpeechRecognitionError;
-      
+
       if (error instanceof Error) {
-        if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+        if (
+          error.name === "NotAllowedError" ||
+          error.name === "PermissionDeniedError"
+        ) {
           speechError = {
-            type: 'permission-denied',
-            message: 'Microphone access denied',
-            details: 'Please allow microphone access to use voice input'
+            type: "permission-denied",
+            message: "Microphone access denied",
+            details: "Please allow microphone access to use voice input",
           };
-        } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+        } else if (
+          error.name === "NotFoundError" ||
+          error.name === "DevicesNotFoundError"
+        ) {
           speechError = {
-            type: 'no-microphone',
-            message: 'No microphone found',
-            details: 'Please connect a microphone to use voice input'
+            type: "no-microphone",
+            message: "No microphone found",
+            details: "Please connect a microphone to use voice input",
           };
         } else {
           speechError = {
-            type: 'recording-error',
-            message: 'Failed to start recording',
-            details: error.message
+            type: "recording-error",
+            message: "Failed to start recording",
+            details: error.message,
           };
         }
       } else {
         speechError = {
-          type: 'recording-error',
-          message: 'Unknown error starting recording',
-          details: String(error)
+          type: "recording-error",
+          message: "Unknown error starting recording",
+          details: String(error),
         };
       }
 
@@ -223,12 +239,12 @@ export class SpeechRecognitionService {
    */
   public stopRecording(): Promise<void> {
     return new Promise((resolve) => {
-      if (this.state !== 'recording' || !this.mediaRecorder) {
+      if (this.state !== "recording" || !this.mediaRecorder) {
         resolve();
         return;
       }
 
-      this.setState('processing');
+      this.setState("processing");
 
       // Clear the auto-stop timer
       if (this.recordingTimeout) {
@@ -246,7 +262,7 @@ export class SpeechRecognitionService {
 
       // Stop all media tracks
       if (this.mediaStream) {
-        this.mediaStream.getTracks().forEach(track => track.stop());
+        this.mediaStream.getTracks().forEach((track) => track.stop());
         this.mediaStream = null;
       }
     });
@@ -256,7 +272,7 @@ export class SpeechRecognitionService {
    * Cancel recording without processing
    */
   public cancelRecording(): void {
-    if (this.state !== 'recording') {
+    if (this.state !== "recording") {
       return;
     }
 
@@ -274,20 +290,29 @@ export class SpeechRecognitionService {
 
     // Stop all media tracks
     if (this.mediaStream) {
-      this.mediaStream.getTracks().forEach(track => track.stop());
+      this.mediaStream.getTracks().forEach((track) => track.stop());
       this.mediaStream = null;
     }
 
     this.audioChunks = [];
-    this.setState('idle');
+    this.setState("idle");
   }
 
   /**
    * Add event listener
    */
-  public addEventListener(event: 'stateChange', listener: (state: RecordingState) => void): void;
-  public addEventListener(event: 'error', listener: (error: SpeechRecognitionError) => void): void;
-  public addEventListener(event: 'result', listener: (result: SpeechRecognitionResult) => void): void;
+  public addEventListener(
+    event: "stateChange",
+    listener: (state: RecordingState) => void,
+  ): void;
+  public addEventListener(
+    event: "error",
+    listener: (error: SpeechRecognitionError) => void,
+  ): void;
+  public addEventListener(
+    event: "result",
+    listener: (result: SpeechRecognitionResult) => void,
+  ): void;
   public addEventListener(event: string, listener: Function): void {
     const eventListeners = this.listeners.get(event) || [];
     eventListeners.push(listener as any);
@@ -323,37 +348,37 @@ export class SpeechRecognitionService {
   }
 
   private emitStateChange(state: RecordingState): void {
-    const listeners = this.listeners.get('stateChange') || [];
-    listeners.forEach(listener => listener(state));
+    const listeners = this.listeners.get("stateChange") || [];
+    listeners.forEach((listener) => listener(state));
   }
 
   private emitError(error: SpeechRecognitionError): void {
-    this.setState('error');
-    const listeners = this.listeners.get('error') || [];
-    listeners.forEach(listener => (listener as any)(error));
-    
+    this.setState("error");
+    const listeners = this.listeners.get("error") || [];
+    listeners.forEach((listener) => (listener as any)(error));
+
     // Reset to idle after a short delay
     setTimeout(() => {
-      if (this.state === 'error') {
-        this.setState('idle');
+      if (this.state === "error") {
+        this.setState("idle");
       }
     }, 3000);
   }
 
   private emitResult(result: SpeechRecognitionResult): void {
-    const listeners = this.listeners.get('result') || [];
-    listeners.forEach(listener => (listener as any)(result));
+    const listeners = this.listeners.get("result") || [];
+    listeners.forEach((listener) => (listener as any)(result));
   }
 
   private getBestMimeType(preferred?: string): string {
     const supportedTypes = [
       preferred,
-      'audio/webm;codecs=opus',
-      'audio/webm',
-      'audio/mp4',
-      'audio/ogg;codecs=opus',
-      'audio/ogg',
-      'audio/wav'
+      "audio/webm;codecs=opus",
+      "audio/webm",
+      "audio/mp4",
+      "audio/ogg;codecs=opus",
+      "audio/ogg",
+      "audio/wav",
     ].filter(Boolean) as string[];
 
     for (const type of supportedTypes) {
@@ -363,25 +388,25 @@ export class SpeechRecognitionService {
     }
 
     // Fallback
-    return 'audio/webm';
+    return "audio/webm";
   }
 
   private async processRecording(): Promise<void> {
     try {
       if (this.audioChunks.length === 0) {
-        throw new Error('No audio data recorded');
+        throw new Error("No audio data recorded");
       }
 
       // Calculate recording duration
       const duration = Date.now() - this.recordingStartTime;
 
       // Create audio blob
-      const mimeType = this.mediaRecorder?.mimeType || 'audio/webm';
+      const mimeType = this.mediaRecorder?.mimeType || "audio/webm";
       const audioBlob = new Blob(this.audioChunks, { type: mimeType });
 
       // Check if recording is too short (less than 500ms)
       if (duration < 500) {
-        throw new Error('Recording too short');
+        throw new Error("Recording too short");
       }
 
       // Transcribe using OpenAI Whisper API
@@ -394,13 +419,12 @@ export class SpeechRecognitionService {
       };
 
       this.emitResult(result);
-      this.setState('idle');
-
+      this.setState("idle");
     } catch (error) {
       const speechError: SpeechRecognitionError = {
-        type: 'transcription-error',
-        message: 'Failed to transcribe audio',
-        details: error instanceof Error ? error.message : String(error)
+        type: "transcription-error",
+        message: "Failed to transcribe audio",
+        details: error instanceof Error ? error.message : String(error),
       };
       this.emitError(speechError);
     }
@@ -411,49 +435,57 @@ export class SpeechRecognitionService {
   }
 
   private async transcribeAudio(audioBlob: Blob): Promise<string> {
-    const apiKey = useSettingsStore.getState().getApiKey('openai');
+    const apiKey = useSettingsStore.getState().getApiKey("openai");
     if (!apiKey) {
-      throw new Error('OpenAI API key not configured');
+      throw new Error("OpenAI API key not configured");
     }
 
     // Convert blob to appropriate format for Whisper API
-    const file = new File([audioBlob], 'recording.webm', { type: audioBlob.type });
+    const file = new File([audioBlob], "recording.webm", {
+      type: audioBlob.type,
+    });
 
     const formData = new FormData();
-    formData.append('file', file);
-    formData.append('model', 'whisper-1');
-    formData.append('response_format', 'text');
-    formData.append('language', 'en'); // Could be made configurable
+    formData.append("file", file);
+    formData.append("model", "whisper-1");
+    formData.append("response_format", "text");
+    formData.append("language", "en"); // Could be made configurable
 
     try {
-      const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
+      const response = await fetch(
+        "https://api.openai.com/v1/audio/transcriptions",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: formData,
         },
-        body: formData,
-      });
+      );
 
       if (!response.ok) {
         const errorData = await response.text();
-        throw new Error(`API request failed: ${response.status} ${response.statusText}\n${errorData}`);
+        throw new Error(
+          `API request failed: ${response.status} ${response.statusText}\n${errorData}`,
+        );
       }
 
       const transcription = await response.text();
       return transcription.trim();
-
     } catch (error) {
       if (error instanceof Error) {
-        if (error.message.includes('401')) {
-          throw new Error('Invalid OpenAI API key');
-        } else if (error.message.includes('429')) {
-          throw new Error('API rate limit exceeded. Please try again later.');
-        } else if (error.message.includes('network')) {
-          throw new Error('Network error. Please check your internet connection.');
+        if (error.message.includes("401")) {
+          throw new Error("Invalid OpenAI API key");
+        } else if (error.message.includes("429")) {
+          throw new Error("API rate limit exceeded. Please try again later.");
+        } else if (error.message.includes("network")) {
+          throw new Error(
+            "Network error. Please check your internet connection.",
+          );
         }
         throw error;
       }
-      throw new Error('Unknown transcription error');
+      throw new Error("Unknown transcription error");
     }
   }
 }

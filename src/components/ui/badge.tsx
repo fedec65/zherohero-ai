@@ -13,18 +13,14 @@ const badgeVariants = cva(
           "border-transparent bg-gray-100 text-gray-900 hover:bg-gray-100/80 dark:bg-gray-800 dark:text-gray-50 dark:hover:bg-gray-800/80",
         destructive:
           "border-transparent bg-red-500 text-gray-50 hover:bg-red-500/80 dark:bg-red-900 dark:text-gray-50 dark:hover:bg-red-900/80",
-        outline: 
-          "text-gray-950 dark:text-gray-50",
+        outline: "text-gray-950 dark:text-gray-50",
         success:
           "border-transparent bg-green-500 text-white hover:bg-green-500/80 dark:bg-green-600 dark:hover:bg-green-600/80",
         warning:
           "border-transparent bg-yellow-500 text-white hover:bg-yellow-500/80 dark:bg-yellow-600 dark:hover:bg-yellow-600/80",
-        info:
-          "border-transparent bg-blue-500 text-white hover:bg-blue-500/80 dark:bg-blue-600 dark:hover:bg-blue-600/80",
-        new:
-          "border-transparent bg-green-100 text-green-800 hover:bg-green-100/80 dark:bg-green-900 dark:text-green-200 dark:hover:bg-green-900/80",
-        beta:
-          "border-transparent bg-purple-100 text-purple-800 hover:bg-purple-100/80 dark:bg-purple-900 dark:text-purple-200 dark:hover:bg-purple-900/80",
+        info: "border-transparent bg-blue-500 text-white hover:bg-blue-500/80 dark:bg-blue-600 dark:hover:bg-blue-600/80",
+        new: "border-transparent bg-green-100 text-green-800 hover:bg-green-100/80 dark:bg-green-900 dark:text-green-200 dark:hover:bg-green-900/80",
+        beta: "border-transparent bg-purple-100 text-purple-800 hover:bg-purple-100/80 dark:bg-purple-900 dark:text-purple-200 dark:hover:bg-purple-900/80",
         premium:
           "border-transparent bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600",
         custom:
@@ -42,7 +38,7 @@ const badgeVariants = cva(
       variant: "default",
       size: "default",
     },
-  }
+  },
 );
 
 export interface BadgeProps
@@ -52,31 +48,23 @@ export interface BadgeProps
   rightIcon?: React.ReactNode;
 }
 
-function Badge({ 
-  className, 
-  variant, 
+function Badge({
+  className,
+  variant,
   size,
   leftIcon,
   rightIcon,
   children,
-  ...props 
+  ...props
 }: BadgeProps) {
   return (
-    <div 
-      className={clsx(badgeVariants({ variant, size }), className)} 
+    <div
+      className={clsx(badgeVariants({ variant, size }), className)}
       {...props}
     >
-      {leftIcon && (
-        <span className="mr-1 -ml-0.5">
-          {leftIcon}
-        </span>
-      )}
+      {leftIcon && <span className="mr-1 -ml-0.5">{leftIcon}</span>}
       {children}
-      {rightIcon && (
-        <span className="ml-1 -mr-0.5">
-          {rightIcon}
-        </span>
-      )}
+      {rightIcon && <span className="ml-1 -mr-0.5">{rightIcon}</span>}
     </div>
   );
 }
@@ -96,13 +84,11 @@ const statusConfig = {
 
 function StatusBadge({ status, children, ...props }: StatusBadgeProps) {
   const config = statusConfig[status];
-  
+
   return (
     <Badge
       variant={config.variant}
-      leftIcon={
-        <div className="w-2 h-2 rounded-full bg-current" />
-      }
+      leftIcon={<div className="w-2 h-2 rounded-full bg-current" />}
       {...props}
     >
       {children || config.label}
@@ -117,12 +103,12 @@ export interface CountBadgeProps extends Omit<BadgeProps, "children"> {
   showZero?: boolean;
 }
 
-function CountBadge({ 
-  count, 
-  max = 99, 
-  showZero = false, 
+function CountBadge({
+  count,
+  max = 99,
+  showZero = false,
   className,
-  ...props 
+  ...props
 }: CountBadgeProps) {
   if (count === 0 && !showZero) {
     return null;
@@ -136,7 +122,7 @@ function CountBadge({
       size="sm"
       className={clsx(
         "min-w-[1.25rem] h-5 px-1.5 flex items-center justify-center",
-        className
+        className,
       )}
       {...props}
     >
@@ -160,7 +146,7 @@ const modelBadgeConfig = {
 
 function ModelBadge({ type, children, ...props }: ModelBadgeProps) {
   const config = modelBadgeConfig[type];
-  
+
   return (
     <Badge variant={config.variant} size="sm" {...props}>
       {children || config.label}
@@ -174,17 +160,13 @@ export interface ContextBadgeProps extends Omit<BadgeProps, "children"> {
   showLabel?: boolean;
 }
 
-function ContextBadge({ 
-  tokens, 
+function ContextBadge({
+  tokens,
   showLabel = true,
-  ...props 
+  ...props
 }: ContextBadgeProps) {
   return (
-    <Badge
-      variant="outline"
-      size="sm"
-      {...props}
-    >
+    <Badge variant="outline" size="sm" {...props}>
       {showLabel && "Context: "}
       {tokens}
     </Badge>
@@ -192,18 +174,19 @@ function ContextBadge({
 }
 
 // Notification Badge - for overlay notifications
-export interface NotificationBadgeProps extends Omit<BadgeProps, "size" | "children"> {
+export interface NotificationBadgeProps
+  extends Omit<BadgeProps, "size" | "children"> {
   count?: number;
   dot?: boolean;
   children: React.ReactElement;
 }
 
-function NotificationBadge({ 
-  count, 
+function NotificationBadge({
+  count,
   dot = false,
   children,
   className,
-  ...props 
+  ...props
 }: NotificationBadgeProps) {
   const showBadge = dot || (count !== undefined && count > 0);
 
@@ -217,7 +200,7 @@ function NotificationBadge({
           className={clsx(
             "absolute -top-2 -right-2 flex items-center justify-center",
             dot ? "h-2 w-2 p-0" : "h-5 w-5 text-xs",
-            className
+            className,
           )}
           {...props}
         >
@@ -228,12 +211,12 @@ function NotificationBadge({
   );
 }
 
-export { 
-  Badge, 
-  StatusBadge, 
-  CountBadge, 
-  ModelBadge, 
+export {
+  Badge,
+  StatusBadge,
+  CountBadge,
+  ModelBadge,
   ContextBadge,
   NotificationBadge,
-  badgeVariants 
+  badgeVariants,
 };

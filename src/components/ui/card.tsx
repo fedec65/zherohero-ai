@@ -28,7 +28,7 @@ const cardVariants = cva(
       size: "default",
       interactive: false,
     },
-  }
+  },
 );
 
 export interface CardProps
@@ -38,17 +38,22 @@ export interface CardProps
 }
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
-  ({ className, variant, size, interactive, asChild = false, ...props }, ref) => {
+  (
+    { className, variant, size, interactive, asChild = false, ...props },
+    ref,
+  ) => {
     const Comp = asChild ? "div" : "div";
-    
+
     return (
       <Comp
         ref={ref}
-        className={clsx(cardVariants({ variant, size, interactive, className }))}
+        className={clsx(
+          cardVariants({ variant, size, interactive, className }),
+        )}
         {...props}
       />
     );
-  }
+  },
 );
 
 Card.displayName = "Card";
@@ -63,13 +68,14 @@ const CardHeader = React.forwardRef<HTMLDivElement, CardHeaderProps>(
       className={clsx("flex flex-col space-y-1.5", className)}
       {...props}
     />
-  )
+  ),
 );
 
 CardHeader.displayName = "CardHeader";
 
 // Card Title Component
-export interface CardTitleProps extends React.HTMLAttributes<HTMLHeadingElement> {
+export interface CardTitleProps
+  extends React.HTMLAttributes<HTMLHeadingElement> {
   as?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 }
 
@@ -79,41 +85,40 @@ const CardTitle = React.forwardRef<HTMLHeadingElement, CardTitleProps>(
       ref={ref}
       className={clsx(
         "font-semibold leading-none tracking-tight text-gray-900 dark:text-gray-100",
-        className
+        className,
       )}
       {...props}
     />
-  )
+  ),
 );
 
 CardTitle.displayName = "CardTitle";
 
 // Card Description Component
-export interface CardDescriptionProps extends React.HTMLAttributes<HTMLParagraphElement> {}
+export interface CardDescriptionProps
+  extends React.HTMLAttributes<HTMLParagraphElement> {}
 
-const CardDescription = React.forwardRef<HTMLParagraphElement, CardDescriptionProps>(
-  ({ className, ...props }, ref) => (
-    <p
-      ref={ref}
-      className={clsx("text-sm text-gray-500 dark:text-gray-400", className)}
-      {...props}
-    />
-  )
-);
+const CardDescription = React.forwardRef<
+  HTMLParagraphElement,
+  CardDescriptionProps
+>(({ className, ...props }, ref) => (
+  <p
+    ref={ref}
+    className={clsx("text-sm text-gray-500 dark:text-gray-400", className)}
+    {...props}
+  />
+));
 
 CardDescription.displayName = "CardDescription";
 
 // Card Content Component
-export interface CardContentProps extends React.HTMLAttributes<HTMLDivElement> {}
+export interface CardContentProps
+  extends React.HTMLAttributes<HTMLDivElement> {}
 
 const CardContent = React.forwardRef<HTMLDivElement, CardContentProps>(
   ({ className, ...props }, ref) => (
-    <div 
-      ref={ref} 
-      className={clsx("pt-0", className)} 
-      {...props} 
-    />
-  )
+    <div ref={ref} className={clsx("pt-0", className)} {...props} />
+  ),
 );
 
 CardContent.displayName = "CardContent";
@@ -128,7 +133,7 @@ const CardFooter = React.forwardRef<HTMLDivElement, CardFooterProps>(
       className={clsx("flex items-center pt-0", className)}
       {...props}
     />
-  )
+  ),
 );
 
 CardFooter.displayName = "CardFooter";
@@ -149,16 +154,19 @@ export interface ModelCardProps extends Omit<CardProps, "variant"> {
 }
 
 const ModelCard = React.forwardRef<HTMLDivElement, ModelCardProps>(
-  ({ 
-    model,
-    onConfigure,
-    configureButtonText = "Configure",
-    providerLogo,
-    badge,
-    className,
-    children,
-    ...props 
-  }, ref) => (
+  (
+    {
+      model,
+      onConfigure,
+      configureButtonText = "Configure",
+      providerLogo,
+      badge,
+      className,
+      children,
+      ...props
+    },
+    ref,
+  ) => (
     <Card
       ref={ref}
       variant="outline"
@@ -177,7 +185,7 @@ const ModelCard = React.forwardRef<HTMLDivElement, ModelCardProps>(
               {model.contextWindow}
             </CardDescription>
           </div>
-          
+
           <div className="flex items-center gap-2 ml-2">
             {badge}
             {model.isNew && (
@@ -186,9 +194,7 @@ const ModelCard = React.forwardRef<HTMLDivElement, ModelCardProps>(
               </span>
             )}
             {providerLogo && (
-              <div className="w-6 h-6 flex-shrink-0">
-                {providerLogo}
-              </div>
+              <div className="w-6 h-6 flex-shrink-0">{providerLogo}</div>
             )}
           </div>
         </div>
@@ -236,7 +242,7 @@ const ModelCard = React.forwardRef<HTMLDivElement, ModelCardProps>(
         </CardFooter>
       )}
     </Card>
-  )
+  ),
 );
 
 ModelCard.displayName = "ModelCard";

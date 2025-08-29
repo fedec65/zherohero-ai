@@ -1,21 +1,25 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { RateLimiter } from '../src/lib/security';
-
+import { NextRequest, NextResponse } from "next/server";
+import { RateLimiter } from "../src/lib/security";
 
 // This is a cron job endpoint for cleanup tasks
 export async function GET(request: NextRequest) {
   // Verify this is a cron job request from Vercel
-  const authHeader = request.headers.get('authorization');
+  const authHeader = request.headers.get("authorization");
   const expectedAuth = `Bearer ${process.env.CRON_SECRET}`;
-  
+
   if (!expectedAuth || authHeader !== expectedAuth) {
-    return new NextResponse('Unauthorized', { status: 401 });
+    return new NextResponse("Unauthorized", { status: 401 });
   }
 
   const startTime = Date.now();
   const cleanupResults = {
     timestamp: new Date().toISOString(),
-    tasks: [] as Array<{ name: string; status: 'completed' | 'failed'; duration: number; details?: string }>,
+    tasks: [] as Array<{
+      name: string;
+      status: "completed" | "failed";
+      duration: number;
+      details?: string;
+    }>,
   };
 
   // Task 1: Cleanup rate limiter cache
@@ -23,16 +27,16 @@ export async function GET(request: NextRequest) {
     const taskStart = Date.now();
     RateLimiter.cleanup();
     cleanupResults.tasks.push({
-      name: 'rate_limiter_cleanup',
-      status: 'completed',
+      name: "rate_limiter_cleanup",
+      status: "completed",
       duration: Date.now() - taskStart,
     });
   } catch (error) {
     cleanupResults.tasks.push({
-      name: 'rate_limiter_cleanup',
-      status: 'failed',
+      name: "rate_limiter_cleanup",
+      status: "failed",
       duration: Date.now() - startTime,
-      details: error instanceof Error ? error.message : 'Unknown error',
+      details: error instanceof Error ? error.message : "Unknown error",
     });
   }
 
@@ -43,16 +47,16 @@ export async function GET(request: NextRequest) {
     // For now, this is a placeholder
     await clearOldLogs();
     cleanupResults.tasks.push({
-      name: 'log_cleanup',
-      status: 'completed',
+      name: "log_cleanup",
+      status: "completed",
       duration: Date.now() - taskStart,
     });
   } catch (error) {
     cleanupResults.tasks.push({
-      name: 'log_cleanup',
-      status: 'failed',
+      name: "log_cleanup",
+      status: "failed",
       duration: Date.now() - startTime,
-      details: error instanceof Error ? error.message : 'Unknown error',
+      details: error instanceof Error ? error.message : "Unknown error",
     });
   }
 
@@ -64,16 +68,16 @@ export async function GET(request: NextRequest) {
       global.gc(); // Force garbage collection if available
     }
     cleanupResults.tasks.push({
-      name: 'memory_cleanup',
-      status: 'completed',
+      name: "memory_cleanup",
+      status: "completed",
       duration: Date.now() - memoryTaskStart,
     });
   } catch (error) {
     cleanupResults.tasks.push({
-      name: 'memory_cleanup',
-      status: 'failed',
+      name: "memory_cleanup",
+      status: "failed",
       duration: Date.now() - memoryTaskStart,
-      details: error instanceof Error ? error.message : 'Unknown error',
+      details: error instanceof Error ? error.message : "Unknown error",
     });
   }
 
@@ -83,25 +87,29 @@ export async function GET(request: NextRequest) {
     metricsTaskStart = Date.now();
     await collectMetrics();
     cleanupResults.tasks.push({
-      name: 'metrics_collection',
-      status: 'completed',
+      name: "metrics_collection",
+      status: "completed",
       duration: Date.now() - metricsTaskStart,
     });
   } catch (error) {
     cleanupResults.tasks.push({
-      name: 'metrics_collection',
-      status: 'failed',
+      name: "metrics_collection",
+      status: "failed",
       duration: Date.now() - metricsTaskStart,
-      details: error instanceof Error ? error.message : 'Unknown error',
+      details: error instanceof Error ? error.message : "Unknown error",
     });
   }
 
   const totalDuration = Date.now() - startTime;
-  const successCount = cleanupResults.tasks.filter(t => t.status === 'completed').length;
-  const failureCount = cleanupResults.tasks.filter(t => t.status === 'failed').length;
+  const successCount = cleanupResults.tasks.filter(
+    (t) => t.status === "completed",
+  ).length;
+  const failureCount = cleanupResults.tasks.filter(
+    (t) => t.status === "failed",
+  ).length;
 
   // Log cleanup results
-  console.log('Cleanup job completed:', {
+  console.log("Cleanup job completed:", {
     duration: totalDuration,
     successful_tasks: successCount,
     failed_tasks: failureCount,
@@ -109,21 +117,28 @@ export async function GET(request: NextRequest) {
   });
 
   // Return results
-  return new NextResponse(JSON.stringify({
-    ...cleanupResults,
-    summary: {
-      total_duration: totalDuration,
-      successful_tasks: successCount,
-      failed_tasks: failureCount,
-      overall_status: failureCount === 0 ? 'success' : 'partial_failure',
+  return new NextResponse(
+    JSON.stringify(
+      {
+        ...cleanupResults,
+        summary: {
+          total_duration: totalDuration,
+          successful_tasks: successCount,
+          failed_tasks: failureCount,
+          overall_status: failureCount === 0 ? "success" : "partial_failure",
+        },
+      },
+      null,
+      2,
+    ),
+    {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-cache",
+      },
     },
-  }, null, 2), {
-    status: 200,
-    headers: {
-      'Content-Type': 'application/json',
-      'Cache-Control': 'no-cache',
-    },
-  });
+  );
 }
 
 async function clearOldLogs(): Promise<void> {
@@ -132,9 +147,9 @@ async function clearOldLogs(): Promise<void> {
   // - Clean up old files in a logs directory
   // - Remove old database entries
   // - Clear old cache entries
-  
+
   // For now, just simulate some work
-  await new Promise(resolve => setTimeout(resolve, 100));
+  await new Promise((resolve) => setTimeout(resolve, 100));
 }
 
 async function collectMetrics(): Promise<void> {
@@ -149,12 +164,12 @@ async function collectMetrics(): Promise<void> {
     };
 
     // In a real application, you might send these to a metrics service
-    console.log('Metrics collected:', metrics);
-    
+    console.log("Metrics collected:", metrics);
+
     // Simulate metrics transmission
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await new Promise((resolve) => setTimeout(resolve, 50));
   } catch (error) {
-    console.error('Failed to collect metrics:', error);
+    console.error("Failed to collect metrics:", error);
     throw error;
   }
 }

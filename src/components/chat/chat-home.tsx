@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { Plus, Shield, Database, MessageCircle, Sparkles } from 'lucide-react';
-import { Button } from '../ui/button';
-import { useChatStore } from '../../lib/stores/chat-store';
-import { loadDemoData } from './demo-data';
+import React from "react";
+import { Plus, Shield, Database, MessageCircle, Sparkles } from "lucide-react";
+import { Button } from "../ui/button";
+import { useChatStore } from "../../lib/stores/chat-store";
+import { loadDemoData } from "./demo-data";
 
 export function ChatHome() {
   const { createChat } = useChatStore();
@@ -30,7 +30,7 @@ export function ChatHome() {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 mb-6 shadow-lg">
             <MessageCircle className="h-8 w-8 text-white" />
           </div>
-          
+
           <div className="space-y-2">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
               Welcome to ZheroHero
@@ -57,7 +57,7 @@ export function ChatHome() {
             {/* Hover effect overlay */}
             <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-200" />
           </Button>
-          
+
           {/* New Incognito Chat Button */}
           <Button
             onClick={handleNewIncognitoChat}
@@ -78,16 +78,24 @@ export function ChatHome() {
             <div className="w-8 h-8 mx-auto mb-2 text-blue-600 dark:text-blue-400">
               <MessageCircle className="h-full w-full" />
             </div>
-            <h3 className="font-medium text-gray-900 dark:text-white mb-1">Multiple Models</h3>
-            <p className="text-xs text-gray-600 dark:text-gray-400">Access 40+ AI models from top providers</p>
+            <h3 className="font-medium text-gray-900 dark:text-white mb-1">
+              Multiple Models
+            </h3>
+            <p className="text-xs text-gray-600 dark:text-gray-400">
+              Access 40+ AI models from top providers
+            </p>
           </div>
-          
+
           <div className="text-center p-4 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700">
             <div className="w-8 h-8 mx-auto mb-2 text-purple-600 dark:text-purple-400">
               <Shield className="h-full w-full" />
             </div>
-            <h3 className="font-medium text-gray-900 dark:text-white mb-1">Privacy First</h3>
-            <p className="text-xs text-gray-600 dark:text-gray-400">Incognito mode for sensitive conversations</p>
+            <h3 className="font-medium text-gray-900 dark:text-white mb-1">
+              Privacy First
+            </h3>
+            <p className="text-xs text-gray-600 dark:text-gray-400">
+              Incognito mode for sensitive conversations
+            </p>
           </div>
         </div>
 
@@ -101,7 +109,7 @@ export function ChatHome() {
         </div>
 
         {/* Development: Load demo data button */}
-        {process.env.NODE_ENV === 'development' && (
+        {process.env.NODE_ENV === "development" && (
           <div className="mt-12 pt-6 border-t border-gray-200 dark:border-gray-700">
             <Button
               onClick={handleLoadDemoData}

@@ -2,28 +2,30 @@
  * MCP Server List Component
  * Main component that integrates all MCP server management functionality
  */
-'use client';
+"use client";
 
-import React, { useState, useMemo } from 'react';
-import { Globe, Search, Plus, Settings, Trash2 } from 'lucide-react';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { MCPInfoBanner } from './mcp-info-banner';
-import { MCPTabs, MCPTab } from './mcp-tabs';
-import { MCPServerCard } from './mcp-server-card';
-import { AddMCPServerDialog } from './mcp-add-server-dialog';
-import { useMCPStore } from '../../lib/stores/mcp-store';
-import { MCPServer } from '../../lib/stores/types/index';
+import React, { useState, useMemo } from "react";
+import { Globe, Search, Plus, Settings, Trash2 } from "lucide-react";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { MCPInfoBanner } from "./mcp-info-banner";
+import { MCPTabs, MCPTab } from "./mcp-tabs";
+import { MCPServerCard } from "./mcp-server-card";
+import { AddMCPServerDialog } from "./mcp-add-server-dialog";
+import { useMCPStore } from "../../lib/stores/mcp-store";
+import { MCPServer } from "../../lib/stores/types/index";
 
 interface MCPServerListProps {
   className?: string;
 }
 
-export function MCPServerList({ className = '' }: MCPServerListProps) {
-  const [activeTab, setActiveTab] = useState<MCPTab>('builtin');
-  const [searchQuery, setSearchQuery] = useState('');
+export function MCPServerList({ className = "" }: MCPServerListProps) {
+  const [activeTab, setActiveTab] = useState<MCPTab>("builtin");
+  const [searchQuery, setSearchQuery] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [selectedServers, setSelectedServers] = useState<Set<string>>(new Set());
+  const [selectedServers, setSelectedServers] = useState<Set<string>>(
+    new Set(),
+  );
 
   const {
     builtInServers,
@@ -33,12 +35,12 @@ export function MCPServerList({ className = '' }: MCPServerListProps) {
     duplicateServer,
     deleteServer,
     deleteMultipleServers,
-    getConnectionStatus
+    getConnectionStatus,
   } = useMCPStore();
 
   // Handle tab changes - open dialog for 'add' tab
   const handleTabChange = (tab: MCPTab) => {
-    if (tab === 'add') {
+    if (tab === "add") {
       setIsAddDialogOpen(true);
       return;
     }
@@ -48,31 +50,34 @@ export function MCPServerList({ className = '' }: MCPServerListProps) {
   // Filter servers based on search query
   const filteredServers = useMemo(() => {
     const filtered = getFilteredServers();
-    
+
     if (!searchQuery.trim()) {
       return filtered;
     }
 
     const query = searchQuery.toLowerCase();
     return {
-      builtin: filtered.builtin.filter(server =>
-        server.name.toLowerCase().includes(query) ||
-        server.description.toLowerCase().includes(query) ||
-        server.url.toLowerCase().includes(query)
+      builtin: filtered.builtin.filter(
+        (server) =>
+          server.name.toLowerCase().includes(query) ||
+          server.description.toLowerCase().includes(query) ||
+          server.url.toLowerCase().includes(query),
       ),
-      custom: filtered.custom.filter(server =>
-        server.name.toLowerCase().includes(query) ||
-        server.description.toLowerCase().includes(query) ||
-        server.url.toLowerCase().includes(query)
-      )
+      custom: filtered.custom.filter(
+        (server) =>
+          server.name.toLowerCase().includes(query) ||
+          server.description.toLowerCase().includes(query) ||
+          server.url.toLowerCase().includes(query),
+      ),
     };
   }, [searchQuery, getFilteredServers]);
 
-  const currentServers = activeTab === 'builtin' ? filteredServers.builtin : filteredServers.custom;
+  const currentServers =
+    activeTab === "builtin" ? filteredServers.builtin : filteredServers.custom;
 
   // Server actions
   const handleEditServer = (server: MCPServer) => {
-    console.log('Edit server:', server.name);
+    console.log("Edit server:", server.name);
     // TODO: Implement edit functionality
   };
 
@@ -88,15 +93,21 @@ export function MCPServerList({ className = '' }: MCPServerListProps) {
 
   const handleBulkDelete = () => {
     if (selectedServers.size === 0) return;
-    
+
     const serverNames = Array.from(selectedServers)
-      .map(id => {
-        const server = [...builtInServers, ...customServers].find(s => s.id === id);
+      .map((id) => {
+        const server = [...builtInServers, ...customServers].find(
+          (s) => s.id === id,
+        );
         return server?.name;
       })
       .filter(Boolean);
 
-    if (window.confirm(`Are you sure you want to delete ${selectedServers.size} server(s)?\n\n${serverNames.join(', ')}`)) {
+    if (
+      window.confirm(
+        `Are you sure you want to delete ${selectedServers.size} server(s)?\n\n${serverNames.join(", ")}`,
+      )
+    ) {
       deleteMultipleServers(Array.from(selectedServers));
       setSelectedServers(new Set());
     }
@@ -112,10 +123,14 @@ export function MCPServerList({ className = '' }: MCPServerListProps) {
     setSelectedServers(newSelection);
   };
 
-  const EmptyState = ({ title, description, icon: Icon }: { 
-    title: string; 
-    description: string; 
-    icon: React.ComponentType<any> 
+  const EmptyState = ({
+    title,
+    description,
+    icon: Icon,
+  }: {
+    title: string;
+    description: string;
+    icon: React.ComponentType<any>;
   }) => (
     <div className="flex flex-col items-center justify-center py-20 text-center">
       <div className="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 rounded-2xl flex items-center justify-center mb-6 shadow-inner">
@@ -129,7 +144,7 @@ export function MCPServerList({ className = '' }: MCPServerListProps) {
       <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto leading-relaxed mb-6">
         {description}
       </p>
-      {activeTab === 'custom' && (
+      {activeTab === "custom" && (
         <div className="space-y-4">
           <Button
             onClick={() => setIsAddDialogOpen(true)}
@@ -206,7 +221,7 @@ export function MCPServerList({ className = '' }: MCPServerListProps) {
               description={`No servers match your search for "${searchQuery}". Try adjusting your search terms or browse all available servers.`}
               icon={Search}
             />
-          ) : activeTab === 'builtin' ? (
+          ) : activeTab === "builtin" ? (
             <EmptyState
               title="No Built-in Servers Available"
               description="Built-in MCP servers will appear here when they become available. These are pre-configured, ready-to-use servers that extend AI capabilities with specialized tools and resources."
@@ -224,7 +239,7 @@ export function MCPServerList({ className = '' }: MCPServerListProps) {
             {currentServers.map((server) => (
               <div key={server.id} className="relative">
                 {/* Selection checkbox for custom servers */}
-                {activeTab === 'custom' && (
+                {activeTab === "custom" && (
                   <div className="absolute top-3 left-3 z-10">
                     <label className="relative inline-flex items-center">
                       <input
@@ -234,8 +249,16 @@ export function MCPServerList({ className = '' }: MCPServerListProps) {
                         className="sr-only peer"
                       />
                       <div className="w-5 h-5 bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 rounded peer-checked:bg-blue-600 peer-checked:border-blue-600 peer-focus:ring-2 peer-focus:ring-blue-500/20 transition-all duration-200 flex items-center justify-center">
-                        <svg className="w-3 h-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        <svg
+                          className="w-3 h-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                            clipRule="evenodd"
+                          />
                         </svg>
                       </div>
                     </label>
@@ -248,8 +271,10 @@ export function MCPServerList({ className = '' }: MCPServerListProps) {
                   onEdit={handleEditServer}
                   onDuplicate={handleDuplicateServer}
                   onDelete={handleDeleteServer}
-                  isBuiltin={activeTab === 'builtin'}
-                  className={selectedServers.has(server.id) ? 'ring-2 ring-blue-500' : ''}
+                  isBuiltin={activeTab === "builtin"}
+                  className={
+                    selectedServers.has(server.id) ? "ring-2 ring-blue-500" : ""
+                  }
                 />
               </div>
             ))}

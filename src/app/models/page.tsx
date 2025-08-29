@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { Metadata } from 'next';
-import { useState } from 'react';
-import { ModelsLayout } from '../../components/layout';
-import { ModelTabs, ModelGrid } from '../../components/models';
-import { PerformanceReport } from '../../components/dev/performance-report';
-import { Button } from '../../components/ui/button';
-import { Activity } from 'lucide-react';
+import { Metadata } from "next";
+import { useState } from "react";
+import { ModelsLayout } from "../../components/layout";
+import { ModelTabs, ModelGrid } from "../../components/models";
+import { PerformanceReport } from "../../components/dev/performance-report";
+import { Button } from "../../components/ui/button";
+import { Activity } from "lucide-react";
 
 export default function ModelsPage() {
   const [showPerformanceReport, setShowPerformanceReport] = useState(false);
@@ -24,8 +24,8 @@ export default function ModelsPage() {
                 Configure parameters for each AI model
               </p>
             </div>
-            
-            {process.env.NODE_ENV === 'development' && (
+
+            {process.env.NODE_ENV === "development" && (
               <Button
                 variant="ghost"
                 size="sm"
@@ -49,9 +49,9 @@ export default function ModelsPage() {
             <ModelGrid />
           </div>
         </div>
-        
+
         {/* Performance Report */}
-        <PerformanceReport 
+        <PerformanceReport
           show={showPerformanceReport}
           onClose={() => setShowPerformanceReport(false)}
         />

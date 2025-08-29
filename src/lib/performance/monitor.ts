@@ -3,7 +3,7 @@
  * Optimized for Node.js/Next.js environment
  */
 
-import { AIProvider } from '../../lib/stores/types';
+import { AIProvider } from "../../lib/stores/types";
 
 // Performance metrics interfaces
 export interface RequestMetrics {
@@ -57,11 +57,11 @@ class MetricsBuffer<T> {
     if (this.count < this.size) {
       return this.buffer.slice(0, this.count);
     }
-    
+
     // Return items in chronological order
     return [
       ...this.buffer.slice(this.index),
-      ...this.buffer.slice(0, this.index)
+      ...this.buffer.slice(0, this.index),
     ];
   }
 
@@ -78,40 +78,58 @@ class MetricsBuffer<T> {
 
 export class PerformanceMonitor {
   private static instance: PerformanceMonitor;
-  
+
   // Separate buffers for different metric types
   private requestMetrics = new Map<AIProvider, MetricsBuffer<RequestMetrics>>();
-  private streamingMetrics = new Map<AIProvider, MetricsBuffer<StreamingMetrics>>();
-  
+  private streamingMetrics = new Map<
+    AIProvider,
+    MetricsBuffer<StreamingMetrics>
+  >();
+
   // Real-time statistics cache
   private statsCache = new Map<AIProvider, ProviderStats>();
   private lastStatsUpdate = new Map<AIProvider, number>();
-  
+
   // Performance optimization settings
   private readonly STATS_CACHE_TTL = 30000; // 30 seconds
   private readonly MAX_BUFFER_SIZE = 1000;
   private readonly CLEANUP_INTERVAL = 300000; // 5 minutes
-  
+
   private cleanupTimer: NodeJS.Timeout;
 
   private constructor() {
     // Initialize buffers for all providers
-    const providers: AIProvider[] = ['openai', 'anthropic', 'gemini', 'xai', 'deepseek'];
-    
-    providers.forEach(provider => {
-      this.requestMetrics.set(provider, new MetricsBuffer(this.MAX_BUFFER_SIZE));
-      this.streamingMetrics.set(provider, new MetricsBuffer(this.MAX_BUFFER_SIZE));
+    const providers: AIProvider[] = [
+      "openai",
+      "anthropic",
+      "gemini",
+      "xai",
+      "deepseek",
+    ];
+
+    providers.forEach((provider) => {
+      this.requestMetrics.set(
+        provider,
+        new MetricsBuffer(this.MAX_BUFFER_SIZE),
+      );
+      this.streamingMetrics.set(
+        provider,
+        new MetricsBuffer(this.MAX_BUFFER_SIZE),
+      );
     });
 
     // Only start timers and event listeners in runtime, not during build
-    if (typeof window === 'undefined' && process.env.NEXT_PHASE !== 'phase-production-build') {
+    if (
+      typeof window === "undefined" &&
+      process.env.NEXT_PHASE !== "phase-production-build"
+    ) {
       // Start cleanup timer
       this.cleanupTimer = setInterval(() => {
         this.performCleanup();
       }, this.CLEANUP_INTERVAL);
-      
+
       // Cleanup on process exit
-      process.on('exit', () => {
+      process.on("exit", () => {
         if (this.cleanupTimer) {
           clearInterval(this.cleanupTimer);
         }
@@ -136,17 +154,20 @@ export class PerformanceMonitor {
 
     const record: RequestMetrics = {
       ...metrics,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
 
     buffer.add(record);
-    
+
     // Invalidate stats cache for this provider
     this.invalidateStatsCache(metrics.provider);
-    
+
     // Log slow requests
-    if (metrics.duration > 10000) { // > 10 seconds
-      console.warn(`Slow request detected: ${metrics.requestId} - ${metrics.duration}ms`);
+    if (metrics.duration > 10000) {
+      // > 10 seconds
+      console.warn(
+        `Slow request detected: ${metrics.requestId} - ${metrics.duration}ms`,
+      );
     }
   }
 
@@ -154,7 +175,9 @@ export class PerformanceMonitor {
   recordStreamingRequest(metrics: StreamingMetrics): void {
     const buffer = this.streamingMetrics.get(metrics.provider);
     if (!buffer) {
-      console.warn(`No streaming buffer found for provider: ${metrics.provider}`);
+      console.warn(
+        `No streaming buffer found for provider: ${metrics.provider}`,
+      );
       return;
     }
 
@@ -162,19 +185,23 @@ export class PerformanceMonitor {
     const record: StreamingMetrics = {
       ...metrics,
       timestamp: new Date(),
-      throughput: metrics.tokenCount > 0 && metrics.duration > 0 
-        ? (metrics.tokenCount / metrics.duration) * 1000 // tokens per second
-        : undefined
+      throughput:
+        metrics.tokenCount > 0 && metrics.duration > 0
+          ? (metrics.tokenCount / metrics.duration) * 1000 // tokens per second
+          : undefined,
     };
 
     buffer.add(record);
-    
+
     // Invalidate stats cache
     this.invalidateStatsCache(metrics.provider);
-    
+
     // Log performance issues
-    if (metrics.firstTokenLatency && metrics.firstTokenLatency > 5000) { // > 5 seconds
-      console.warn(`Slow first token: ${metrics.requestId} - ${metrics.firstTokenLatency}ms`);
+    if (metrics.firstTokenLatency && metrics.firstTokenLatency > 5000) {
+      // > 5 seconds
+      console.warn(
+        `Slow first token: ${metrics.requestId} - ${metrics.firstTokenLatency}ms`,
+      );
     }
   }
 
@@ -182,7 +209,7 @@ export class PerformanceMonitor {
   getProviderStats(provider: AIProvider): ProviderStats {
     const now = Date.now();
     const lastUpdate = this.lastStatsUpdate.get(provider) || 0;
-    
+
     // Return cached stats if still valid
     if (now - lastUpdate < this.STATS_CACHE_TTL) {
       const cached = this.statsCache.get(provider);
@@ -190,38 +217,49 @@ export class PerformanceMonitor {
         return cached;
       }
     }
-    
+
     // Calculate fresh stats
     const stats = this.calculateProviderStats(provider);
     this.statsCache.set(provider, stats);
     this.lastStatsUpdate.set(provider, now);
-    
+
     return stats;
   }
 
   // Get all provider statistics
   getAllProviderStats(): Record<AIProvider, ProviderStats> {
-    const providers: AIProvider[] = ['openai', 'anthropic', 'gemini', 'xai', 'deepseek'];
+    const providers: AIProvider[] = [
+      "openai",
+      "anthropic",
+      "gemini",
+      "xai",
+      "deepseek",
+    ];
     const allStats = {} as Record<AIProvider, ProviderStats>;
-    
-    providers.forEach(provider => {
+
+    providers.forEach((provider) => {
       allStats[provider] = this.getProviderStats(provider);
     });
-    
+
     return allStats;
   }
 
   // Get recent metrics for debugging
-  getRecentMetrics(provider: AIProvider, limit = 50): {
+  getRecentMetrics(
+    provider: AIProvider,
+    limit = 50,
+  ): {
     requests: RequestMetrics[];
     streaming: StreamingMetrics[];
   } {
     const requestBuffer = this.requestMetrics.get(provider);
     const streamingBuffer = this.streamingMetrics.get(provider);
-    
+
     const requests = requestBuffer ? requestBuffer.getAll().slice(-limit) : [];
-    const streaming = streamingBuffer ? streamingBuffer.getAll().slice(-limit) : [];
-    
+    const streaming = streamingBuffer
+      ? streamingBuffer.getAll().slice(-limit)
+      : [];
+
     return { requests, streaming };
   }
 
@@ -236,55 +274,56 @@ export class PerformanceMonitor {
   } {
     const allStats = this.getAllProviderStats();
     const providers = Object.keys(allStats) as AIProvider[];
-    
+
     let totalRequests = 0;
     let totalStreamingRequests = 0;
     let totalLatency = 0;
     let totalFirstTokenLatency = 0;
     let latencyCount = 0;
     let firstTokenCount = 0;
-    
+
     let topProvider: AIProvider | null = null;
     let worstProvider: AIProvider | null = null;
     let bestLatency = Infinity;
     let worstLatency = 0;
-    
-    providers.forEach(provider => {
+
+    providers.forEach((provider) => {
       const stats = allStats[provider];
       totalRequests += stats.totalRequests;
-      
+
       const streamingBuffer = this.streamingMetrics.get(provider);
       const streamingCount = streamingBuffer ? streamingBuffer.length : 0;
       totalStreamingRequests += streamingCount;
-      
+
       if (stats.totalRequests > 0) {
         totalLatency += stats.averageLatency * stats.totalRequests;
         latencyCount += stats.totalRequests;
-        
+
         if (stats.averageLatency < bestLatency) {
           bestLatency = stats.averageLatency;
           topProvider = provider;
         }
-        
+
         if (stats.averageLatency > worstLatency) {
           worstLatency = stats.averageLatency;
           worstProvider = provider;
         }
       }
-      
+
       if (stats.averageFirstTokenLatency > 0) {
         totalFirstTokenLatency += stats.averageFirstTokenLatency;
         firstTokenCount++;
       }
     });
-    
+
     return {
       totalRequests,
       totalStreamingRequests,
       averageLatency: latencyCount > 0 ? totalLatency / latencyCount : 0,
-      averageFirstTokenLatency: firstTokenCount > 0 ? totalFirstTokenLatency / firstTokenCount : 0,
+      averageFirstTokenLatency:
+        firstTokenCount > 0 ? totalFirstTokenLatency / firstTokenCount : 0,
       topPerformingProvider: topProvider,
-      worstPerformingProvider: worstProvider
+      worstPerformingProvider: worstProvider,
     };
   }
 
@@ -296,8 +335,8 @@ export class PerformanceMonitor {
       this.invalidateStatsCache(provider);
     } else {
       // Clear all
-      this.requestMetrics.forEach(buffer => buffer.clear());
-      this.streamingMetrics.forEach(buffer => buffer.clear());
+      this.requestMetrics.forEach((buffer) => buffer.clear());
+      this.streamingMetrics.forEach((buffer) => buffer.clear());
       this.statsCache.clear();
       this.lastStatsUpdate.clear();
     }
@@ -307,45 +346,50 @@ export class PerformanceMonitor {
   private calculateProviderStats(provider: AIProvider): ProviderStats {
     const requestBuffer = this.requestMetrics.get(provider);
     const streamingBuffer = this.streamingMetrics.get(provider);
-    
+
     const requests = requestBuffer ? requestBuffer.getAll() : [];
     const streaming = streamingBuffer ? streamingBuffer.getAll() : [];
-    
+
     const totalRequests = requests.length + streaming.length;
-    const successfulRequests = requests.filter(r => r.success).length + 
-                              streaming.filter(s => s.success).length;
+    const successfulRequests =
+      requests.filter((r) => r.success).length +
+      streaming.filter((s) => s.success).length;
     const failedRequests = totalRequests - successfulRequests;
-    
+
     // Calculate average latency
     const allDurations = [
-      ...requests.map(r => r.duration),
-      ...streaming.map(s => s.duration)
+      ...requests.map((r) => r.duration),
+      ...streaming.map((s) => s.duration),
     ];
-    const averageLatency = allDurations.length > 0 
-      ? allDurations.reduce((sum, d) => sum + d, 0) / allDurations.length
-      : 0;
-    
+    const averageLatency =
+      allDurations.length > 0
+        ? allDurations.reduce((sum, d) => sum + d, 0) / allDurations.length
+        : 0;
+
     // Calculate average first token latency
     const firstTokenLatencies = streaming
-      .map(s => s.firstTokenLatency)
+      .map((s) => s.firstTokenLatency)
       .filter((latency): latency is number => latency !== null);
-    const averageFirstTokenLatency = firstTokenLatencies.length > 0
-      ? firstTokenLatencies.reduce((sum, l) => sum + l, 0) / firstTokenLatencies.length
-      : 0;
-    
+    const averageFirstTokenLatency =
+      firstTokenLatencies.length > 0
+        ? firstTokenLatencies.reduce((sum, l) => sum + l, 0) /
+          firstTokenLatencies.length
+        : 0;
+
     // Calculate total tokens and throughput
     const totalTokens = [
-      ...requests.map(r => r.tokens || 0),
-      ...streaming.map(s => s.tokenCount || 0)
+      ...requests.map((r) => r.tokens || 0),
+      ...streaming.map((s) => s.tokenCount || 0),
     ].reduce((sum, tokens) => sum + tokens, 0);
-    
+
     const throughputs = streaming
-      .map(s => s.throughput)
+      .map((s) => s.throughput)
       .filter((t): t is number => t !== undefined);
-    const averageThroughput = throughputs.length > 0
-      ? throughputs.reduce((sum, t) => sum + t, 0) / throughputs.length
-      : 0;
-    
+    const averageThroughput =
+      throughputs.length > 0
+        ? throughputs.reduce((sum, t) => sum + t, 0) / throughputs.length
+        : 0;
+
     return {
       totalRequests,
       successfulRequests,
@@ -355,7 +399,7 @@ export class PerformanceMonitor {
       totalTokens,
       averageThroughput,
       errorRate: totalRequests > 0 ? failedRequests / totalRequests : 0,
-      lastUpdated: new Date()
+      lastUpdated: new Date(),
     };
   }
 
@@ -369,11 +413,11 @@ export class PerformanceMonitor {
     if (global.gc) {
       global.gc();
     }
-    
+
     // Log memory usage in development
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       const used = process.memoryUsage();
-      console.log('Memory usage:', {
+      console.log("Memory usage:", {
         rss: `${Math.round(used.rss / 1024 / 1024)} MB`,
         heapUsed: `${Math.round(used.heapUsed / 1024 / 1024)} MB`,
         heapTotal: `${Math.round(used.heapTotal / 1024 / 1024)} MB`,

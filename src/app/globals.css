@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
 
 :root {
   /* Light theme variables */
@@ -16,7 +16,7 @@
   --popover-rgb: 255, 255, 255; /* white */
   --primary-rgb: 37, 99, 235; /* blue-600 */
   --secondary-rgb: 243, 244, 246; /* gray-100 */
-  
+
   /* Toast variables */
   --toast-bg: #ffffff;
   --toast-text: #1f2937;
@@ -35,7 +35,7 @@
   --popover-rgb: 31, 41, 55; /* gray-800 */
   --primary-rgb: 59, 130, 246; /* blue-500 */
   --secondary-rgb: 55, 65, 81; /* gray-700 */
-  
+
   /* Toast variables */
   --toast-bg: #374151;
   --toast-text: #f9fafb;
@@ -51,16 +51,24 @@
 html,
 body {
   height: 100%;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-feature-settings: 'cv11', 'ss01';
-  font-variation-settings: 'opsz' 32;
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  font-feature-settings: "cv11", "ss01";
+  font-variation-settings: "opsz" 32;
   scroll-behavior: smooth;
 }
 
 body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-rgb));
-  transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+  transition:
+    color 0.2s ease-in-out,
+    background-color 0.2s ease-in-out;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -69,7 +77,10 @@ body {
 *,
 *::before,
 *::after {
-  transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, color 0.2s ease-in-out;
+  transition:
+    background-color 0.2s ease-in-out,
+    border-color 0.2s ease-in-out,
+    color 0.2s ease-in-out;
 }
 
 /* Prevent transition during theme switch */
@@ -266,7 +277,7 @@ pre code {
   .nav-item {
     @apply border border-gray-300;
   }
-  
+
   .message-bubble {
     @apply border border-gray-300;
   }

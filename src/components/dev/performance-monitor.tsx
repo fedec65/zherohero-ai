@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState, memo } from 'react';
-import { Activity, Clock, Eye, Zap } from 'lucide-react';
+import React, { useEffect, useState, memo } from "react";
+import { Activity, Clock, Eye, Zap } from "lucide-react";
 
 interface PerformanceMetrics {
   renderCount: number;
@@ -23,73 +23,75 @@ const formatTime = (ms: number) => {
   return `${(ms / 1000).toFixed(2)}s`;
 };
 
-export const PerformanceMonitor = memo(({ 
-  componentName, 
-  enabled = process.env.NODE_ENV === 'development',
-  showDetails = false 
-}: PerformanceMonitorProps) => {
-  const [metrics, setMetrics] = useState<PerformanceMetrics>({
-    renderCount: 0,
-    lastRenderTime: 0,
-    totalRenderTime: 0,
-    averageRenderTime: 0,
+export const PerformanceMonitor = memo(
+  ({
     componentName,
-  });
+    enabled = process.env.NODE_ENV === "development",
+    showDetails = false,
+  }: PerformanceMonitorProps) => {
+    const [metrics, setMetrics] = useState<PerformanceMetrics>({
+      renderCount: 0,
+      lastRenderTime: 0,
+      totalRenderTime: 0,
+      averageRenderTime: 0,
+      componentName,
+    });
 
-  useEffect(() => {
-    if (!enabled) return;
+    useEffect(() => {
+      if (!enabled) return;
 
-    const startTime = performance.now();
-    
-    return () => {
-      const endTime = performance.now();
-      const renderTime = endTime - startTime;
+      const startTime = performance.now();
 
-      setMetrics(prev => {
-        const newRenderCount = prev.renderCount + 1;
-        const newTotalTime = prev.totalRenderTime + renderTime;
-        
-        return {
-          ...prev,
-          renderCount: newRenderCount,
-          lastRenderTime: renderTime,
-          totalRenderTime: newTotalTime,
-          averageRenderTime: newTotalTime / newRenderCount,
-        };
-      });
-    };
-  });
+      return () => {
+        const endTime = performance.now();
+        const renderTime = endTime - startTime;
 
-  if (!enabled || !showDetails) return null;
+        setMetrics((prev) => {
+          const newRenderCount = prev.renderCount + 1;
+          const newTotalTime = prev.totalRenderTime + renderTime;
 
-  return (
-    <div className="fixed bottom-4 right-4 bg-black/80 text-white text-xs rounded-lg p-3 font-mono z-50">
-      <div className="flex items-center gap-2 mb-2">
-        <Activity className="w-4 h-4" />
-        <span className="font-semibold">{componentName}</span>
+          return {
+            ...prev,
+            renderCount: newRenderCount,
+            lastRenderTime: renderTime,
+            totalRenderTime: newTotalTime,
+            averageRenderTime: newTotalTime / newRenderCount,
+          };
+        });
+      };
+    });
+
+    if (!enabled || !showDetails) return null;
+
+    return (
+      <div className="fixed bottom-4 right-4 bg-black/80 text-white text-xs rounded-lg p-3 font-mono z-50">
+        <div className="flex items-center gap-2 mb-2">
+          <Activity className="w-4 h-4" />
+          <span className="font-semibold">{componentName}</span>
+        </div>
+
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <Eye className="w-3 h-3" />
+            <span>Renders: {metrics.renderCount}</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Clock className="w-3 h-3" />
+            <span>Last: {formatTime(metrics.lastRenderTime)}</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Zap className="w-3 h-3" />
+            <span>Avg: {formatTime(metrics.averageRenderTime)}</span>
+          </div>
+        </div>
       </div>
-      
-      <div className="space-y-1">
-        <div className="flex items-center gap-2">
-          <Eye className="w-3 h-3" />
-          <span>Renders: {metrics.renderCount}</span>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <Clock className="w-3 h-3" />
-          <span>Last: {formatTime(metrics.lastRenderTime)}</span>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <Zap className="w-3 h-3" />
-          <span>Avg: {formatTime(metrics.averageRenderTime)}</span>
-        </div>
-      </div>
-    </div>
-  );
-});
+    );
+  },
+);
 
-PerformanceMonitor.displayName = 'PerformanceMonitor';
+PerformanceMonitor.displayName = "PerformanceMonitor";
 
 // Hook to use performance monitoring in any component
 export const usePerformanceMonitor = (componentName: string) => {
@@ -98,7 +100,7 @@ export const usePerformanceMonitor = (componentName: string) => {
 
   useEffect(() => {
     const startTime = performance.now();
-    setRenderCount(prev => prev + 1);
+    setRenderCount((prev) => prev + 1);
 
     return () => {
       const endTime = performance.now();
@@ -112,15 +114,20 @@ export const usePerformanceMonitor = (componentName: string) => {
 // HOC for wrapping components with performance monitoring
 export const withPerformanceMonitor = <P extends object>(
   WrappedComponent: React.ComponentType<P>,
-  componentName?: string
+  componentName?: string,
 ) => {
   const ComponentWithMonitoring = memo((props: P) => {
     const { renderCount, renderTime } = usePerformanceMonitor(
-      componentName || WrappedComponent.displayName || WrappedComponent.name || 'Component'
+      componentName ||
+        WrappedComponent.displayName ||
+        WrappedComponent.name ||
+        "Component",
     );
 
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`${componentName} rendered ${renderCount} times, last render: ${formatTime(renderTime)}`);
+    if (process.env.NODE_ENV === "development") {
+      console.log(
+        `${componentName} rendered ${renderCount} times, last render: ${formatTime(renderTime)}`,
+      );
     }
 
     return <WrappedComponent {...props} />;

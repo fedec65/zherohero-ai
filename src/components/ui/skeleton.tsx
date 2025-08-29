@@ -22,7 +22,7 @@ const skeletonVariants = cva(
       variant: "default",
       speed: "normal",
     },
-  }
+  },
 );
 
 export interface SkeletonProps
@@ -34,16 +34,19 @@ export interface SkeletonProps
 }
 
 const Skeleton = React.forwardRef<HTMLDivElement, SkeletonProps>(
-  ({ 
-    className, 
-    variant, 
-    speed,
-    width,
-    height,
-    circle = false,
-    style,
-    ...props 
-  }, ref) => {
+  (
+    {
+      className,
+      variant,
+      speed,
+      width,
+      height,
+      circle = false,
+      style,
+      ...props
+    },
+    ref,
+  ) => {
     const skeletonStyle = {
       width,
       height,
@@ -56,19 +59,20 @@ const Skeleton = React.forwardRef<HTMLDivElement, SkeletonProps>(
         className={clsx(
           skeletonVariants({ variant, speed }),
           circle && "rounded-full",
-          className
+          className,
         )}
         style={skeletonStyle}
         {...props}
       />
     );
-  }
+  },
 );
 
 Skeleton.displayName = "Skeleton";
 
 // Avatar Skeleton
-export interface AvatarSkeletonProps extends Omit<SkeletonProps, "circle" | "width" | "height"> {
+export interface AvatarSkeletonProps
+  extends Omit<SkeletonProps, "circle" | "width" | "height"> {
   size?: "sm" | "md" | "lg" | "xl";
 }
 
@@ -89,26 +93,30 @@ const AvatarSkeleton = React.forwardRef<HTMLDivElement, AvatarSkeletonProps>(
         {...props}
       />
     );
-  }
+  },
 );
 
 AvatarSkeleton.displayName = "AvatarSkeleton";
 
 // Text Skeleton
-export interface TextSkeletonProps extends Omit<SkeletonProps, "width" | "height"> {
+export interface TextSkeletonProps
+  extends Omit<SkeletonProps, "width" | "height"> {
   lines?: number;
   lineHeight?: string;
   lastLineWidth?: string;
 }
 
 const TextSkeleton = React.forwardRef<HTMLDivElement, TextSkeletonProps>(
-  ({ 
-    lines = 1, 
-    lineHeight = "1.25rem", 
-    lastLineWidth = "75%",
-    className,
-    ...props 
-  }, ref) => {
+  (
+    {
+      lines = 1,
+      lineHeight = "1.25rem",
+      lastLineWidth = "75%",
+      className,
+      ...props
+    },
+    ref,
+  ) => {
     if (lines === 1) {
       return (
         <Skeleton
@@ -132,13 +140,14 @@ const TextSkeleton = React.forwardRef<HTMLDivElement, TextSkeletonProps>(
         ))}
       </div>
     );
-  }
+  },
 );
 
 TextSkeleton.displayName = "TextSkeleton";
 
 // Card Skeleton - for model cards and other card layouts
-export interface CardSkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface CardSkeletonProps
+  extends React.HTMLAttributes<HTMLDivElement> {
   showAvatar?: boolean;
   showFooter?: boolean;
   avatarSize?: "sm" | "md" | "lg";
@@ -146,19 +155,22 @@ export interface CardSkeletonProps extends React.HTMLAttributes<HTMLDivElement> 
 }
 
 const CardSkeleton = React.forwardRef<HTMLDivElement, CardSkeletonProps>(
-  ({ 
-    showAvatar = false,
-    showFooter = true,
-    avatarSize = "md",
-    textLines = 3,
-    className,
-    ...props 
-  }, ref) => (
+  (
+    {
+      showAvatar = false,
+      showFooter = true,
+      avatarSize = "md",
+      textLines = 3,
+      className,
+      ...props
+    },
+    ref,
+  ) => (
     <div
       ref={ref}
       className={clsx(
         "rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900",
-        className
+        className,
       )}
       {...props}
     >
@@ -186,32 +198,33 @@ const CardSkeleton = React.forwardRef<HTMLDivElement, CardSkeletonProps>(
         </div>
       )}
     </div>
-  )
+  ),
 );
 
 CardSkeleton.displayName = "CardSkeleton";
 
 // Chat Message Skeleton
-export interface ChatMessageSkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface ChatMessageSkeletonProps
+  extends React.HTMLAttributes<HTMLDivElement> {
   isUser?: boolean;
   hasAvatar?: boolean;
   messageLines?: number;
 }
 
-const ChatMessageSkeleton = React.forwardRef<HTMLDivElement, ChatMessageSkeletonProps>(
-  ({ 
-    isUser = false,
-    hasAvatar = true,
-    messageLines = 2,
-    className,
-    ...props 
-  }, ref) => (
+const ChatMessageSkeleton = React.forwardRef<
+  HTMLDivElement,
+  ChatMessageSkeletonProps
+>(
+  (
+    { isUser = false, hasAvatar = true, messageLines = 2, className, ...props },
+    ref,
+  ) => (
     <div
       ref={ref}
       className={clsx(
         "flex gap-3 p-4",
         isUser && "flex-row-reverse",
-        className
+        className,
       )}
       {...props}
     >
@@ -221,63 +234,68 @@ const ChatMessageSkeleton = React.forwardRef<HTMLDivElement, ChatMessageSkeleton
         <Skeleton height="0.875rem" width="5rem" />
       </div>
     </div>
-  )
+  ),
 );
 
 ChatMessageSkeleton.displayName = "ChatMessageSkeleton";
 
 // Model Grid Skeleton - for the models page
-export interface ModelGridSkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface ModelGridSkeletonProps
+  extends React.HTMLAttributes<HTMLDivElement> {
   itemCount?: number;
   columns?: number;
 }
 
-const ModelGridSkeleton = React.forwardRef<HTMLDivElement, ModelGridSkeletonProps>(
-  ({ itemCount = 12, columns = 3, className, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={clsx(
-        "grid gap-4",
-        {
-          "grid-cols-1": columns === 1,
-          "grid-cols-1 md:grid-cols-2": columns === 2,
-          "grid-cols-1 md:grid-cols-2 lg:grid-cols-3": columns === 3,
-          "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4": columns === 4,
-        },
-        className
-      )}
-      {...props}
-    >
-      {Array.from({ length: itemCount }).map((_, index) => (
-        <CardSkeleton key={index} showFooter textLines={1} />
-      ))}
-    </div>
-  )
-);
+const ModelGridSkeleton = React.forwardRef<
+  HTMLDivElement,
+  ModelGridSkeletonProps
+>(({ itemCount = 12, columns = 3, className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={clsx(
+      "grid gap-4",
+      {
+        "grid-cols-1": columns === 1,
+        "grid-cols-1 md:grid-cols-2": columns === 2,
+        "grid-cols-1 md:grid-cols-2 lg:grid-cols-3": columns === 3,
+        "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4":
+          columns === 4,
+      },
+      className,
+    )}
+    {...props}
+  >
+    {Array.from({ length: itemCount }).map((_, index) => (
+      <CardSkeleton key={index} showFooter textLines={1} />
+    ))}
+  </div>
+));
 
 ModelGridSkeleton.displayName = "ModelGridSkeleton";
 
 // Chat List Skeleton - for sidebar chat list
-export interface ChatListSkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface ChatListSkeletonProps
+  extends React.HTMLAttributes<HTMLDivElement> {
   itemCount?: number;
 }
 
-const ChatListSkeleton = React.forwardRef<HTMLDivElement, ChatListSkeletonProps>(
-  ({ itemCount = 5, className, ...props }, ref) => (
-    <div ref={ref} className={clsx("space-y-2", className)} {...props}>
-      {Array.from({ length: itemCount }).map((_, index) => (
-        <div key={index} className="flex items-center gap-3 p-2 rounded-md">
-          <div className="w-2 h-2 rounded-full">
-            <Skeleton circle width="0.5rem" height="0.5rem" />
-          </div>
-          <div className="flex-1">
-            <Skeleton height="1rem" width={`${60 + Math.random() * 30}%`} />
-          </div>
+const ChatListSkeleton = React.forwardRef<
+  HTMLDivElement,
+  ChatListSkeletonProps
+>(({ itemCount = 5, className, ...props }, ref) => (
+  <div ref={ref} className={clsx("space-y-2", className)} {...props}>
+    {Array.from({ length: itemCount }).map((_, index) => (
+      <div key={index} className="flex items-center gap-3 p-2 rounded-md">
+        <div className="w-2 h-2 rounded-full">
+          <Skeleton circle width="0.5rem" height="0.5rem" />
         </div>
-      ))}
-    </div>
-  )
-);
+        <div className="flex-1">
+          <Skeleton height="1rem" width={`${60 + Math.random() * 30}%`} />
+        </div>
+      </div>
+    ))}
+  </div>
+));
 
 ChatListSkeleton.displayName = "ChatListSkeleton";
 

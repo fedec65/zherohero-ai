@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import React, { useEffect } from 'react';
-import { ChatSidebar } from '../../components/layout/chat-sidebar';
-import { useChatStore } from '../../lib/stores/chat-store';
-import { loadSearchDemoData } from '../../components/chat/search-demo-data';
+import React, { useEffect } from "react";
+import { ChatSidebar } from "../../components/layout/chat-sidebar";
+import { useChatStore } from "../../lib/stores/chat-store";
+import { loadSearchDemoData } from "../../components/chat/search-demo-data";
 
 export default function SearchDemoPage() {
   const { chats } = useChatStore();
@@ -35,9 +35,10 @@ export default function SearchDemoPage() {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             Enhanced Search Demo
           </h1>
-          
+
           <p className="text-lg text-gray-600 dark:text-gray-400">
-            Test the advanced search and filtering capabilities in the chat sidebar.
+            Test the advanced search and filtering capabilities in the chat
+            sidebar.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">

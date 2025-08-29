@@ -1,6 +1,6 @@
 /**
  * Tavily Search Service - Real-time web search and content extraction
- * 
+ *
  * Provides comprehensive web search capabilities through the Tavily API,
  * designed for AI applications with advanced search depth and content extraction.
  */
@@ -8,7 +8,7 @@
 // Tavily Search API types
 export interface TavilySearchParams {
   query: string;
-  search_depth?: 'basic' | 'advanced';
+  search_depth?: "basic" | "advanced";
   include_images?: boolean;
   include_answer?: boolean;
   include_raw_content?: boolean;
@@ -16,7 +16,7 @@ export interface TavilySearchParams {
   include_domains?: string[];
   exclude_domains?: string[];
   days?: number; // Restrict results to recent days
-  topic?: 'general' | 'news' | 'finance' | 'academic';
+  topic?: "general" | "news" | "finance" | "academic";
 }
 
 export interface TavilySearchResult {
@@ -66,11 +66,11 @@ export interface TavilyExtractResponse {
 export interface TavilyConfig {
   apiKey: string;
   maxResults: number;
-  searchDepth: 'basic' | 'advanced';
+  searchDepth: "basic" | "advanced";
   includeImages: boolean;
   includeAnswer: boolean;
   includeRawContent: boolean;
-  defaultTopic: 'general' | 'news' | 'finance' | 'academic';
+  defaultTopic: "general" | "news" | "finance" | "academic";
   timeout: number;
   retryAttempts: number;
   retryDelay: number;
@@ -78,13 +78,13 @@ export interface TavilyConfig {
 }
 
 // Default configuration
-const DEFAULT_CONFIG: Omit<TavilyConfig, 'apiKey'> = {
+const DEFAULT_CONFIG: Omit<TavilyConfig, "apiKey"> = {
   maxResults: 10,
-  searchDepth: 'advanced',
+  searchDepth: "advanced",
   includeImages: false,
   includeAnswer: true,
   includeRawContent: false,
-  defaultTopic: 'general',
+  defaultTopic: "general",
   timeout: 30000, // 30 seconds
   retryAttempts: 3,
   retryDelay: 1000, // 1 second
@@ -98,11 +98,11 @@ export class TavilyError extends Error {
   retryable: boolean;
 
   constructor(
-    message: string, 
-    options: { status?: number; code?: string; retryable?: boolean } = {}
+    message: string,
+    options: { status?: number; code?: string; retryable?: boolean } = {},
   ) {
     super(message);
-    this.name = 'TavilyError';
+    this.name = "TavilyError";
     this.status = options.status;
     this.code = options.code;
     this.retryable = options.retryable ?? true;
@@ -131,12 +131,12 @@ class TavilyCache<T> {
   get(key: string): T | null {
     const entry = this.cache.get(key);
     if (!entry) return null;
-    
+
     if (Date.now() > entry.expiresAt) {
       this.cache.delete(key);
       return null;
     }
-    
+
     return entry.data;
   }
 
@@ -163,20 +163,25 @@ class TavilyCache<T> {
  */
 export class TavilySearchClient {
   private config: TavilyConfig;
-  private baseURL = 'https://api.tavily.com';
+  private baseURL = "https://api.tavily.com";
   private searchCache = new TavilyCache<TavilySearchResponse>();
   private extractCache = new TavilyCache<TavilyExtractResponse>();
 
   constructor(config: Partial<TavilyConfig> & { apiKey: string }) {
     this.config = { ...DEFAULT_CONFIG, ...config };
-    
+
     // Validate API key format
     if (!this.isValidApiKey(config.apiKey)) {
-      throw new TavilyError('Invalid Tavily API key format', { retryable: false });
+      throw new TavilyError("Invalid Tavily API key format", {
+        retryable: false,
+      });
     }
 
     // Set up periodic cache cleanup only in runtime
-    if (typeof window === 'undefined' && process.env.NEXT_PHASE !== 'phase-production-build') {
+    if (
+      typeof window === "undefined" &&
+      process.env.NEXT_PHASE !== "phase-production-build"
+    ) {
       setInterval(() => {
         this.searchCache.cleanup();
         this.extractCache.cleanup();
@@ -195,7 +200,9 @@ export class TavilySearchClient {
   /**
    * Generate cache key for search parameters
    */
-  private generateCacheKey(params: TavilySearchParams | TavilyExtractParams): string {
+  private generateCacheKey(
+    params: TavilySearchParams | TavilyExtractParams,
+  ): string {
     return JSON.stringify(params);
   }
 
@@ -203,8 +210,8 @@ export class TavilySearchClient {
    * Make HTTP request with retry logic
    */
   private async makeRequest<T>(
-    endpoint: string, 
-    body: Record<string, unknown>
+    endpoint: string,
+    body: Record<string, unknown>,
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
     let lastError: Error | null = null;
@@ -212,14 +219,17 @@ export class TavilySearchClient {
     for (let attempt = 0; attempt < this.config.retryAttempts; attempt++) {
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), this.config.timeout);
+        const timeoutId = setTimeout(
+          () => controller.abort(),
+          this.config.timeout,
+        );
 
         const response = await fetch(url, {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
-            'Api-Key': this.config.apiKey,
-            'User-Agent': 'MindDeck-MCP/1.0',
+            "Content-Type": "application/json",
+            "Api-Key": this.config.apiKey,
+            "User-Agent": "MindDeck-MCP/1.0",
           },
           body: JSON.stringify({
             ...body,
@@ -233,7 +243,7 @@ export class TavilySearchClient {
         if (!response.ok) {
           const errorText = await response.text();
           let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-          
+
           try {
             const errorData = JSON.parse(errorText);
             errorMessage = errorData.error || errorData.message || errorMessage;
@@ -251,23 +261,22 @@ export class TavilySearchClient {
 
         const data = await response.json();
         return data as T;
-
       } catch (error) {
-        lastError = error instanceof Error ? error : new Error('Unknown error');
-        
+        lastError = error instanceof Error ? error : new Error("Unknown error");
+
         if (error instanceof TavilyError && !error.retryable) {
           throw error;
         }
 
         if (attempt < this.config.retryAttempts - 1) {
-          await new Promise(resolve => 
-            setTimeout(resolve, this.config.retryDelay * (attempt + 1))
+          await new Promise((resolve) =>
+            setTimeout(resolve, this.config.retryDelay * (attempt + 1)),
           );
         }
       }
     }
 
-    throw lastError || new TavilyError('Max retry attempts exceeded');
+    throw lastError || new TavilyError("Max retry attempts exceeded");
   }
 
   /**
@@ -287,25 +296,35 @@ export class TavilySearchClient {
       search_depth: params.search_depth || this.config.searchDepth,
       include_images: params.include_images ?? this.config.includeImages,
       include_answer: params.include_answer ?? this.config.includeAnswer,
-      include_raw_content: params.include_raw_content ?? this.config.includeRawContent,
+      include_raw_content:
+        params.include_raw_content ?? this.config.includeRawContent,
       max_results: Math.min(params.max_results || this.config.maxResults, 20), // API limit
       topic: params.topic || this.config.defaultTopic,
-      ...(params.include_domains && { include_domains: params.include_domains }),
-      ...(params.exclude_domains && { exclude_domains: params.exclude_domains }),
+      ...(params.include_domains && {
+        include_domains: params.include_domains,
+      }),
+      ...(params.exclude_domains && {
+        exclude_domains: params.exclude_domains,
+      }),
       ...(params.days && { days: params.days }),
     };
 
     try {
-      const result = await this.makeRequest<TavilySearchResponse>('/search', searchParams);
-      
+      const result = await this.makeRequest<TavilySearchResponse>(
+        "/search",
+        searchParams,
+      );
+
       // Cache successful result
       this.searchCache.set(cacheKey, result, this.config.cacheTTL);
-      
+
       return result;
     } catch (error) {
-      throw error instanceof TavilyError 
-        ? error 
-        : new TavilyError(`Search failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw error instanceof TavilyError
+        ? error
+        : new TavilyError(
+            `Search failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+          );
     }
   }
 
@@ -322,42 +341,54 @@ export class TavilySearchClient {
 
     // Validate URLs
     if (!params.urls || params.urls.length === 0) {
-      throw new TavilyError('URLs array cannot be empty', { retryable: false });
+      throw new TavilyError("URLs array cannot be empty", { retryable: false });
     }
 
     if (params.urls.length > 5) {
-      throw new TavilyError('Maximum 5 URLs allowed per extraction request', { retryable: false });
+      throw new TavilyError("Maximum 5 URLs allowed per extraction request", {
+        retryable: false,
+      });
     }
 
     const extractParams = {
       urls: params.urls,
-      include_raw_content: params.include_raw_content ?? this.config.includeRawContent,
+      include_raw_content:
+        params.include_raw_content ?? this.config.includeRawContent,
     };
 
     try {
-      const result = await this.makeRequest<TavilyExtractResponse>('/extract', extractParams);
-      
+      const result = await this.makeRequest<TavilyExtractResponse>(
+        "/extract",
+        extractParams,
+      );
+
       // Cache successful result
       this.extractCache.set(cacheKey, result, this.config.cacheTTL);
-      
+
       return result;
     } catch (error) {
-      throw error instanceof TavilyError 
-        ? error 
-        : new TavilyError(`Content extraction failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw error instanceof TavilyError
+        ? error
+        : new TavilyError(
+            `Content extraction failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+          );
     }
   }
 
   /**
    * Test API connection and key validity
    */
-  async testConnection(): Promise<{ success: boolean; latency: number; error?: string }> {
+  async testConnection(): Promise<{
+    success: boolean;
+    latency: number;
+    error?: string;
+  }> {
     const startTime = Date.now();
-    
+
     try {
       // Perform a minimal search to test the connection
       const result = await this.search({
-        query: 'test connection',
+        query: "test connection",
         max_results: 1,
         include_answer: false,
         include_images: false,
@@ -365,7 +396,7 @@ export class TavilySearchClient {
       });
 
       const latency = Date.now() - startTime;
-      
+
       return {
         success: true,
         latency,
@@ -375,7 +406,7 @@ export class TavilySearchClient {
       return {
         success: false,
         latency,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error.message : "Unknown error",
       };
     }
   }
@@ -393,11 +424,13 @@ export class TavilySearchClient {
         requests_made: number;
         requests_remaining?: number;
         reset_date?: string;
-      }>('/usage', {});
+      }>("/usage", {});
     } catch (error) {
-      throw error instanceof TavilyError 
-        ? error 
-        : new TavilyError(`Failed to get usage stats: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw error instanceof TavilyError
+        ? error
+        : new TavilyError(
+            `Failed to get usage stats: ${error instanceof Error ? error.message : "Unknown error"}`,
+          );
     }
   }
 
@@ -442,15 +475,17 @@ export class TavilySearchClient {
 /**
  * Format search results for AI consumption
  */
-export function formatSearchResultsForAI(response: TavilySearchResponse): string {
+export function formatSearchResultsForAI(
+  response: TavilySearchResponse,
+): string {
   let formatted = `Search Query: ${response.query}\n\n`;
-  
+
   if (response.answer) {
     formatted += `Quick Answer: ${response.answer}\n\n`;
   }
-  
+
   formatted += `Search Results (${response.results.length}):\n\n`;
-  
+
   response.results.forEach((result, index) => {
     formatted += `${index + 1}. **${result.title}**\n`;
     formatted += `   URL: ${result.url}\n`;
@@ -489,18 +524,21 @@ export function extractDomain(url: string): string {
 /**
  * Validate search query
  */
-export function validateSearchQuery(query: string): { isValid: boolean; error?: string } {
-  if (!query || typeof query !== 'string') {
-    return { isValid: false, error: 'Query must be a non-empty string' };
+export function validateSearchQuery(query: string): {
+  isValid: boolean;
+  error?: string;
+} {
+  if (!query || typeof query !== "string") {
+    return { isValid: false, error: "Query must be a non-empty string" };
   }
 
   const trimmed = query.trim();
   if (trimmed.length === 0) {
-    return { isValid: false, error: 'Query cannot be empty' };
+    return { isValid: false, error: "Query cannot be empty" };
   }
 
   if (trimmed.length > 400) {
-    return { isValid: false, error: 'Query is too long (max 400 characters)' };
+    return { isValid: false, error: "Query is too long (max 400 characters)" };
   }
 
   return { isValid: true };

@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Eye, EyeOff, ExternalLink, Check, X, Loader2 } from 'lucide-react';
-import { cn } from '../../../lib/utils';
-import { useSettingsStore } from '../../../lib/stores/settings-store';
-import { AIProvider } from '../../../lib/stores/types';
+import React, { useState } from "react";
+import { Eye, EyeOff, ExternalLink, Check, X, Loader2 } from "lucide-react";
+import { cn } from "../../../lib/utils";
+import { useSettingsStore } from "../../../lib/stores/settings-store";
+import { AIProvider } from "../../../lib/stores/types";
 
 interface APIKeyField {
   provider: AIProvider;
@@ -15,69 +15,78 @@ interface APIKeyField {
 
 const apiKeyFields: APIKeyField[] = [
   {
-    provider: 'openai',
-    label: 'OpenAI API Key',
-    placeholder: 'sk-...',
-    docsUrl: 'https://platform.openai.com/api-keys',
+    provider: "openai",
+    label: "OpenAI API Key",
+    placeholder: "sk-...",
+    docsUrl: "https://platform.openai.com/api-keys",
   },
   {
-    provider: 'anthropic',
-    label: 'Anthropic API Key',
-    placeholder: 'sk-ant-...',
-    docsUrl: 'https://console.anthropic.com/',
+    provider: "anthropic",
+    label: "Anthropic API Key",
+    placeholder: "sk-ant-...",
+    docsUrl: "https://console.anthropic.com/",
   },
   {
-    provider: 'gemini',
-    label: 'Google Gemini API Key',
-    placeholder: 'AIza...',
-    docsUrl: 'https://makersuite.google.com/app/apikey',
+    provider: "gemini",
+    label: "Google Gemini API Key",
+    placeholder: "AIza...",
+    docsUrl: "https://makersuite.google.com/app/apikey",
   },
   {
-    provider: 'xai',
-    label: 'xAI API Key',
-    placeholder: 'xai-...',
-    docsUrl: 'https://console.x.ai/',
+    provider: "xai",
+    label: "xAI API Key",
+    placeholder: "xai-...",
+    docsUrl: "https://console.x.ai/",
   },
   {
-    provider: 'deepseek',
-    label: 'DeepSeek API Key',
-    placeholder: 'sk-...',
-    docsUrl: 'https://platform.deepseek.com/api_keys',
+    provider: "deepseek",
+    label: "DeepSeek API Key",
+    placeholder: "sk-...",
+    docsUrl: "https://platform.deepseek.com/api_keys",
   },
   {
-    provider: 'openrouter',
-    label: 'OpenRouter API Key',
-    placeholder: 'sk-or-v1-...',
-    docsUrl: 'https://openrouter.ai/keys',
+    provider: "openrouter",
+    label: "OpenRouter API Key",
+    placeholder: "sk-or-v1-...",
+    docsUrl: "https://openrouter.ai/keys",
   },
 ];
 
 export function APIKeysTab() {
-  const { settings, setApiKey, getApiKey, validateApiKey, testApiConnection } = useSettingsStore();
-  const [showKeys, setShowKeys] = useState<Record<AIProvider, boolean>>({} as Record<AIProvider, boolean>);
-  const [testingKeys, setTestingKeys] = useState<Record<AIProvider, boolean>>({} as Record<AIProvider, boolean>);
-  const [testResults, setTestResults] = useState<Record<AIProvider, 'success' | 'error' | null>>({} as Record<AIProvider, 'success' | 'error' | null>);
-  const [localKeys, setLocalKeys] = useState<Record<AIProvider, string>>({} as Record<AIProvider, string>);
+  const { settings, setApiKey, getApiKey, validateApiKey, testApiConnection } =
+    useSettingsStore();
+  const [showKeys, setShowKeys] = useState<Record<AIProvider, boolean>>(
+    {} as Record<AIProvider, boolean>,
+  );
+  const [testingKeys, setTestingKeys] = useState<Record<AIProvider, boolean>>(
+    {} as Record<AIProvider, boolean>,
+  );
+  const [testResults, setTestResults] = useState<
+    Record<AIProvider, "success" | "error" | null>
+  >({} as Record<AIProvider, "success" | "error" | null>);
+  const [localKeys, setLocalKeys] = useState<Record<AIProvider, string>>(
+    {} as Record<AIProvider, string>,
+  );
 
   const handleToggleVisibility = (provider: AIProvider) => {
-    setShowKeys(prev => ({
+    setShowKeys((prev) => ({
       ...prev,
-      [provider]: !prev[provider]
+      [provider]: !prev[provider],
     }));
   };
 
   const handleKeyChange = (provider: AIProvider, value: string) => {
-    setLocalKeys(prev => ({
+    setLocalKeys((prev) => ({
       ...prev,
-      [provider]: value
+      [provider]: value,
     }));
-    
+
     // Clear test results when key changes
-    setTestResults(prev => ({
+    setTestResults((prev) => ({
       ...prev,
-      [provider]: null
+      [provider]: null,
     }));
-    
+
     // Auto-save if key looks valid
     if (value.trim()) {
       setApiKey(provider, value.trim());
@@ -88,35 +97,35 @@ export function APIKeysTab() {
     const key = localKeys[provider] || getApiKey(provider);
     if (!key) return;
 
-    setTestingKeys(prev => ({ ...prev, [provider]: true }));
-    setTestResults(prev => ({ ...prev, [provider]: null }));
+    setTestingKeys((prev) => ({ ...prev, [provider]: true }));
+    setTestResults((prev) => ({ ...prev, [provider]: null }));
 
     try {
       const isValid = await validateApiKey(provider, key);
       if (!isValid) {
-        setTestResults(prev => ({ ...prev, [provider]: 'error' }));
+        setTestResults((prev) => ({ ...prev, [provider]: "error" }));
         return;
       }
 
       const isConnected = await testApiConnection(provider);
-      setTestResults(prev => ({ 
-        ...prev, 
-        [provider]: isConnected ? 'success' : 'error' 
+      setTestResults((prev) => ({
+        ...prev,
+        [provider]: isConnected ? "success" : "error",
       }));
     } catch (error) {
       console.error(`Error testing ${provider} connection:`, error);
-      setTestResults(prev => ({ ...prev, [provider]: 'error' }));
+      setTestResults((prev) => ({ ...prev, [provider]: "error" }));
     } finally {
-      setTestingKeys(prev => ({ ...prev, [provider]: false }));
+      setTestingKeys((prev) => ({ ...prev, [provider]: false }));
     }
   };
 
   const getCurrentValue = (provider: AIProvider): string => {
-    return localKeys[provider] ?? getApiKey(provider) ?? '';
+    return localKeys[provider] ?? getApiKey(provider) ?? "";
   };
 
   const getInputType = (provider: AIProvider): string => {
-    return showKeys[provider] ? 'text' : 'password';
+    return showKeys[provider] ? "text" : "password";
   };
 
   return (
@@ -126,7 +135,8 @@ export function APIKeysTab() {
           API Keys
         </h2>
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          Configure your API keys to enable AI model integrations. All keys are stored locally and never sent to our servers.
+          Configure your API keys to enable AI model integrations. All keys are
+          stored locally and never sent to our servers.
         </p>
       </div>
 
@@ -152,7 +162,7 @@ export function APIKeysTab() {
                   rel="noopener noreferrer"
                   className={cn(
                     "inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400",
-                    "hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+                    "hover:text-blue-800 dark:hover:text-blue-300 transition-colors",
                   )}
                 >
                   Get API Key
@@ -166,7 +176,9 @@ export function APIKeysTab() {
                     id={`${field.provider}-key`}
                     type={getInputType(field.provider)}
                     value={currentValue}
-                    onChange={(e) => handleKeyChange(field.provider, e.target.value)}
+                    onChange={(e) =>
+                      handleKeyChange(field.provider, e.target.value)
+                    }
                     placeholder={field.placeholder}
                     className={cn(
                       "w-full px-3 py-2 pr-10 border rounded-lg",
@@ -175,7 +187,7 @@ export function APIKeysTab() {
                       "text-gray-900 dark:text-white",
                       "placeholder-gray-500 dark:placeholder-gray-400",
                       "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
-                      "transition-colors"
+                      "transition-colors",
                     )}
                   />
                   <button
@@ -185,7 +197,7 @@ export function APIKeysTab() {
                       "absolute right-3 top-1/2 -translate-y-1/2",
                       "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300",
                       "focus:outline-none focus:text-gray-600 dark:focus:text-gray-300",
-                      "transition-colors"
+                      "transition-colors",
                     )}
                   >
                     {isVisible ? (
@@ -206,7 +218,7 @@ export function APIKeysTab() {
                     "hover:bg-gray-50 dark:hover:bg-gray-700",
                     "focus:outline-none focus:ring-2 focus:ring-blue-500",
                     "disabled:opacity-50 disabled:cursor-not-allowed",
-                    "transition-colors min-w-[80px] flex items-center justify-center gap-1"
+                    "transition-colors min-w-[80px] flex items-center justify-center gap-1",
                   )}
                 >
                   {isTesting ? (
@@ -214,12 +226,12 @@ export function APIKeysTab() {
                       <Loader2 className="h-4 w-4 animate-spin" />
                       <span className="text-xs">Testing</span>
                     </>
-                  ) : testResult === 'success' ? (
+                  ) : testResult === "success" ? (
                     <>
                       <Check className="h-4 w-4 text-green-600" />
                       <span className="text-xs">Valid</span>
                     </>
-                  ) : testResult === 'error' ? (
+                  ) : testResult === "error" ? (
                     <>
                       <X className="h-4 w-4 text-red-600" />
                       <span className="text-xs">Error</span>
@@ -230,13 +242,14 @@ export function APIKeysTab() {
                 </button>
               </div>
 
-              {testResult === 'error' && (
+              {testResult === "error" && (
                 <p className="text-xs text-red-600 dark:text-red-400">
-                  Connection test failed. Please check your API key and try again.
+                  Connection test failed. Please check your API key and try
+                  again.
                 </p>
               )}
 
-              {testResult === 'success' && (
+              {testResult === "success" && (
                 <p className="text-xs text-green-600 dark:text-green-400">
                   Connection successful! API key is working correctly.
                 </p>
@@ -251,8 +264,9 @@ export function APIKeysTab() {
           Security Notice
         </h3>
         <p className="text-sm text-blue-800 dark:text-blue-200">
-          Your API keys are stored locally in your browser and are never transmitted to our servers. 
-          They are only used to make direct requests to the respective AI providers.
+          Your API keys are stored locally in your browser and are never
+          transmitted to our servers. They are only used to make direct requests
+          to the respective AI providers.
         </p>
       </div>
     </div>

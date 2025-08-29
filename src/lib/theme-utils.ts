@@ -3,39 +3,39 @@
  */
 
 export interface ThemeConfig {
-  theme: 'light' | 'dark' | 'system';
-  effectiveTheme: 'light' | 'dark';
+  theme: "light" | "dark" | "system";
+  effectiveTheme: "light" | "dark";
 }
 
 /**
  * Get the current system theme preference
  */
-export function getSystemTheme(): 'light' | 'dark' {
-  if (typeof window === 'undefined') return 'light';
-  
-  return window.matchMedia('(prefers-color-scheme: dark)').matches 
-    ? 'dark' 
-    : 'light';
+export function getSystemTheme(): "light" | "dark" {
+  if (typeof window === "undefined") return "light";
+
+  return window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
 }
 
 /**
  * Apply theme with smooth transition
  */
-export function applyThemeWithTransition(theme: 'light' | 'dark') {
+export function applyThemeWithTransition(theme: "light" | "dark") {
   const root = document.documentElement;
-  
+
   // Temporarily disable transitions to prevent flashing
-  root.classList.add('theme-transition');
-  
+  root.classList.add("theme-transition");
+
   // Apply the theme
-  root.setAttribute('data-theme', theme);
-  root.classList.remove('light', 'dark');
+  root.setAttribute("data-theme", theme);
+  root.classList.remove("light", "dark");
   root.classList.add(theme);
-  
+
   // Re-enable transitions after a brief delay
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      root.classList.remove('theme-transition');
+      root.classList.remove("theme-transition");
     });
   });
 }
@@ -43,8 +43,10 @@ export function applyThemeWithTransition(theme: 'light' | 'dark') {
 /**
  * Get effective theme based on user preference
  */
-export function getEffectiveTheme(userTheme: 'light' | 'dark' | 'system'): 'light' | 'dark' {
-  if (userTheme === 'system') {
+export function getEffectiveTheme(
+  userTheme: "light" | "dark" | "system",
+): "light" | "dark" {
+  if (userTheme === "system") {
     return getSystemTheme();
   }
   return userTheme;
@@ -54,72 +56,86 @@ export function getEffectiveTheme(userTheme: 'light' | 'dark' | 'system'): 'ligh
  * Create a system theme change listener
  */
 export function createSystemThemeListener(
-  onThemeChange: (theme: 'light' | 'dark') => void
+  onThemeChange: (theme: "light" | "dark") => void,
 ): () => void {
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     return () => {};
   }
 
-  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
   const handleChange = (e: MediaQueryListEvent) => {
-    onThemeChange(e.matches ? 'dark' : 'light');
+    onThemeChange(e.matches ? "dark" : "light");
   };
 
-  mediaQuery.addEventListener('change', handleChange);
-  
+  mediaQuery.addEventListener("change", handleChange);
+
   return () => {
-    mediaQuery.removeEventListener('change', handleChange);
+    mediaQuery.removeEventListener("change", handleChange);
   };
 }
 
 /**
  * Validate theme value
  */
-export function isValidTheme(theme: string): theme is 'light' | 'dark' | 'system' {
-  return ['light', 'dark', 'system'].includes(theme);
+export function isValidTheme(
+  theme: string,
+): theme is "light" | "dark" | "system" {
+  return ["light", "dark", "system"].includes(theme);
 }
 
 /**
  * Get theme display name for UI
  */
-export function getThemeDisplayName(theme: 'light' | 'dark' | 'system', effectiveTheme?: 'light' | 'dark'): string {
+export function getThemeDisplayName(
+  theme: "light" | "dark" | "system",
+  effectiveTheme?: "light" | "dark",
+): string {
   switch (theme) {
-    case 'light':
-      return 'Light';
-    case 'dark':
-      return 'Dark';
-    case 'system':
-      return effectiveTheme ? `System (${effectiveTheme})` : 'System';
+    case "light":
+      return "Light";
+    case "dark":
+      return "Dark";
+    case "system":
+      return effectiveTheme ? `System (${effectiveTheme})` : "System";
     default:
-      return 'Unknown';
+      return "Unknown";
   }
 }
 
 /**
  * Get theme icon name for UI libraries
  */
-export function getThemeIconName(theme: 'light' | 'dark' | 'system', effectiveTheme?: 'light' | 'dark'): string {
-  if (theme === 'system' && effectiveTheme) {
-    return effectiveTheme === 'dark' ? 'moon' : 'sun';
+export function getThemeIconName(
+  theme: "light" | "dark" | "system",
+  effectiveTheme?: "light" | "dark",
+): string {
+  if (theme === "system" && effectiveTheme) {
+    return effectiveTheme === "dark" ? "moon" : "sun";
   }
-  
+
   switch (theme) {
-    case 'light':
-      return 'sun';
-    case 'dark':
-      return 'moon';
-    case 'system':
-      return 'monitor';
+    case "light":
+      return "sun";
+    case "dark":
+      return "moon";
+    case "system":
+      return "monitor";
     default:
-      return 'sun';
+      return "sun";
   }
 }
 
 /**
  * Cycle to next theme in sequence
  */
-export function getNextTheme(currentTheme: 'light' | 'dark' | 'system'): 'light' | 'dark' | 'system' {
-  const sequence: Array<'light' | 'dark' | 'system'> = ['light', 'dark', 'system'];
+export function getNextTheme(
+  currentTheme: "light" | "dark" | "system",
+): "light" | "dark" | "system" {
+  const sequence: Array<"light" | "dark" | "system"> = [
+    "light",
+    "dark",
+    "system",
+  ];
   const currentIndex = sequence.indexOf(currentTheme);
   return sequence[(currentIndex + 1) % sequence.length];
 }
@@ -127,22 +143,25 @@ export function getNextTheme(currentTheme: 'light' | 'dark' | 'system'): 'light'
 /**
  * Toggle between light and dark (skip system)
  */
-export function toggleTheme(currentTheme: 'light' | 'dark' | 'system', effectiveTheme: 'light' | 'dark'): 'light' | 'dark' {
+export function toggleTheme(
+  currentTheme: "light" | "dark" | "system",
+  effectiveTheme: "light" | "dark",
+): "light" | "dark" {
   // If current theme is system, toggle based on effective theme
-  if (currentTheme === 'system') {
-    return effectiveTheme === 'light' ? 'dark' : 'light';
+  if (currentTheme === "system") {
+    return effectiveTheme === "light" ? "dark" : "light";
   }
-  
+
   // Simple toggle between light and dark
-  return currentTheme === 'light' ? 'dark' : 'light';
+  return currentTheme === "light" ? "dark" : "light";
 }
 
 /**
  * Get CSS custom property value for current theme
  */
 export function getThemeValue(property: string): string {
-  if (typeof window === 'undefined') return '';
-  
+  if (typeof window === "undefined") return "";
+
   return getComputedStyle(document.documentElement)
     .getPropertyValue(property)
     .trim();
@@ -152,9 +171,9 @@ export function getThemeValue(property: string): string {
  * Check if dark theme is active
  */
 export function isDarkTheme(): boolean {
-  if (typeof window === 'undefined') return false;
-  
-  return document.documentElement.getAttribute('data-theme') === 'dark';
+  if (typeof window === "undefined") return false;
+
+  return document.documentElement.getAttribute("data-theme") === "dark";
 }
 
 /**

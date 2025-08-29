@@ -1,17 +1,28 @@
-'use client';
+"use client";
 
-import React, { useState, useMemo } from 'react';
-import { Copy, Edit3, RefreshCw, MoreVertical, Check, X, Clock, AlertCircle, User, Bot } from 'lucide-react';
-import { Message } from '../../lib/stores/types';
-import { Button } from '../ui/button';
-import { Tooltip } from '../ui/tooltip';
-import { Badge } from '../ui/badge';
-import { useChatStore } from '../../lib/stores/chat-store';
-import { cn } from '../../lib/utils';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import React, { useState, useMemo } from "react";
+import {
+  Copy,
+  Edit3,
+  RefreshCw,
+  MoreVertical,
+  Check,
+  X,
+  Clock,
+  AlertCircle,
+  User,
+  Bot,
+} from "lucide-react";
+import { Message } from "../../lib/stores/types";
+import { Button } from "../ui/button";
+import { Tooltip } from "../ui/tooltip";
+import { Badge } from "../ui/badge";
+import { useChatStore } from "../../lib/stores/chat-store";
+import { cn } from "../../lib/utils";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { tomorrow } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 interface MessageItemProps {
   message: Message;
@@ -20,11 +31,11 @@ interface MessageItemProps {
   className?: string;
 }
 
-export function MessageItem({ 
-  message, 
-  isStreaming = false, 
+export function MessageItem({
+  message,
+  isStreaming = false,
   streamingContent,
-  className 
+  className,
 }: MessageItemProps) {
   const { editMessage, deleteMessage, regenerateMessage } = useChatStore();
   const [isEditing, setIsEditing] = useState(false);
@@ -32,9 +43,12 @@ export function MessageItem({
   const [isCopied, setIsCopied] = useState(false);
   const [showActions, setShowActions] = useState(false);
 
-  const isUser = message.role === 'user';
-  const isAssistant = message.role === 'assistant';
-  const displayContent = isStreaming && streamingContent !== undefined ? streamingContent : message.content;
+  const isUser = message.role === "user";
+  const isAssistant = message.role === "assistant";
+  const displayContent =
+    isStreaming && streamingContent !== undefined
+      ? streamingContent
+      : message.content;
 
   // Handle copy to clipboard
   const handleCopy = async () => {
@@ -43,7 +57,7 @@ export function MessageItem({
       setIsCopied(true);
       setTimeout(() => setIsCopied(false), 2000);
     } catch (error) {
-      console.error('Failed to copy:', error);
+      console.error("Failed to copy:", error);
     }
   };
 
@@ -69,15 +83,15 @@ export function MessageItem({
   // Format timestamp
   const formattedTime = useMemo(() => {
     const date = new Date(message.createdAt);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   }, [message.createdAt]);
 
   // Custom markdown components
   const markdownComponents = {
     code({ node, inline, className, children, ...props }: any) {
-      const match = /language-(\w+)/.exec(className || '');
-      const language = match ? match[1] : '';
-      
+      const match = /language-(\w+)/.exec(className || "");
+      const language = match ? match[1] : "";
+
       return !inline && language ? (
         <div className="relative group">
           <SyntaxHighlighter
@@ -86,7 +100,7 @@ export function MessageItem({
             PreTag="div"
             {...props}
           >
-            {String(children).replace(/\n$/, '')}
+            {String(children).replace(/\n$/, "")}
           </SyntaxHighlighter>
           <Button
             variant="ghost"
@@ -98,24 +112,39 @@ export function MessageItem({
           </Button>
         </div>
       ) : (
-        <code className="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded text-sm font-mono" {...props}>
+        <code
+          className="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded text-sm font-mono"
+          {...props}
+        >
           {children}
         </code>
       );
     },
     p({ children, ...props }: any) {
-      return <p className="mb-3 last:mb-0" {...props}>{children}</p>;
+      return (
+        <p className="mb-3 last:mb-0" {...props}>
+          {children}
+        </p>
+      );
     },
     ul({ children, ...props }: any) {
-      return <ul className="list-disc pl-6 mb-3" {...props}>{children}</ul>;
+      return (
+        <ul className="list-disc pl-6 mb-3" {...props}>
+          {children}
+        </ul>
+      );
     },
     ol({ children, ...props }: any) {
-      return <ol className="list-decimal pl-6 mb-3" {...props}>{children}</ol>;
+      return (
+        <ol className="list-decimal pl-6 mb-3" {...props}>
+          {children}
+        </ol>
+      );
     },
     blockquote({ children, ...props }: any) {
       return (
-        <blockquote 
-          className="border-l-4 border-gray-300 dark:border-gray-600 pl-4 italic text-gray-700 dark:text-gray-300 mb-3" 
+        <blockquote
+          className="border-l-4 border-gray-300 dark:border-gray-600 pl-4 italic text-gray-700 dark:text-gray-300 mb-3"
           {...props}
         >
           {children}
@@ -123,13 +152,25 @@ export function MessageItem({
       );
     },
     h1({ children, ...props }: any) {
-      return <h1 className="text-xl font-bold mb-3" {...props}>{children}</h1>;
+      return (
+        <h1 className="text-xl font-bold mb-3" {...props}>
+          {children}
+        </h1>
+      );
     },
     h2({ children, ...props }: any) {
-      return <h2 className="text-lg font-bold mb-2" {...props}>{children}</h2>;
+      return (
+        <h2 className="text-lg font-bold mb-2" {...props}>
+          {children}
+        </h2>
+      );
     },
     h3({ children, ...props }: any) {
-      return <h3 className="text-base font-bold mb-2" {...props}>{children}</h3>;
+      return (
+        <h3 className="text-base font-bold mb-2" {...props}>
+          {children}
+        </h3>
+      );
     },
   };
 
@@ -137,51 +178,63 @@ export function MessageItem({
   const StreamingIndicator = () => (
     <div className="flex items-center gap-1 text-blue-500 dark:text-blue-400">
       <div className="flex space-x-1">
-        <div className="w-1 h-1 bg-current rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-        <div className="w-1 h-1 bg-current rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-        <div className="w-1 h-1 bg-current rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+        <div
+          className="w-1 h-1 bg-current rounded-full animate-bounce"
+          style={{ animationDelay: "0ms" }}
+        ></div>
+        <div
+          className="w-1 h-1 bg-current rounded-full animate-bounce"
+          style={{ animationDelay: "150ms" }}
+        ></div>
+        <div
+          className="w-1 h-1 bg-current rounded-full animate-bounce"
+          style={{ animationDelay: "300ms" }}
+        ></div>
       </div>
       <span className="text-xs ml-2">Thinking...</span>
     </div>
   );
 
   return (
-    <div 
+    <div
       className={cn(
-        'group relative py-4 transition-colors',
-        'hover:bg-gray-50/50 dark:hover:bg-gray-800/30',
-        className
+        "group relative py-4 transition-colors",
+        "hover:bg-gray-50/50 dark:hover:bg-gray-800/30",
+        className,
       )}
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
     >
-      <div className={cn(
-        'flex gap-3',
-        isUser && 'flex-row-reverse'
-      )}>
+      <div className={cn("flex gap-3", isUser && "flex-row-reverse")}>
         {/* Avatar */}
-        <div className={cn(
-          'flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium',
-          isUser 
-            ? 'bg-blue-600 text-white' 
-            : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
-        )}>
+        <div
+          className={cn(
+            "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium",
+            isUser
+              ? "bg-blue-600 text-white"
+              : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400",
+          )}
+        >
           {isUser ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
         </div>
 
         {/* Message content */}
-        <div className={cn(
-          'flex-1 min-w-0 max-w-[80%]',
-          isUser && 'flex flex-col items-end'
-        )}>
+        <div
+          className={cn(
+            "flex-1 min-w-0 max-w-[80%]",
+            isUser && "flex flex-col items-end",
+          )}
+        >
           {/* Message bubble */}
-          <div className={cn(
-            'relative rounded-2xl px-4 py-3 max-w-full break-words',
-            isUser 
-              ? 'bg-blue-600 text-white ml-12' 
-              : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 mr-12',
-            isStreaming && 'min-h-[60px]'
-          )}>
+          <div
+            className={cn(
+              "relative rounded-2xl px-4 py-3 max-w-full break-words",
+              isUser
+                ? "bg-blue-600 text-white ml-12"
+                : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 mr-12",
+              isStreaming && "min-h-[60px]",
+            )}
+          >
             {isEditing ? (
               <div className="space-y-3">
                 <textarea
@@ -214,10 +267,12 @@ export function MessageItem({
               </div>
             ) : (
               <>
-                <div className={cn(
-                  'prose max-w-none text-sm',
-                  isUser && 'prose-invert'
-                )}>
+                <div
+                  className={cn(
+                    "prose max-w-none text-sm",
+                    isUser && "prose-invert",
+                  )}
+                >
                   <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
                     components={markdownComponents}
@@ -225,34 +280,40 @@ export function MessageItem({
                     {displayContent}
                   </ReactMarkdown>
                 </div>
-                
+
                 {isStreaming && !displayContent && <StreamingIndicator />}
               </>
             )}
 
             {/* Message status indicators */}
-            <div className={cn(
-              'flex items-center justify-between mt-2 pt-2 border-t border-opacity-20',
-              isUser ? 'border-white' : 'border-gray-200 dark:border-gray-600'
-            )}>
+            <div
+              className={cn(
+                "flex items-center justify-between mt-2 pt-2 border-t border-opacity-20",
+                isUser
+                  ? "border-white"
+                  : "border-gray-200 dark:border-gray-600",
+              )}
+            >
               <div className="flex items-center gap-2">
                 {/* Timestamp */}
-                <span className={cn(
-                  'text-xs opacity-70',
-                  isUser ? 'text-white' : 'text-gray-500 dark:text-gray-400'
-                )}>
+                <span
+                  className={cn(
+                    "text-xs opacity-70",
+                    isUser ? "text-white" : "text-gray-500 dark:text-gray-400",
+                  )}
+                >
                   {formattedTime}
                 </span>
 
                 {/* Status badges */}
-                {message.streamingState === 'streaming' && (
+                {message.streamingState === "streaming" && (
                   <Badge variant="outline" className="text-xs">
                     <Clock className="h-2 w-2 mr-1" />
                     Streaming
                   </Badge>
                 )}
-                
-                {message.streamingState === 'error' && (
+
+                {message.streamingState === "error" && (
                   <Badge variant="destructive" className="text-xs">
                     <AlertCircle className="h-2 w-2 mr-1" />
                     Error
@@ -288,10 +349,12 @@ export function MessageItem({
 
       {/* Action buttons */}
       {showActions && !isEditing && !isStreaming && (
-        <div className={cn(
-          'absolute top-2 flex items-center gap-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm opacity-0 group-hover:opacity-100 transition-all',
-          isUser ? 'right-16' : 'left-16'
-        )}>
+        <div
+          className={cn(
+            "absolute top-2 flex items-center gap-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm opacity-0 group-hover:opacity-100 transition-all",
+            isUser ? "right-16" : "left-16",
+          )}
+        >
           <Tooltip content={isCopied ? "Copied!" : "Copy"}>
             <Button
               variant="ghost"
@@ -299,7 +362,11 @@ export function MessageItem({
               className="h-7 w-7 p-0"
               onClick={handleCopy}
             >
-              {isCopied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+              {isCopied ? (
+                <Check className="h-3 w-3" />
+              ) : (
+                <Copy className="h-3 w-3" />
+              )}
             </Button>
           </Tooltip>
 
@@ -330,11 +397,7 @@ export function MessageItem({
           )}
 
           <Tooltip content="More">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 w-7 p-0"
-            >
+            <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
               <MoreVertical className="h-3 w-3" />
             </Button>
           </Tooltip>
@@ -343,17 +406,19 @@ export function MessageItem({
 
       {/* Attachments */}
       {message.attachments && message.attachments.length > 0 && (
-        <div className={cn(
-          'mt-2 flex flex-wrap gap-2',
-          isUser ? 'justify-end' : 'justify-start'
-        )}>
+        <div
+          className={cn(
+            "mt-2 flex flex-wrap gap-2",
+            isUser ? "justify-end" : "justify-start",
+          )}
+        >
           {message.attachments.map((attachment) => (
             <div
               key={attachment.id}
               className="flex items-center gap-2 p-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm"
             >
               <div className="text-gray-500">
-                {attachment.type === 'image' ? '🖼️' : '📁'}
+                {attachment.type === "image" ? "🖼️" : "📁"}
               </div>
               <span className="truncate max-w-[200px]">{attachment.name}</span>
               <span className="text-gray-400 text-xs">

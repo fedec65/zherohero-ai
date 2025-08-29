@@ -1,13 +1,16 @@
-'use client';
+"use client";
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { useSettingsStore } from '../../lib/stores/settings-store';
-import { applyThemeWithTransition, createSystemThemeListener } from '../../lib/theme-utils';
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { useSettingsStore } from "../../lib/stores/settings-store";
+import {
+  applyThemeWithTransition,
+  createSystemThemeListener,
+} from "../../lib/theme-utils";
 
 interface ThemeContextType {
-  theme: 'light' | 'dark' | 'system';
-  effectiveTheme: 'light' | 'dark';
-  setTheme: (theme: 'light' | 'dark' | 'system') => void;
+  theme: "light" | "dark" | "system";
+  effectiveTheme: "light" | "dark";
+  setTheme: (theme: "light" | "dark" | "system") => void;
   toggleTheme: () => void;
 }
 
@@ -18,9 +21,12 @@ interface ThemeProviderProps {
 }
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
-  const { settings, effectiveTheme, setTheme, toggleTheme, getEffectiveTheme } = useSettingsStore();
+  const { settings, effectiveTheme, setTheme, toggleTheme, getEffectiveTheme } =
+    useSettingsStore();
   const [mounted, setMounted] = useState(false);
-  const [currentEffectiveTheme, setCurrentEffectiveTheme] = useState<'light' | 'dark'>('light');
+  const [currentEffectiveTheme, setCurrentEffectiveTheme] = useState<
+    "light" | "dark"
+  >("light");
 
   // Prevent hydration mismatch by only rendering after mount
   useEffect(() => {
@@ -30,20 +36,20 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   // Update effective theme when settings change
   useEffect(() => {
     if (!mounted) return;
-    
+
     const newEffectiveTheme = getEffectiveTheme();
     setCurrentEffectiveTheme(newEffectiveTheme);
-    
+
     // Apply theme with smooth transition
     applyThemeWithTransition(newEffectiveTheme);
 
     // Listen for system theme changes only if using system theme
-    if (settings.theme === 'system') {
+    if (settings.theme === "system") {
       const cleanup = createSystemThemeListener((systemTheme) => {
         setCurrentEffectiveTheme(systemTheme);
         applyThemeWithTransition(systemTheme);
       });
-      
+
       return cleanup;
     }
   }, [mounted, settings.theme, getEffectiveTheme]);
@@ -75,18 +81,18 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
 
 export function useTheme() {
   const context = useContext(ThemeContext);
-  
+
   // During SSR or if context is not available, return default values
   if (context === undefined) {
     // Always return default values instead of throwing
     // This handles SSR, hydration mismatches, and missing provider cases
     return {
-      theme: 'light' as const,
-      effectiveTheme: 'light' as const,
+      theme: "light" as const,
+      effectiveTheme: "light" as const,
       setTheme: () => {},
       toggleTheme: () => {},
     };
   }
-  
+
   return context;
 }

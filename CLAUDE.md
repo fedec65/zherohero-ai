@@ -7,6 +7,7 @@ This plan provides a comprehensive roadmap to create an exact copy of the MindDe
 ## 1. Technical Stack Analysis
 
 ### Frontend Framework
+
 - **Next.js 13+** with App Router
 - **TypeScript** for type safety
 - **Tailwind CSS** for styling
@@ -14,6 +15,7 @@ This plan provides a comprehensive roadmap to create an exact copy of the MindDe
 - **React Hooks** for state management
 
 ### Key Libraries & Dependencies
+
 ```json
 {
   "dependencies": {
@@ -111,14 +113,16 @@ minddeck-clone/
 ### 3.1 Layout Structure
 
 #### Sidebar Navigation (w-16, fixed)
+
 - Chat icon (message-square)
-- Models icon (brain) 
+- Models icon (brain)
 - MCP Servers icon (server)
 - Theme toggle (moon/sun)
 - User avatar (gradient background with initial)
 - Tooltips on hover
 
 #### Chat Sidebar (w-320, resizable)
+
 - Search input with search icon
 - "New Chat" button (blue)
 - Secondary buttons (New Folder, Sort/Filter)
@@ -126,6 +130,7 @@ minddeck-clone/
 - "Starred" section at bottom
 
 #### Main Content Area
+
 - Header with hamburger menu, chat title, edit button, upgrade button
 - Chat interface or settings pages
 - Responsive design
@@ -133,11 +138,13 @@ minddeck-clone/
 ### 3.2 Chat Interface Components
 
 #### Empty State (Home Page)
+
 - Centered layout with two buttons:
   - "New Chat" (blue, larger)
   - "New Incognito Chat" (purple, smaller with shield icon)
 
 #### Chat Input Area
+
 - Text input with placeholder
 - Send button
 - Model selector dropdown
@@ -145,6 +152,7 @@ minddeck-clone/
 - Voice input option
 
 #### Message Display
+
 - User messages (right-aligned)
 - AI messages (left-aligned)
 - Message actions (copy, edit, regenerate)
@@ -154,13 +162,16 @@ minddeck-clone/
 ### 3.3 Models Page Components
 
 #### Model Tabs
+
 - Built-in Models (active by default)
 - Custom Models
 - Add Custom Model
 - OpenRouter
 
 #### Model Cards Grid
+
 Responsive grid (1/2/3/4 columns based on screen size):
+
 - Model name and context window
 - Provider logo
 - "New" badge for recent models
@@ -168,6 +179,7 @@ Responsive grid (1/2/3/4 columns based on screen size):
 - Hover effects and transitions
 
 #### Model Providers Sections
+
 1. **OpenAI** (22 models)
    - GPT-5 series (New)
    - O-series models
@@ -198,16 +210,19 @@ Responsive grid (1/2/3/4 columns based on screen size):
 ### 3.4 MCP Servers Page Components
 
 #### Info Banner
+
 - Blue background with info icon
 - Explanation of MCP servers
 - Auto-injection into OpenAI calls note
 
 #### Server Tabs
+
 - Built-in Servers (active)
 - Custom Servers
 - Add Custom Server
 
 #### Empty State
+
 - Globe icon
 - "No Built-in Servers Available" message
 - Helper text
@@ -215,100 +230,108 @@ Responsive grid (1/2/3/4 columns based on screen size):
 ## 4. State Management Architecture
 
 ### 4.1 Chat Store (Zustand/Context)
+
 ```typescript
 interface ChatStore {
-  chats: Chat[]
-  activeChat: string | null
-  messages: Record<string, Message[]>
-  isLoading: boolean
-  searchQuery: string
-  
+  chats: Chat[];
+  activeChat: string | null;
+  messages: Record<string, Message[]>;
+  isLoading: boolean;
+  searchQuery: string;
+
   // Actions
-  createChat: () => void
-  deleteChat: (id: string) => void
-  setActiveChat: (id: string) => void
-  sendMessage: (content: string) => void
-  updateMessage: (id: string, content: string) => void
+  createChat: () => void;
+  deleteChat: (id: string) => void;
+  setActiveChat: (id: string) => void;
+  sendMessage: (content: string) => void;
+  updateMessage: (id: string, content: string) => void;
 }
 ```
 
 ### 4.2 Model Store
+
 ```typescript
 interface ModelStore {
-  models: Record<Provider, Model[]>
-  selectedModel: string
-  modelConfigs: Record<string, ModelConfig>
-  
+  models: Record<Provider, Model[]>;
+  selectedModel: string;
+  modelConfigs: Record<string, ModelConfig>;
+
   // Actions
-  setSelectedModel: (model: string) => void
-  updateModelConfig: (model: string, config: ModelConfig) => void
+  setSelectedModel: (model: string) => void;
+  updateModelConfig: (model: string, config: ModelConfig) => void;
 }
 ```
 
 ### 4.3 Settings Store
+
 ```typescript
 interface SettingsStore {
-  theme: 'light' | 'dark' | 'system'
-  sidebarWidth: number
-  mcpServers: MCPServer[]
-  
+  theme: "light" | "dark" | "system";
+  sidebarWidth: number;
+  mcpServers: MCPServer[];
+
   // Actions
-  setTheme: (theme: Theme) => void
-  setSidebarWidth: (width: number) => void
-  addMCPServer: (server: MCPServer) => void
+  setTheme: (theme: Theme) => void;
+  setSidebarWidth: (width: number) => void;
+  addMCPServer: (server: MCPServer) => void;
 }
 ```
 
 ## 5. Styling Implementation
 
 ### 5.1 Tailwind Configuration
+
 ```javascript
 // tailwind.config.js
 module.exports = {
-  content: ['./src/**/*.{js,ts,jsx,tsx}'],
-  darkMode: 'class',
+  content: ["./src/**/*.{js,ts,jsx,tsx}"],
+  darkMode: "class",
   theme: {
     extend: {
       colors: {
         gray: {
-          50: '#f9fafb',
-          100: '#f3f4f6',
+          50: "#f9fafb",
+          100: "#f3f4f6",
           // ... complete gray scale
         },
         blue: {
-          50: '#eff6ff',
-          600: '#2563eb',
-          700: '#1d4ed8',
+          50: "#eff6ff",
+          600: "#2563eb",
+          700: "#1d4ed8",
           // ... complete blue scale
         },
       },
       width: {
-        '16': '4rem',
-        '320': '20rem',
+        16: "4rem",
+        320: "20rem",
       },
     },
   },
   plugins: [],
-}
+};
 ```
 
 ### 5.2 Key Styling Patterns
 
 #### Dark Mode Support
+
 - `dark:` prefix for all dark mode variants
 - System theme detection
 - Toggle between light/dark modes
 
 #### Hover Effects
+
 - `hover:bg-gray-100 dark:hover:bg-gray-800`
 - `hover:shadow-lg`
 - `transition-colors` for smooth animations
 
 #### Focus States
+
 - `focus:ring-2 focus:ring-blue-500`
 - `focus:border-transparent`
 
 #### Responsive Design
+
 - Mobile-first approach
 - Collapsible sidebar on mobile
 - Responsive grid layouts
@@ -320,13 +343,13 @@ module.exports = {
 ```typescript
 export function SidebarNav() {
   const pathname = usePathname()
-  
+
   const navItems = [
     { href: '/', icon: MessageSquare, label: 'Chat' },
     { href: '/models', icon: Brain, label: 'Models' },
     { href: '/mcp-servers', icon: Server, label: 'MCP Servers' },
   ]
-  
+
   return (
     <div className="w-16 h-full bg-gray-50 dark:bg-gray-900 flex flex-col items-center py-4 border-r border-gray-200 dark:border-gray-800">
       {/* Navigation items */}
@@ -339,7 +362,7 @@ export function SidebarNav() {
           />
         ))}
       </div>
-      
+
       {/* Bottom section */}
       <div className="flex flex-col items-center space-y-3 pb-2">
         <ThemeToggle />
@@ -380,7 +403,7 @@ export function ModelCard({ model }: ModelCardProps) {
           </span>
         )}
       </div>
-      
+
       <div className="flex items-center justify-between mt-3">
         <button className="ml-auto text-xs px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex items-center gap-1">
           <Settings className="h-3 w-3" />
@@ -397,15 +420,16 @@ export function ModelCard({ model }: ModelCardProps) {
 ### 7.1 AI Provider Integrations
 
 #### OpenAI Integration
+
 ```typescript
 export class OpenAIClient {
-  private apiKey: string
-  private baseURL = 'https://api.openai.com/v1'
-  
+  private apiKey: string;
+  private baseURL = "https://api.openai.com/v1";
+
   async createChatCompletion(params: ChatCompletionParams) {
     // Implementation
   }
-  
+
   async streamChatCompletion(params: ChatCompletionParams) {
     // Streaming implementation
   }
@@ -415,26 +439,27 @@ export class OpenAIClient {
 #### Similar patterns for Anthropic, Gemini, xAI, DeepSeek
 
 ### 7.2 Model Context Protocol (MCP) Integration
+
 ```typescript
 interface MCPServer {
-  id: string
-  name: string
-  url: string
-  enabled: boolean
-  capabilities: string[]
+  id: string;
+  name: string;
+  url: string;
+  enabled: boolean;
+  capabilities: string[];
 }
 
 export class MCPManager {
-  private servers: Map<string, MCPServer> = new Map()
-  
+  private servers: Map<string, MCPServer> = new Map();
+
   async addServer(server: MCPServer) {
     // Implementation
   }
-  
+
   async removeServer(id: string) {
     // Implementation
   }
-  
+
   async injectIntoCompletion(messages: Message[]) {
     // Auto-injection into OpenAI calls
   }
@@ -444,6 +469,7 @@ export class MCPManager {
 ## 8. Implementation Status & Progress
 
 ### ✅ Phase 1: Core Layout & Navigation - COMPLETED
+
 - ✅ Basic Next.js 14 setup with TypeScript
 - ✅ Tailwind CSS configuration with custom colors
 - ✅ Sidebar navigation with routing (Chat, Models, MCP Servers)
@@ -456,6 +482,7 @@ export class MCPManager {
 **Commit**: `7fadc4e` - Complete foundation with optimized performance
 
 ### ✅ Phase 2: Chat Interface - COMPLETED
+
 - ✅ Empty state with "New Chat" and "New Incognito Chat" buttons
 - ✅ Complete chat interface with message threading
 - ✅ Message components with role-based styling
@@ -468,6 +495,7 @@ export class MCPManager {
 **Commit**: `7fadc4e` - Full chat system with advanced messaging
 
 ### ✅ Phase 3: Models Management - COMPLETED
+
 - ✅ Models page with tabbed interface (Built-in, Custom, OpenRouter)
 - ✅ Responsive model cards grid (1-4 columns based on screen size)
 - ✅ Model configuration dialogs with advanced settings
@@ -485,9 +513,10 @@ export class MCPManager {
 **Commit**: `da5ff38` - Complete models management system
 
 ### ✅ Phase 4: AI Integration - COMPLETED
+
 - ✅ **OpenAI API integration** with 22 models and streaming
 - ✅ **Anthropic Claude integration** with 10 models
-- ✅ **Google Gemini integration** with 9 models  
+- ✅ **Google Gemini integration** with 9 models
 - ✅ **xAI Grok integration** with 3 models
 - ✅ **DeepSeek integration** with 2 models
 - ✅ **Advanced streaming responses** with backpressure handling
@@ -503,13 +532,15 @@ export class MCPManager {
 **Commit**: `fccd2b2` - Complete AI integration with streaming
 
 ### 🚧 Phase 5: MCP Servers - PLANNED
+
 - [ ] MCP servers page with tabbed interface
 - [ ] Custom server addition and configuration
 - [ ] Server management and health monitoring
 - [ ] Auto-injection into OpenAI API calls
 - [ ] MCP protocol integration
 
-### 🚧 Phase 6: Advanced Features - PLANNED  
+### 🚧 Phase 6: Advanced Features - PLANNED
+
 - [ ] Folder organization for chat management
 - [ ] Advanced chat search and filtering
 - [ ] Incognito chat mode implementation
@@ -518,6 +549,7 @@ export class MCPManager {
 - [ ] Chat templates and presets
 
 ### 🚧 Phase 7: Polish & Optimization - PLANNED
+
 - [ ] Enhanced loading states and animations
 - [ ] Advanced error handling and recovery
 - [ ] Performance optimization and caching
@@ -530,6 +562,7 @@ export class MCPManager {
 ## 🎯 Current Status Summary
 
 **✅ COMPLETED PHASES: 1-4** (Core functionality complete)
+
 - **46 AI Models** integrated across 5 providers
 - **Complete chat interface** with streaming support
 - **Advanced model management** with configuration
@@ -539,8 +572,9 @@ export class MCPManager {
 **📊 Project Completion**: **~70%** (4/7 phases complete)
 
 **🔧 Recent Technical Achievements**:
+
 - Fixed all TypeScript compilation errors
-- Resolved Vercel deployment configuration issues  
+- Resolved Vercel deployment configuration issues
 - Implemented comprehensive error handling
 - Added performance monitoring and rate limiting
 - Built production-ready streaming architecture
@@ -548,10 +582,11 @@ export class MCPManager {
 ## 9. Deployment Configuration ✅
 
 ### 9.1 Vercel Configuration (Updated - Issue Fixed)
+
 ```json
 {
   "buildCommand": "next build",
-  "outputDirectory": ".next", 
+  "outputDirectory": ".next",
   "framework": "nextjs",
   "headers": [
     {
@@ -562,7 +597,7 @@ export class MCPManager {
           "value": "nosniff"
         },
         {
-          "key": "X-Frame-Options", 
+          "key": "X-Frame-Options",
           "value": "DENY"
         },
         {
@@ -580,13 +615,15 @@ export class MCPManager {
 **Commit**: `464552d` - Fixed Vercel deployment configuration
 
 ### 9.1.1 Deployment Issues Resolved
+
 - ❌ **Issue**: "Function Runtimes must have a valid version" error on Vercel
-- ✅ **Solution**: Simplified `vercel.json` configuration, removed deprecated syntax  
+- ✅ **Solution**: Simplified `vercel.json` configuration, removed deprecated syntax
 - ❌ **Issue**: Vercel deploying wrong commit (old `fbc7fbb` instead of latest)
 - ✅ **Solution**: Updated configuration and pushed latest commit `464552d`
 - ✅ **Status**: Ready for production deployment
 
 ### 9.2 Environment Variables
+
 ```env
 # API Keys (to be configured in Vercel dashboard)
 OPENAI_API_KEY=your_openai_key
@@ -603,6 +640,7 @@ NEXT_PUBLIC_GA_ID=your_analytics_id
 ## 10. Key Implementation Notes
 
 ### 10.1 Exact Visual Replication
+
 - Use exact color values from the original site
 - Implement precise spacing and typography
 - Match hover effects and transitions
@@ -610,18 +648,21 @@ NEXT_PUBLIC_GA_ID=your_analytics_id
 - Maintain responsive behavior
 
 ### 10.2 State Persistence
+
 - Store chat history in localStorage
 - Persist model configurations
 - Save theme preferences
 - Maintain sidebar width settings
 
 ### 10.3 Performance Considerations
+
 - Implement lazy loading for model cards
 - Use React.memo for expensive components
 - Optimize bundle size with dynamic imports
 - Implement proper error boundaries
 
 ### 10.4 Security Best Practices
+
 - Store API keys server-side only
 - Implement rate limiting
 - Validate all inputs
@@ -630,16 +671,19 @@ NEXT_PUBLIC_GA_ID=your_analytics_id
 ## 11. Testing Strategy
 
 ### 11.1 Unit Testing
+
 - Component testing with Jest & React Testing Library
 - API integration testing
 - State management testing
 
 ### 11.2 Integration Testing
+
 - End-to-end testing with Playwright
 - API endpoint testing
 - Cross-browser compatibility testing
 
 ### 11.3 Performance Testing
+
 - Lighthouse audits
 - Bundle size analysis
 - API response time monitoring
@@ -647,11 +691,13 @@ NEXT_PUBLIC_GA_ID=your_analytics_id
 ## 12. Maintenance & Updates
 
 ### 12.1 Model Updates
+
 - Regular addition of new models
 - Configuration updates
 - Provider API changes
 
 ### 12.2 Feature Enhancements
+
 - User feedback implementation
 - Performance improvements
 - Security updates

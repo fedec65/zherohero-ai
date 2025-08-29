@@ -2,7 +2,7 @@
  * Core API types and interfaces for AI provider integration
  */
 
-import { Message, ModelConfig, AIProvider } from '../stores/types/index';
+import { Message, ModelConfig, AIProvider } from "../stores/types/index";
 
 // Chat completion request types
 export interface ChatCompletionParams {
@@ -20,14 +20,14 @@ export interface ChatCompletionParams {
 }
 
 export interface APIMessage {
-  role: 'user' | 'assistant' | 'system';
+  role: "user" | "assistant" | "system";
   content: string;
 }
 
 // Chat completion response types
 export interface ChatCompletionResponse {
   id: string;
-  object: 'chat.completion';
+  object: "chat.completion";
   created: number;
   model: string;
   usage: {
@@ -38,25 +38,25 @@ export interface ChatCompletionResponse {
   choices: Array<{
     index: number;
     message: {
-      role: 'assistant';
+      role: "assistant";
       content: string;
     };
-    finishReason: 'stop' | 'length' | 'content_filter' | null;
+    finishReason: "stop" | "length" | "content_filter" | null;
   }>;
 }
 
 export interface StreamingResponse {
   id: string;
-  object: 'chat.completion.chunk';
+  object: "chat.completion.chunk";
   created: number;
   model: string;
   choices: Array<{
     index: number;
     delta: {
-      role?: 'assistant';
+      role?: "assistant";
       content?: string;
     };
-    finishReason?: 'stop' | 'length' | 'content_filter' | null;
+    finishReason?: "stop" | "length" | "content_filter" | null;
   }>;
 }
 
@@ -69,12 +69,14 @@ export class APIError extends Error {
   retryable?: boolean;
 
   constructor(
-    message: string, 
-    provider: AIProvider, 
-    options: Partial<Pick<APIError, 'status' | 'code' | 'type' | 'retryable'>> = {}
+    message: string,
+    provider: AIProvider,
+    options: Partial<
+      Pick<APIError, "status" | "code" | "type" | "retryable">
+    > = {},
   ) {
     super(message);
-    this.name = 'APIError';
+    this.name = "APIError";
     this.provider = provider;
     this.status = options.status;
     this.code = options.code;
@@ -95,19 +97,25 @@ export interface ProviderConfig {
 // Base API client interface
 export interface BaseAPIClient {
   provider: AIProvider;
-  
+
   // Core methods
-  createChatCompletion(params: ChatCompletionParams): Promise<ChatCompletionResponse>;
-  streamChatCompletion(params: ChatCompletionParams): AsyncGenerator<StreamingResponse, void, unknown>;
-  
+  createChatCompletion(
+    params: ChatCompletionParams,
+  ): Promise<ChatCompletionResponse>;
+  streamChatCompletion(
+    params: ChatCompletionParams,
+  ): AsyncGenerator<StreamingResponse, void, unknown>;
+
   // Utility methods
   validateConfig(config: ModelConfig): { isValid: boolean; errors: string[] };
   estimateTokens(text: string): number;
   formatMessages(messages: Message[]): APIMessage[];
-  
+
   // Health and testing
   healthCheck(): Promise<boolean>;
-  testConnection(testMessage?: string): Promise<{ success: boolean; latency: number; error?: string }>;
+  testConnection(
+    testMessage?: string,
+  ): Promise<{ success: boolean; latency: number; error?: string }>;
 }
 
 // Streaming callback types
@@ -203,7 +211,7 @@ export interface QueueStats {
 
 // Circuit breaker status
 export interface CircuitBreakerStatus {
-  state: 'closed' | 'open' | 'half-open';
+  state: "closed" | "open" | "half-open";
   failureCount: number;
   lastFailureTime?: Date;
   nextAttemptTime?: Date;

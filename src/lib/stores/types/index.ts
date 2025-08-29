@@ -22,18 +22,18 @@ export interface Chat extends BaseEntity {
 
 export interface Message extends BaseEntity {
   chatId: string;
-  role: 'user' | 'assistant' | 'system';
+  role: "user" | "assistant" | "system";
   content: string;
   model?: string;
   tokens?: number;
-  streamingState?: 'pending' | 'streaming' | 'complete' | 'error';
+  streamingState?: "pending" | "streaming" | "complete" | "error";
   error?: string;
   attachments?: MessageAttachment[];
 }
 
 export interface MessageAttachment {
   id: string;
-  type: 'image' | 'file' | 'audio';
+  type: "image" | "file" | "audio";
   name: string;
   size: number;
   url?: string;
@@ -47,7 +47,15 @@ export interface Folder extends BaseEntity {
 }
 
 // AI Model types
-export type AIProvider = 'openai' | 'anthropic' | 'gemini' | 'xai' | 'deepseek' | 'openrouter' | 'custom' | 'tavily';
+export type AIProvider =
+  | "openai"
+  | "anthropic"
+  | "gemini"
+  | "xai"
+  | "deepseek"
+  | "openrouter"
+  | "custom"
+  | "tavily";
 
 export interface Model {
   id: string;
@@ -64,13 +72,13 @@ export interface Model {
   isDeprecated?: boolean;
 }
 
-export type ModelCapability = 
-  | 'text-generation' 
-  | 'code-generation' 
-  | 'image-understanding' 
-  | 'function-calling' 
-  | 'json-mode'
-  | 'streaming';
+export type ModelCapability =
+  | "text-generation"
+  | "code-generation"
+  | "image-understanding"
+  | "function-calling"
+  | "json-mode"
+  | "streaming";
 
 export interface ModelConfig {
   temperature: number;
@@ -91,7 +99,7 @@ export interface CustomModel extends Model {
 
 // OpenRouter-specific model types
 export interface OpenRouterModel extends Model {
-  provider: 'openrouter';
+  provider: "openrouter";
   description?: string;
   originalProvider: string; // The actual provider (e.g., 'anthropic', 'openai')
   availability?: {
@@ -128,7 +136,7 @@ export interface OpenRouterSettings {
   appUrl?: string;
   defaultProvider?: string[];
   enableFallbacks: boolean;
-  dataCollection: 'allow' | 'deny';
+  dataCollection: "allow" | "deny";
 }
 
 // MCP Server types
@@ -140,21 +148,17 @@ export interface MCPServer extends BaseEntity {
   autoInject: boolean;
   capabilities: MCPCapability[];
   config: Record<string, unknown>;
-  status: 'connected' | 'disconnected' | 'error';
+  status: "connected" | "disconnected" | "error";
   lastHealthCheck?: Date;
 }
 
-export type MCPCapability = 
-  | 'tools' 
-  | 'resources' 
-  | 'prompts' 
-  | 'logging';
+export type MCPCapability = "tools" | "resources" | "prompts" | "logging";
 
 // Settings and preferences
 export interface UserSettings {
-  theme: 'light' | 'dark' | 'system';
+  theme: "light" | "dark" | "system";
   sidebarWidth: number;
-  fontSize: 'small' | 'medium' | 'large';
+  fontSize: "small" | "medium" | "large";
   sendOnEnter: boolean;
   showTokenCount: boolean;
   autoSave: boolean;
@@ -180,8 +184,8 @@ export interface UIState {
   sidebarCollapsed: boolean;
   activeModal: string | null;
   searchQuery: string;
-  sortBy: 'date' | 'name' | 'model';
-  sortOrder: 'asc' | 'desc';
+  sortBy: "date" | "name" | "model";
+  sortOrder: "asc" | "desc";
   loading: Record<string, boolean>;
   errors: Record<string, string | null>;
 }
@@ -210,7 +214,7 @@ export interface StoreEvent<T = unknown> {
 // Storage configuration
 export interface StorageConfig {
   key: string;
-  storage: 'localStorage' | 'sessionStorage' | 'indexedDB' | 'memory';
+  storage: "localStorage" | "sessionStorage" | "indexedDB" | "memory";
   version: number;
   migrate?: (persistedState: unknown, version: number) => unknown;
   serialize?: (state: unknown) => string;
@@ -220,7 +224,7 @@ export interface StorageConfig {
 
 // Search and filtering
 export interface SearchResult {
-  type: 'chat' | 'message' | 'model';
+  type: "chat" | "message" | "model";
   id: string;
   title: string;
   snippet?: string;
@@ -232,7 +236,7 @@ export interface SearchResult {
 
 export interface SearchOptions {
   query: string;
-  type?: 'chat' | 'message' | 'all';
+  type?: "chat" | "message" | "all";
   exact?: boolean;
   regex?: boolean;
   caseSensitive?: boolean;
@@ -247,10 +251,10 @@ export interface FilterOptions {
   };
   starred?: boolean;
   folders?: string[];
-  chatType?: 'all' | 'regular' | 'incognito';
+  chatType?: "all" | "regular" | "incognito";
   hasMessages?: boolean;
-  sortBy?: 'date' | 'title' | 'messageCount' | 'relevance';
-  sortOrder?: 'asc' | 'desc';
+  sortBy?: "date" | "title" | "messageCount" | "relevance";
+  sortOrder?: "asc" | "desc";
 }
 
 export interface SearchHistory {

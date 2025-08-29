@@ -5,6 +5,7 @@ A comprehensive search and filtering system for the MindDeck chat interface, pro
 ## 🌟 Features Overview
 
 ### Core Search Capabilities
+
 - **Full-text Search**: Search across chat titles and message content
 - **Advanced Search Modes**: Simple, regex, exact match, and case-sensitive options
 - **Real-time Results**: Instant search with debounced input for performance
@@ -12,12 +13,14 @@ A comprehensive search and filtering system for the MindDeck chat interface, pro
 - **Context Highlighting**: Visual highlighting of search terms in results
 
 ### Filtering & Sorting
+
 - **Quick Filters**: Starred chats, incognito mode, message existence
 - **Date Range Filtering**: Today, this week, this month, or custom ranges
 - **Sort Options**: By date, title, message count, or relevance
 - **Filter Combinations**: Apply multiple filters simultaneously
 
 ### Search Experience
+
 - **Search Suggestions**: Auto-complete based on chat titles and history
 - **Search History**: Recent searches with result counts
 - **Keyboard Shortcuts**: ESC to close, Enter to search
@@ -26,32 +29,44 @@ A comprehensive search and filtering system for the MindDeck chat interface, pro
 ## 🏗️ Architecture
 
 ### Search Engine (`src/lib/utils/search.ts`)
+
 ```typescript
 class SearchEngine {
   // Singleton pattern for efficient indexing
-  static getInstance(): SearchEngine
-  
+  static getInstance(): SearchEngine;
+
   // Build search index for fast lookups
-  buildIndex(chats: Record<string, Chat>, messages: Record<string, Message[]>): void
-  
+  buildIndex(
+    chats: Record<string, Chat>,
+    messages: Record<string, Message[]>,
+  ): void;
+
   // Perform search with multiple algorithms
-  search(options: SearchOptions, chats: Record<string, Chat>, messages: Record<string, Message[]>): SearchResult[]
+  search(
+    options: SearchOptions,
+    chats: Record<string, Chat>,
+    messages: Record<string, Message[]>,
+  ): SearchResult[];
 }
 ```
 
 **Search Algorithms:**
+
 - **Fuzzy Search**: Token-based matching with relevance scoring
 - **Exact Search**: Phrase matching with case sensitivity options
 - **Regex Search**: Pattern matching with error handling
 
 **Ranking System:**
+
 - Chat title matches get higher scores
 - Starred chats receive boost
 - Recent activity increases relevance
 - Message content matches include context
 
 ### State Management
+
 Enhanced `ChatStore` with search state:
+
 ```typescript
 interface SearchState {
   query: string;
@@ -65,6 +80,7 @@ interface SearchState {
 ```
 
 **Search Actions:**
+
 - `performSearch(options: SearchOptions): Promise<SearchResult[]>`
 - `clearSearch(): void`
 - `setSearchFilters(filters: Partial<FilterOptions>): void`
@@ -74,25 +90,30 @@ interface SearchState {
 ### Component Architecture
 
 #### Enhanced Search Component (`enhanced-search.tsx`)
+
 Main search interface with:
+
 - Advanced search options panel
 - Dropdown with suggestions and results
 - Filter integration
 - Keyboard navigation
 
 #### Search Results (`search-results.tsx`)
+
 - Displays search results with relevance scores
 - Highlights matching terms
 - Shows result type (chat/message) indicators
 - Handles empty states and loading
 
 #### Search Filters (`search-filters.tsx`)
+
 - Collapsible filter panel
 - Quick filter buttons
 - Date range selection
 - Sort options with direction toggle
 
 #### Search Suggestions (`search-suggestions.tsx`)
+
 - Recent search history
 - Auto-generated suggestions
 - Quick action buttons
@@ -100,72 +121,78 @@ Main search interface with:
 ## 🔧 Implementation Details
 
 ### Search Options Interface
+
 ```typescript
 interface SearchOptions {
   query: string;
-  type?: 'chat' | 'message' | 'all';
-  exact?: boolean;           // Exact phrase matching
-  regex?: boolean;          // Regular expression search
-  caseSensitive?: boolean;  // Case-sensitive matching
-  limit?: number;          // Maximum results
+  type?: "chat" | "message" | "all";
+  exact?: boolean; // Exact phrase matching
+  regex?: boolean; // Regular expression search
+  caseSensitive?: boolean; // Case-sensitive matching
+  limit?: number; // Maximum results
 }
 ```
 
 ### Filter Options Interface
+
 ```typescript
 interface FilterOptions {
-  providers?: AIProvider[];         // Filter by AI model provider
-  dateRange?: { start: Date; end: Date };  // Date range filtering
-  starred?: boolean;                // Show only starred chats
-  folders?: string[];              // Filter by folder
-  chatType?: 'all' | 'regular' | 'incognito';  // Chat type filter
-  hasMessages?: boolean;           // Show only chats with messages
-  sortBy?: 'date' | 'title' | 'messageCount' | 'relevance';
-  sortOrder?: 'asc' | 'desc';
+  providers?: AIProvider[]; // Filter by AI model provider
+  dateRange?: { start: Date; end: Date }; // Date range filtering
+  starred?: boolean; // Show only starred chats
+  folders?: string[]; // Filter by folder
+  chatType?: "all" | "regular" | "incognito"; // Chat type filter
+  hasMessages?: boolean; // Show only chats with messages
+  sortBy?: "date" | "title" | "messageCount" | "relevance";
+  sortOrder?: "asc" | "desc";
 }
 ```
 
 ### Search Results Interface
+
 ```typescript
 interface SearchResult {
-  type: 'chat' | 'message' | 'model';
+  type: "chat" | "message" | "model";
   id: string;
   title: string;
-  snippet?: string;           // Excerpt with context
-  relevance: number;         // Relevance score 0-100
-  chatId?: string;          // For message results
-  messageIndex?: number;    // Position in chat
-  highlights?: string[];    // Terms to highlight
+  snippet?: string; // Excerpt with context
+  relevance: number; // Relevance score 0-100
+  chatId?: string; // For message results
+  messageIndex?: number; // Position in chat
+  highlights?: string[]; // Terms to highlight
 }
 ```
 
 ## 🎯 Usage Examples
 
 ### Basic Text Search
+
 ```typescript
 const results = await performSearch({
   query: "JavaScript array methods",
-  type: 'all',
-  limit: 20
+  type: "all",
+  limit: 20,
 });
 ```
 
 ### Advanced Regex Search
+
 ```typescript
 const results = await performSearch({
   query: "function\\s+\\w+\\(.*\\)",
   regex: true,
-  caseSensitive: true
+  caseSensitive: true,
 });
 ```
 
 ### Filtered Search
+
 ```typescript
 // Set filters
 setSearchFilters({
   starred: true,
   dateRange: { start: lastWeek, end: today },
-  chatType: 'regular'
+  chatType: "regular",
 });
 
 // Perform search with filters applied
@@ -173,6 +200,7 @@ const filteredChats = getFilteredChats();
 ```
 
 ### Search with Suggestions
+
 ```typescript
 const suggestions = getSearchSuggestions("java");
 // Returns: ["JavaScript", "Java Spring Boot", "JavaScript array methods"]
@@ -181,6 +209,7 @@ const suggestions = getSearchSuggestions("java");
 ## 🎨 UI Integration
 
 ### Chat Sidebar Integration
+
 The search functionality is seamlessly integrated into the existing `ChatSidebar` component:
 
 ```typescript
@@ -199,6 +228,7 @@ The search functionality is seamlessly integrated into the existing `ChatSidebar
 ```
 
 ### Visual Features
+
 - **Search Highlighting**: Matching terms highlighted in yellow
 - **Relevance Indicators**: Visual relevance bars (green/yellow/gray)
 - **Type Badges**: Chat vs Message result indicators
@@ -206,6 +236,7 @@ The search functionality is seamlessly integrated into the existing `ChatSidebar
 - **Empty States**: Helpful messages when no results found
 
 ### Responsive Design
+
 - **Mobile-first**: Optimized for all screen sizes
 - **Keyboard Navigation**: Full keyboard accessibility
 - **Touch Friendly**: Appropriate touch targets
@@ -214,17 +245,20 @@ The search functionality is seamlessly integrated into the existing `ChatSidebar
 ## 🚀 Performance Optimizations
 
 ### Search Performance
+
 - **Debounced Input**: 300ms debounce to prevent excessive API calls
 - **Search Indexing**: Pre-built indices for O(1) lookups
 - **Memoized Results**: Cached results for repeated searches
 - **Pagination**: Limited results with load-more functionality
 
 ### Memory Management
+
 - **Cleanup**: Proper cleanup of search state on unmount
 - **History Limits**: Search history capped at 20 items
 - **Index Updates**: Incremental index updates on data changes
 
 ### Bundle Optimization
+
 - **Code Splitting**: Search components loaded on demand
 - **Tree Shaking**: Unused search utilities eliminated
 - **Compressed Assets**: Minified search algorithms
@@ -232,18 +266,21 @@ The search functionality is seamlessly integrated into the existing `ChatSidebar
 ## 🧪 Testing Strategy
 
 ### Unit Tests
+
 - Search engine algorithms
 - Filter logic
 - State management actions
 - Utility functions
 
 ### Integration Tests
+
 - Search component interactions
 - Filter combinations
 - Keyboard navigation
 - Mobile responsiveness
 
 ### Performance Tests
+
 - Search speed benchmarks
 - Memory usage profiling
 - Bundle size analysis
@@ -252,12 +289,14 @@ The search functionality is seamlessly integrated into the existing `ChatSidebar
 ## 📊 Analytics Integration
 
 ### Search Metrics
+
 - Search query patterns
 - Popular search terms
 - Filter usage statistics
 - Search result click-through rates
 
 ### Performance Monitoring
+
 - Search response times
 - Index build performance
 - Memory usage tracking
@@ -266,18 +305,21 @@ The search functionality is seamlessly integrated into the existing `ChatSidebar
 ## 🔮 Future Enhancements
 
 ### Planned Features
+
 - **Semantic Search**: AI-powered content understanding
 - **Search Operators**: Advanced query syntax (`from:user`, `date:2024`)
 - **Saved Searches**: Bookmark frequently used searches
 - **Export Results**: Export search results to various formats
 
 ### Performance Improvements
+
 - **Web Workers**: Background search processing
 - **Service Worker Caching**: Offline search capabilities
 - **GraphQL Integration**: Optimized search queries
 - **Real-time Updates**: Live search result updates
 
 ### Advanced Features
+
 - **Voice Search**: Speech-to-text search input
 - **Image Search**: Search through message attachments
 - **Translation**: Search across multiple languages
@@ -286,6 +328,7 @@ The search functionality is seamlessly integrated into the existing `ChatSidebar
 ## 🛠️ Developer Guide
 
 ### Adding New Search Features
+
 1. Extend `SearchOptions` interface
 2. Update `SearchEngine.search()` method
 3. Add UI controls to filter components
@@ -293,6 +336,7 @@ The search functionality is seamlessly integrated into the existing `ChatSidebar
 5. Add tests and documentation
 
 ### Customizing Search Algorithms
+
 1. Create new search method in `SearchEngine`
 2. Register algorithm in search options
 3. Add UI toggle for new algorithm
@@ -300,6 +344,7 @@ The search functionality is seamlessly integrated into the existing `ChatSidebar
 5. Test with various datasets
 
 ### Performance Tuning
+
 1. Monitor search metrics
 2. Optimize tokenization algorithms
 3. Adjust debounce timings

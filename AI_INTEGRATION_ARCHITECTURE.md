@@ -7,7 +7,7 @@
 ```typescript
 // src/lib/ai/types.ts
 export interface AIProvider {
-  name: 'openai' | 'anthropic' | 'gemini' | 'xai' | 'deepseek';
+  name: "openai" | "anthropic" | "gemini" | "xai" | "deepseek";
   apiKey: string;
   baseURL?: string;
   organization?: string;
@@ -18,7 +18,7 @@ export interface AIProvider {
 export interface ModelConfig {
   id: string;
   name: string;
-  provider: AIProvider['name'];
+  provider: AIProvider["name"];
   contextWindow: number;
   maxOutputTokens?: number;
   supportsFunctions?: boolean;
@@ -31,7 +31,7 @@ export interface ModelConfig {
 }
 
 export interface ChatMessage {
-  role: 'system' | 'user' | 'assistant' | 'function';
+  role: "system" | "user" | "assistant" | "function";
   content: string;
   name?: string;
   function_call?: any;
@@ -82,7 +82,7 @@ export interface StreamChunk {
 
 ```typescript
 // src/lib/ai/base-client.ts
-import { EventEmitter } from 'events';
+import { EventEmitter } from "events";
 
 export abstract class BaseAIClient extends EventEmitter {
   protected apiKey: string;
@@ -112,9 +112,11 @@ export abstract class BaseAIClient extends EventEmitter {
   protected abstract transformResponse(response: any): ChatMessage;
   protected abstract transformStreamChunk(chunk: any): StreamChunk;
 
-  async createChatCompletion(params: ChatCompletionParams): Promise<ChatMessage> {
+  async createChatCompletion(
+    params: ChatCompletionParams,
+  ): Promise<ChatMessage> {
     const startTime = Date.now();
-    
+
     try {
       // Check cache first
       const cacheKey = this.getCacheKey(params);
@@ -131,8 +133,11 @@ export abstract class BaseAIClient extends EventEmitter {
       const requestBody = this.transformRequest(params);
 
       // Count input tokens
-      const inputTokens = this.tokenCounter.countTokens(params.messages, params.model);
-      
+      const inputTokens = this.tokenCounter.countTokens(
+        params.messages,
+        params.model,
+      );
+
       // Check context window limits
       this.validateContextWindow(inputTokens, params.model);
 
@@ -143,7 +148,10 @@ export abstract class BaseAIClient extends EventEmitter {
       const message = this.transformResponse(response);
 
       // Count output tokens
-      const outputTokens = this.tokenCounter.countTokens([message], params.model);
+      const outputTokens = this.tokenCounter.countTokens(
+        [message],
+        params.model,
+      );
 
       // Record telemetry
       this.telemetry.record({
@@ -169,20 +177,25 @@ export abstract class BaseAIClient extends EventEmitter {
     }
   }
 
-  async *streamChatCompletion(params: ChatCompletionParams): AsyncGenerator<StreamChunk> {
+  async *streamChatCompletion(
+    params: ChatCompletionParams,
+  ): AsyncGenerator<StreamChunk> {
     const startTime = Date.now();
     let totalTokens = 0;
 
     try {
       await this.rateLimiter.acquire();
-      
+
       const requestBody = this.transformRequest({ ...params, stream: true });
-      const inputTokens = this.tokenCounter.countTokens(params.messages, params.model);
-      
+      const inputTokens = this.tokenCounter.countTokens(
+        params.messages,
+        params.model,
+      );
+
       this.validateContextWindow(inputTokens, params.model);
 
       const stream = await this.makeStreamRequest(requestBody);
-      
+
       for await (const chunk of stream) {
         const transformedChunk = this.transformStreamChunk(chunk);
         totalTokens += this.tokenCounter.countChunk(transformedChunk);
@@ -212,7 +225,7 @@ export abstract class BaseAIClient extends EventEmitter {
     } catch (error: any) {
       if (retries < this.maxRetries && this.isRetryableError(error)) {
         const delay = Math.pow(2, retries) * 1000;
-        await new Promise(resolve => setTimeout(resolve, delay));
+        await new Promise((resolve) => setTimeout(resolve, delay));
         return this.makeRequestWithRetry(body, retries + 1);
       }
       throw error;
@@ -222,7 +235,10 @@ export abstract class BaseAIClient extends EventEmitter {
   protected abstract makeRequest(body: any): Promise<any>;
   protected abstract makeStreamRequest(body: any): Promise<AsyncIterable<any>>;
   protected abstract isRetryableError(error: any): boolean;
-  protected abstract handleError(error: any, params: ChatCompletionParams): void;
+  protected abstract handleError(
+    error: any,
+    params: ChatCompletionParams,
+  ): void;
 }
 ```
 
@@ -232,12 +248,12 @@ export abstract class BaseAIClient extends EventEmitter {
 
 ```typescript
 // src/lib/ai/providers/openai.ts
-import OpenAI from 'openai';
-import { BaseAIClient } from '../base-client';
+import OpenAI from "openai";
+import { BaseAIClient } from "../base-client";
 
 export class OpenAIClient extends BaseAIClient {
   private client: OpenAI;
-  
+
   constructor(config: AIProvider) {
     super(config);
     this.client = new OpenAI({
@@ -249,7 +265,7 @@ export class OpenAIClient extends BaseAIClient {
   }
 
   protected getDefaultBaseURL(): string {
-    return 'https://api.openai.com/v1';
+    return "https://api.openai.com/v1";
   }
 
   protected getRateLimits(): RateLimitConfig {
@@ -262,13 +278,13 @@ export class OpenAIClient extends BaseAIClient {
 
   protected transformRequest(params: ChatCompletionParams): any {
     // Apply MCP injection for OpenAI
-    const messages = params.mcpServers 
+    const messages = params.mcpServers
       ? this.injectMCPContext(params.messages, params.mcpServers)
       : params.messages;
 
     return {
       model: params.model,
-      messages: messages.map(m => ({
+      messages: messages.map((m) => ({
         role: m.role,
         content: m.content,
         name: m.name,
@@ -291,7 +307,7 @@ export class OpenAIClient extends BaseAIClient {
     const choice = response.choices[0];
     return {
       role: choice.message.role,
-      content: choice.message.content || '',
+      content: choice.message.content || "",
       function_call: choice.message.function_call,
       tool_calls: choice.message.tool_calls,
       metadata: {
@@ -327,9 +343,9 @@ export class OpenAIClient extends BaseAIClient {
   protected handleError(error: any, params: ChatCompletionParams): void {
     const errorCode = error.code || error.type;
     const status = error.status || error.response?.status;
-    
-    this.emit('error', {
-      provider: 'openai',
+
+    this.emit("error", {
+      provider: "openai",
       model: params.model,
       error: errorCode,
       status,
@@ -339,14 +355,17 @@ export class OpenAIClient extends BaseAIClient {
 
     // Log to telemetry
     this.telemetry.recordError({
-      provider: 'openai',
+      provider: "openai",
       model: params.model,
       errorCode,
       status,
     });
   }
 
-  private injectMCPContext(messages: ChatMessage[], mcpServers: MCPServer[]): ChatMessage[] {
+  private injectMCPContext(
+    messages: ChatMessage[],
+    mcpServers: MCPServer[],
+  ): ChatMessage[] {
     // MCP injection logic for OpenAI
     const contextMessage = this.buildMCPContextMessage(mcpServers);
     return [contextMessage, ...messages];
@@ -354,12 +373,12 @@ export class OpenAIClient extends BaseAIClient {
 
   private buildMCPContextMessage(mcpServers: MCPServer[]): ChatMessage {
     const context = mcpServers
-      .filter(s => s.enabled)
-      .map(s => `[MCP Server: ${s.name}]\n${s.context}`)
-      .join('\n\n');
+      .filter((s) => s.enabled)
+      .map((s) => `[MCP Server: ${s.name}]\n${s.context}`)
+      .join("\n\n");
 
     return {
-      role: 'system',
+      role: "system",
       content: `Available context from MCP servers:\n\n${context}`,
     };
   }
@@ -370,8 +389,8 @@ export class OpenAIClient extends BaseAIClient {
 
 ```typescript
 // src/lib/ai/providers/anthropic.ts
-import Anthropic from '@anthropic-ai/sdk';
-import { BaseAIClient } from '../base-client';
+import Anthropic from "@anthropic-ai/sdk";
+import { BaseAIClient } from "../base-client";
 
 export class AnthropicClient extends BaseAIClient {
   private client: Anthropic;
@@ -385,7 +404,7 @@ export class AnthropicClient extends BaseAIClient {
   }
 
   protected getDefaultBaseURL(): string {
-    return 'https://api.anthropic.com';
+    return "https://api.anthropic.com";
   }
 
   protected getRateLimits(): RateLimitConfig {
@@ -398,13 +417,13 @@ export class AnthropicClient extends BaseAIClient {
 
   protected transformRequest(params: ChatCompletionParams): any {
     // Extract system message
-    const systemMessage = params.messages.find(m => m.role === 'system');
-    const otherMessages = params.messages.filter(m => m.role !== 'system');
+    const systemMessage = params.messages.find((m) => m.role === "system");
+    const otherMessages = params.messages.filter((m) => m.role !== "system");
 
     return {
       model: params.model,
-      messages: otherMessages.map(m => ({
-        role: m.role === 'assistant' ? 'assistant' : 'user',
+      messages: otherMessages.map((m) => ({
+        role: m.role === "assistant" ? "assistant" : "user",
         content: m.content,
       })),
       system: systemMessage?.content,
@@ -421,7 +440,7 @@ export class AnthropicClient extends BaseAIClient {
 
   protected transformResponse(response: any): ChatMessage {
     return {
-      role: 'assistant',
+      role: "assistant",
       content: response.content[0].text,
       metadata: {
         tokens: response.usage.input_tokens + response.usage.output_tokens,
@@ -433,33 +452,37 @@ export class AnthropicClient extends BaseAIClient {
 
   protected transformStreamChunk(chunk: any): StreamChunk {
     // Transform Anthropic stream format to OpenAI format
-    if (chunk.type === 'content_block_delta') {
+    if (chunk.type === "content_block_delta") {
       return {
         id: chunk.index,
-        object: 'chat.completion.chunk',
+        object: "chat.completion.chunk",
         created: Date.now(),
-        model: 'claude',
-        choices: [{
-          index: 0,
-          delta: {
-            content: chunk.delta.text,
+        model: "claude",
+        choices: [
+          {
+            index: 0,
+            delta: {
+              content: chunk.delta.text,
+            },
+            finish_reason: null,
           },
-          finish_reason: null,
-        }],
+        ],
       };
     }
-    
-    if (chunk.type === 'message_stop') {
+
+    if (chunk.type === "message_stop") {
       return {
-        id: 'final',
-        object: 'chat.completion.chunk',
+        id: "final",
+        object: "chat.completion.chunk",
         created: Date.now(),
-        model: 'claude',
-        choices: [{
-          index: 0,
-          delta: {},
-          finish_reason: 'stop',
-        }],
+        model: "claude",
+        choices: [
+          {
+            index: 0,
+            delta: {},
+            finish_reason: "stop",
+          },
+        ],
       };
     }
 
@@ -485,11 +508,11 @@ export class AnthropicClient extends BaseAIClient {
   }
 
   protected handleError(error: any, params: ChatCompletionParams): void {
-    const errorType = error.error?.type || 'unknown_error';
+    const errorType = error.error?.type || "unknown_error";
     const status = error.status;
-    
-    this.emit('error', {
-      provider: 'anthropic',
+
+    this.emit("error", {
+      provider: "anthropic",
       model: params.model,
       error: errorType,
       status,
@@ -498,7 +521,7 @@ export class AnthropicClient extends BaseAIClient {
     });
 
     this.telemetry.recordError({
-      provider: 'anthropic',
+      provider: "anthropic",
       model: params.model,
       errorCode: errorType,
       status,
@@ -511,8 +534,8 @@ export class AnthropicClient extends BaseAIClient {
 
 ```typescript
 // src/lib/ai/providers/gemini.ts
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import { BaseAIClient } from '../base-client';
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { BaseAIClient } from "../base-client";
 
 export class GeminiClient extends BaseAIClient {
   private client: GoogleGenerativeAI;
@@ -523,7 +546,7 @@ export class GeminiClient extends BaseAIClient {
   }
 
   protected getDefaultBaseURL(): string {
-    return 'https://generativelanguage.googleapis.com';
+    return "https://generativelanguage.googleapis.com";
   }
 
   protected getRateLimits(): RateLimitConfig {
@@ -535,7 +558,7 @@ export class GeminiClient extends BaseAIClient {
   }
 
   protected transformRequest(params: ChatCompletionParams): any {
-    const model = this.client.getGenerativeModel({ 
+    const model = this.client.getGenerativeModel({
       model: params.model,
       generationConfig: {
         temperature: params.temperature ?? 0.7,
@@ -556,19 +579,19 @@ export class GeminiClient extends BaseAIClient {
   }
 
   private convertToGeminiFormat(messages: ChatMessage[]): any[] {
-    return messages.map(msg => ({
-      role: msg.role === 'assistant' ? 'model' : 'user',
+    return messages.map((msg) => ({
+      role: msg.role === "assistant" ? "model" : "user",
       parts: [{ text: msg.content }],
     }));
   }
 
   protected transformResponse(response: any): ChatMessage {
     return {
-      role: 'assistant',
+      role: "assistant",
       content: response.response.text(),
       metadata: {
         tokens: response.response.usageMetadata?.totalTokenCount,
-        model: 'gemini',
+        model: "gemini",
         timestamp: Date.now(),
       },
     };
@@ -577,30 +600,36 @@ export class GeminiClient extends BaseAIClient {
   protected transformStreamChunk(chunk: any): StreamChunk {
     return {
       id: Date.now().toString(),
-      object: 'chat.completion.chunk',
+      object: "chat.completion.chunk",
       created: Date.now(),
-      model: 'gemini',
-      choices: [{
-        index: 0,
-        delta: {
-          content: chunk.text(),
+      model: "gemini",
+      choices: [
+        {
+          index: 0,
+          delta: {
+            content: chunk.text(),
+          },
+          finish_reason: null,
         },
-        finish_reason: null,
-      }],
+      ],
     };
   }
 
   protected async makeRequest(body: any): Promise<any> {
     const { model, contents } = body;
     const chat = model.startChat({ history: contents.slice(0, -1) });
-    const result = await chat.sendMessage(contents[contents.length - 1].parts[0].text);
+    const result = await chat.sendMessage(
+      contents[contents.length - 1].parts[0].text,
+    );
     return result;
   }
 
   protected async makeStreamRequest(body: any): Promise<AsyncIterable<any>> {
     const { model, contents } = body;
     const chat = model.startChat({ history: contents.slice(0, -1) });
-    const result = await chat.sendMessageStream(contents[contents.length - 1].parts[0].text);
+    const result = await chat.sendMessageStream(
+      contents[contents.length - 1].parts[0].text,
+    );
     return result.stream;
   }
 
@@ -610,15 +639,15 @@ export class GeminiClient extends BaseAIClient {
   }
 
   protected handleError(error: any, params: ChatCompletionParams): void {
-    this.emit('error', {
-      provider: 'gemini',
+    this.emit("error", {
+      provider: "gemini",
       model: params.model,
       error: error.message,
       timestamp: Date.now(),
     });
 
     this.telemetry.recordError({
-      provider: 'gemini',
+      provider: "gemini",
       model: params.model,
       errorCode: error.code,
     });
@@ -630,11 +659,11 @@ export class GeminiClient extends BaseAIClient {
 
 ```typescript
 // src/lib/ai/providers/xai.ts
-import { BaseAIClient } from '../base-client';
+import { BaseAIClient } from "../base-client";
 
 export class XAIClient extends BaseAIClient {
   protected getDefaultBaseURL(): string {
-    return 'https://api.x.ai/v1';
+    return "https://api.x.ai/v1";
   }
 
   protected getRateLimits(): RateLimitConfig {
@@ -664,7 +693,7 @@ export class XAIClient extends BaseAIClient {
     const choice = response.choices[0];
     return {
       role: choice.message.role,
-      content: choice.message.content || '',
+      content: choice.message.content || "",
       metadata: {
         tokens: response.usage?.total_tokens,
         model: response.model,
@@ -679,17 +708,19 @@ export class XAIClient extends BaseAIClient {
 
   protected async makeRequest(body: any): Promise<any> {
     const response = await fetch(`${this.baseURL}/chat/completions`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Authorization': `Bearer ${this.apiKey}`,
-        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.apiKey}`,
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(body),
       signal: AbortSignal.timeout(this.timeout),
     });
 
     if (!response.ok) {
-      throw new Error(`xAI API error: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `xAI API error: ${response.status} ${response.statusText}`,
+      );
     }
 
     return response.json();
@@ -697,10 +728,10 @@ export class XAIClient extends BaseAIClient {
 
   protected async *makeStreamRequest(body: any): AsyncIterable<any> {
     const response = await fetch(`${this.baseURL}/chat/completions`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Authorization': `Bearer ${this.apiKey}`,
-        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.apiKey}`,
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({ ...body, stream: true }),
       signal: AbortSignal.timeout(this.timeout),
@@ -712,25 +743,25 @@ export class XAIClient extends BaseAIClient {
 
     const reader = response.body!.getReader();
     const decoder = new TextDecoder();
-    let buffer = '';
+    let buffer = "";
 
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
 
       buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n');
-      buffer = lines.pop() || '';
+      const lines = buffer.split("\n");
+      buffer = lines.pop() || "";
 
       for (const line of lines) {
-        if (line.startsWith('data: ')) {
+        if (line.startsWith("data: ")) {
           const data = line.slice(6);
-          if (data === '[DONE]') return;
-          
+          if (data === "[DONE]") return;
+
           try {
             yield JSON.parse(data);
           } catch (e) {
-            console.error('Failed to parse stream chunk:', e);
+            console.error("Failed to parse stream chunk:", e);
           }
         }
       }
@@ -743,8 +774,8 @@ export class XAIClient extends BaseAIClient {
   }
 
   protected handleError(error: any, params: ChatCompletionParams): void {
-    this.emit('error', {
-      provider: 'xai',
+    this.emit("error", {
+      provider: "xai",
       model: params.model,
       error: error.message,
       timestamp: Date.now(),
@@ -757,11 +788,11 @@ export class XAIClient extends BaseAIClient {
 
 ```typescript
 // src/lib/ai/providers/deepseek.ts
-import { BaseAIClient } from '../base-client';
+import { BaseAIClient } from "../base-client";
 
 export class DeepSeekClient extends BaseAIClient {
   protected getDefaultBaseURL(): string {
-    return 'https://api.deepseek.com';
+    return "https://api.deepseek.com";
   }
 
   protected getRateLimits(): RateLimitConfig {
@@ -791,7 +822,7 @@ export class DeepSeekClient extends BaseAIClient {
     const choice = response.choices[0];
     return {
       role: choice.message.role,
-      content: choice.message.content || '',
+      content: choice.message.content || "",
       metadata: {
         tokens: response.usage?.total_tokens,
         model: response.model,
@@ -806,10 +837,10 @@ export class DeepSeekClient extends BaseAIClient {
 
   protected async makeRequest(body: any): Promise<any> {
     const response = await fetch(`${this.baseURL}/v1/chat/completions`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Authorization': `Bearer ${this.apiKey}`,
-        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.apiKey}`,
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(body),
       signal: AbortSignal.timeout(this.timeout),
@@ -824,10 +855,10 @@ export class DeepSeekClient extends BaseAIClient {
 
   protected async *makeStreamRequest(body: any): AsyncIterable<any> {
     const response = await fetch(`${this.baseURL}/v1/chat/completions`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Authorization': `Bearer ${this.apiKey}`,
-        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.apiKey}`,
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({ ...body, stream: true }),
       signal: AbortSignal.timeout(this.timeout),
@@ -839,25 +870,25 @@ export class DeepSeekClient extends BaseAIClient {
 
     const reader = response.body!.getReader();
     const decoder = new TextDecoder();
-    let buffer = '';
+    let buffer = "";
 
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
 
       buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n');
-      buffer = lines.pop() || '';
+      const lines = buffer.split("\n");
+      buffer = lines.pop() || "";
 
       for (const line of lines) {
-        if (line.startsWith('data: ')) {
+        if (line.startsWith("data: ")) {
           const data = line.slice(6);
-          if (data === '[DONE]') return;
-          
+          if (data === "[DONE]") return;
+
           try {
             yield JSON.parse(data);
           } catch (e) {
-            console.error('Failed to parse stream chunk:', e);
+            console.error("Failed to parse stream chunk:", e);
           }
         }
       }
@@ -870,8 +901,8 @@ export class DeepSeekClient extends BaseAIClient {
   }
 
   protected handleError(error: any, params: ChatCompletionParams): void {
-    this.emit('error', {
-      provider: 'deepseek',
+    this.emit("error", {
+      provider: "deepseek",
       model: params.model,
       error: error.message,
       timestamp: Date.now(),
@@ -884,20 +915,20 @@ export class DeepSeekClient extends BaseAIClient {
 
 ```typescript
 // src/lib/ai/ai-manager.ts
-import { OpenAIClient } from './providers/openai';
-import { AnthropicClient } from './providers/anthropic';
-import { GeminiClient } from './providers/gemini';
-import { XAIClient } from './providers/xai';
-import { DeepSeekClient } from './providers/deepseek';
-import { ModelRegistry } from './model-registry';
-import { MCPManager } from './mcp-manager';
-import { BaseAIClient } from './base-client';
+import { OpenAIClient } from "./providers/openai";
+import { AnthropicClient } from "./providers/anthropic";
+import { GeminiClient } from "./providers/gemini";
+import { XAIClient } from "./providers/xai";
+import { DeepSeekClient } from "./providers/deepseek";
+import { ModelRegistry } from "./model-registry";
+import { MCPManager } from "./mcp-manager";
+import { BaseAIClient } from "./base-client";
 
 export class AIManager {
   private clients: Map<string, BaseAIClient> = new Map();
   private modelRegistry: ModelRegistry;
   private mcpManager: MCPManager;
-  private activeModel: string = 'gpt-4-turbo-preview';
+  private activeModel: string = "gpt-4-turbo-preview";
 
   constructor() {
     this.modelRegistry = new ModelRegistry();
@@ -908,43 +939,60 @@ export class AIManager {
   private initializeClients() {
     // Initialize clients lazily when API keys are available
     if (process.env.OPENAI_API_KEY) {
-      this.clients.set('openai', new OpenAIClient({
-        name: 'openai',
-        apiKey: process.env.OPENAI_API_KEY,
-      }));
+      this.clients.set(
+        "openai",
+        new OpenAIClient({
+          name: "openai",
+          apiKey: process.env.OPENAI_API_KEY,
+        }),
+      );
     }
 
     if (process.env.ANTHROPIC_API_KEY) {
-      this.clients.set('anthropic', new AnthropicClient({
-        name: 'anthropic',
-        apiKey: process.env.ANTHROPIC_API_KEY,
-      }));
+      this.clients.set(
+        "anthropic",
+        new AnthropicClient({
+          name: "anthropic",
+          apiKey: process.env.ANTHROPIC_API_KEY,
+        }),
+      );
     }
 
     if (process.env.GOOGLE_API_KEY) {
-      this.clients.set('gemini', new GeminiClient({
-        name: 'gemini',
-        apiKey: process.env.GOOGLE_API_KEY,
-      }));
+      this.clients.set(
+        "gemini",
+        new GeminiClient({
+          name: "gemini",
+          apiKey: process.env.GOOGLE_API_KEY,
+        }),
+      );
     }
 
     if (process.env.XAI_API_KEY) {
-      this.clients.set('xai', new XAIClient({
-        name: 'xai',
-        apiKey: process.env.XAI_API_KEY,
-      }));
+      this.clients.set(
+        "xai",
+        new XAIClient({
+          name: "xai",
+          apiKey: process.env.XAI_API_KEY,
+        }),
+      );
     }
 
     if (process.env.DEEPSEEK_API_KEY) {
-      this.clients.set('deepseek', new DeepSeekClient({
-        name: 'deepseek',
-        apiKey: process.env.DEEPSEEK_API_KEY,
-      }));
+      this.clients.set(
+        "deepseek",
+        new DeepSeekClient({
+          name: "deepseek",
+          apiKey: process.env.DEEPSEEK_API_KEY,
+        }),
+      );
     }
   }
 
   async chat(params: ChatCompletionParams): Promise<ChatMessage> {
-    const modelConfig = this.modelRegistry.getModel(params.model || this.activeModel);
+    const modelConfig = this.modelRegistry.getModel(
+      params.model || this.activeModel,
+    );
     if (!modelConfig) {
       throw new Error(`Model ${params.model} not found`);
     }
@@ -955,7 +1003,7 @@ export class AIManager {
     }
 
     // Apply MCP servers if using OpenAI
-    if (modelConfig.provider === 'openai') {
+    if (modelConfig.provider === "openai") {
       params.mcpServers = await this.mcpManager.getEnabledServers();
     }
 
@@ -963,7 +1011,9 @@ export class AIManager {
   }
 
   async *streamChat(params: ChatCompletionParams): AsyncGenerator<StreamChunk> {
-    const modelConfig = this.modelRegistry.getModel(params.model || this.activeModel);
+    const modelConfig = this.modelRegistry.getModel(
+      params.model || this.activeModel,
+    );
     if (!modelConfig) {
       throw new Error(`Model ${params.model} not found`);
     }
@@ -974,7 +1024,7 @@ export class AIManager {
     }
 
     // Apply MCP servers if using OpenAI
-    if (modelConfig.provider === 'openai') {
+    if (modelConfig.provider === "openai") {
       params.mcpServers = await this.mcpManager.getEnabledServers();
     }
 
@@ -1014,80 +1064,396 @@ export class ModelRegistry {
     // OpenAI Models (22)
     const openaiModels: ModelConfig[] = [
       // GPT-5 Series
-      { id: 'gpt-5', name: 'GPT-5', provider: 'openai', contextWindow: 200000, isNew: true, supportsStreaming: true, supportsFunctions: true },
-      { id: 'gpt-5-turbo', name: 'GPT-5 Turbo', provider: 'openai', contextWindow: 200000, isNew: true, supportsStreaming: true, supportsFunctions: true },
-      { id: 'gpt-5-turbo-preview', name: 'GPT-5 Turbo Preview', provider: 'openai', contextWindow: 200000, isNew: true, supportsStreaming: true, supportsFunctions: true },
-      
+      {
+        id: "gpt-5",
+        name: "GPT-5",
+        provider: "openai",
+        contextWindow: 200000,
+        isNew: true,
+        supportsStreaming: true,
+        supportsFunctions: true,
+      },
+      {
+        id: "gpt-5-turbo",
+        name: "GPT-5 Turbo",
+        provider: "openai",
+        contextWindow: 200000,
+        isNew: true,
+        supportsStreaming: true,
+        supportsFunctions: true,
+      },
+      {
+        id: "gpt-5-turbo-preview",
+        name: "GPT-5 Turbo Preview",
+        provider: "openai",
+        contextWindow: 200000,
+        isNew: true,
+        supportsStreaming: true,
+        supportsFunctions: true,
+      },
+
       // O-series
-      { id: 'o-mini', name: 'O Mini', provider: 'openai', contextWindow: 128000, supportsStreaming: true, supportsFunctions: true },
-      { id: 'o-mini-2024-07-18', name: 'O Mini 2024-07-18', provider: 'openai', contextWindow: 128000, supportsStreaming: true, supportsFunctions: true },
-      { id: 'o1', name: 'O1', provider: 'openai', contextWindow: 200000, supportsStreaming: true, supportsFunctions: true },
-      { id: 'o1-2024-12-17', name: 'O1 2024-12-17', provider: 'openai', contextWindow: 200000, supportsStreaming: true, supportsFunctions: true },
-      { id: 'o1-preview', name: 'O1 Preview', provider: 'openai', contextWindow: 128000, supportsStreaming: true, supportsFunctions: true },
-      { id: 'o1-preview-2024-09-12', name: 'O1 Preview 2024-09-12', provider: 'openai', contextWindow: 128000, supportsStreaming: true, supportsFunctions: true },
-      
+      {
+        id: "o-mini",
+        name: "O Mini",
+        provider: "openai",
+        contextWindow: 128000,
+        supportsStreaming: true,
+        supportsFunctions: true,
+      },
+      {
+        id: "o-mini-2024-07-18",
+        name: "O Mini 2024-07-18",
+        provider: "openai",
+        contextWindow: 128000,
+        supportsStreaming: true,
+        supportsFunctions: true,
+      },
+      {
+        id: "o1",
+        name: "O1",
+        provider: "openai",
+        contextWindow: 200000,
+        supportsStreaming: true,
+        supportsFunctions: true,
+      },
+      {
+        id: "o1-2024-12-17",
+        name: "O1 2024-12-17",
+        provider: "openai",
+        contextWindow: 200000,
+        supportsStreaming: true,
+        supportsFunctions: true,
+      },
+      {
+        id: "o1-preview",
+        name: "O1 Preview",
+        provider: "openai",
+        contextWindow: 128000,
+        supportsStreaming: true,
+        supportsFunctions: true,
+      },
+      {
+        id: "o1-preview-2024-09-12",
+        name: "O1 Preview 2024-09-12",
+        provider: "openai",
+        contextWindow: 128000,
+        supportsStreaming: true,
+        supportsFunctions: true,
+      },
+
       // GPT-4.1
-      { id: 'gpt-4.1', name: 'GPT-4.1', provider: 'openai', contextWindow: 128000, supportsStreaming: true, supportsFunctions: true, supportsVision: true },
-      { id: 'gpt-4.1-preview', name: 'GPT-4.1 Preview', provider: 'openai', contextWindow: 128000, supportsStreaming: true, supportsFunctions: true, supportsVision: true },
-      { id: 'gpt-4.1-mini', name: 'GPT-4.1 Mini', provider: 'openai', contextWindow: 128000, supportsStreaming: true, supportsFunctions: true },
-      
+      {
+        id: "gpt-4.1",
+        name: "GPT-4.1",
+        provider: "openai",
+        contextWindow: 128000,
+        supportsStreaming: true,
+        supportsFunctions: true,
+        supportsVision: true,
+      },
+      {
+        id: "gpt-4.1-preview",
+        name: "GPT-4.1 Preview",
+        provider: "openai",
+        contextWindow: 128000,
+        supportsStreaming: true,
+        supportsFunctions: true,
+        supportsVision: true,
+      },
+      {
+        id: "gpt-4.1-mini",
+        name: "GPT-4.1 Mini",
+        provider: "openai",
+        contextWindow: 128000,
+        supportsStreaming: true,
+        supportsFunctions: true,
+      },
+
       // GPT-4o Series
-      { id: 'gpt-4o', name: 'GPT-4o', provider: 'openai', contextWindow: 128000, supportsStreaming: true, supportsFunctions: true, supportsVision: true },
-      { id: 'gpt-4o-2024-08-06', name: 'GPT-4o 2024-08-06', provider: 'openai', contextWindow: 128000, supportsStreaming: true, supportsFunctions: true, supportsVision: true },
-      { id: 'gpt-4o-2024-11-20', name: 'GPT-4o 2024-11-20', provider: 'openai', contextWindow: 128000, supportsStreaming: true, supportsFunctions: true, supportsVision: true },
-      { id: 'gpt-4o-audio-preview', name: 'GPT-4o Audio Preview', provider: 'openai', contextWindow: 128000, supportsStreaming: true, supportsFunctions: true },
-      { id: 'gpt-4o-audio-preview-2024-10-01', name: 'GPT-4o Audio Preview 2024-10-01', provider: 'openai', contextWindow: 128000, supportsStreaming: true, supportsFunctions: true },
-      { id: 'gpt-4o-audio-preview-2024-12-17', name: 'GPT-4o Audio Preview 2024-12-17', provider: 'openai', contextWindow: 128000, supportsStreaming: true, supportsFunctions: true },
-      { id: 'gpt-4o-mini', name: 'GPT-4o Mini', provider: 'openai', contextWindow: 128000, supportsStreaming: true, supportsFunctions: true },
-      { id: 'gpt-4o-mini-2024-07-18', name: 'GPT-4o Mini 2024-07-18', provider: 'openai', contextWindow: 128000, supportsStreaming: true, supportsFunctions: true },
-      
+      {
+        id: "gpt-4o",
+        name: "GPT-4o",
+        provider: "openai",
+        contextWindow: 128000,
+        supportsStreaming: true,
+        supportsFunctions: true,
+        supportsVision: true,
+      },
+      {
+        id: "gpt-4o-2024-08-06",
+        name: "GPT-4o 2024-08-06",
+        provider: "openai",
+        contextWindow: 128000,
+        supportsStreaming: true,
+        supportsFunctions: true,
+        supportsVision: true,
+      },
+      {
+        id: "gpt-4o-2024-11-20",
+        name: "GPT-4o 2024-11-20",
+        provider: "openai",
+        contextWindow: 128000,
+        supportsStreaming: true,
+        supportsFunctions: true,
+        supportsVision: true,
+      },
+      {
+        id: "gpt-4o-audio-preview",
+        name: "GPT-4o Audio Preview",
+        provider: "openai",
+        contextWindow: 128000,
+        supportsStreaming: true,
+        supportsFunctions: true,
+      },
+      {
+        id: "gpt-4o-audio-preview-2024-10-01",
+        name: "GPT-4o Audio Preview 2024-10-01",
+        provider: "openai",
+        contextWindow: 128000,
+        supportsStreaming: true,
+        supportsFunctions: true,
+      },
+      {
+        id: "gpt-4o-audio-preview-2024-12-17",
+        name: "GPT-4o Audio Preview 2024-12-17",
+        provider: "openai",
+        contextWindow: 128000,
+        supportsStreaming: true,
+        supportsFunctions: true,
+      },
+      {
+        id: "gpt-4o-mini",
+        name: "GPT-4o Mini",
+        provider: "openai",
+        contextWindow: 128000,
+        supportsStreaming: true,
+        supportsFunctions: true,
+      },
+      {
+        id: "gpt-4o-mini-2024-07-18",
+        name: "GPT-4o Mini 2024-07-18",
+        provider: "openai",
+        contextWindow: 128000,
+        supportsStreaming: true,
+        supportsFunctions: true,
+      },
+
       // Legacy
-      { id: 'gpt-4-turbo-preview', name: 'GPT-4 Turbo Preview', provider: 'openai', contextWindow: 128000, supportsStreaming: true, supportsFunctions: true, deprecated: true },
-      { id: 'codex-mini', name: 'Codex Mini', provider: 'openai', contextWindow: 8000, supportsStreaming: true },
+      {
+        id: "gpt-4-turbo-preview",
+        name: "GPT-4 Turbo Preview",
+        provider: "openai",
+        contextWindow: 128000,
+        supportsStreaming: true,
+        supportsFunctions: true,
+        deprecated: true,
+      },
+      {
+        id: "codex-mini",
+        name: "Codex Mini",
+        provider: "openai",
+        contextWindow: 8000,
+        supportsStreaming: true,
+      },
     ];
 
     // Anthropic Models (10)
     const anthropicModels: ModelConfig[] = [
-      { id: 'claude-opus-4.1', name: 'Claude Opus 4.1', provider: 'anthropic', contextWindow: 200000, isNew: true, supportsStreaming: true },
-      { id: 'claude-4', name: 'Claude 4', provider: 'anthropic', contextWindow: 200000, supportsStreaming: true },
-      { id: 'claude-4-instant', name: 'Claude 4 Instant', provider: 'anthropic', contextWindow: 100000, supportsStreaming: true },
-      { id: 'claude-3.7-sonnet-20250122', name: 'Claude 3.7 Sonnet', provider: 'anthropic', contextWindow: 200000, supportsStreaming: true },
-      { id: 'claude-3.5-sonnet-20241022', name: 'Claude 3.5 Sonnet', provider: 'anthropic', contextWindow: 200000, supportsStreaming: true },
-      { id: 'claude-3.5-sonnet-20240620', name: 'Claude 3.5 Sonnet (June)', provider: 'anthropic', contextWindow: 200000, supportsStreaming: true },
-      { id: 'claude-3-opus-20240229', name: 'Claude 3 Opus', provider: 'anthropic', contextWindow: 200000, supportsStreaming: true },
-      { id: 'claude-3-sonnet-20240229', name: 'Claude 3 Sonnet', provider: 'anthropic', contextWindow: 200000, supportsStreaming: true },
-      { id: 'claude-3-haiku-20240307', name: 'Claude 3 Haiku', provider: 'anthropic', contextWindow: 200000, supportsStreaming: true },
-      { id: 'claude-3.5-haiku-20241022', name: 'Claude 3.5 Haiku', provider: 'anthropic', contextWindow: 200000, supportsStreaming: true },
+      {
+        id: "claude-opus-4.1",
+        name: "Claude Opus 4.1",
+        provider: "anthropic",
+        contextWindow: 200000,
+        isNew: true,
+        supportsStreaming: true,
+      },
+      {
+        id: "claude-4",
+        name: "Claude 4",
+        provider: "anthropic",
+        contextWindow: 200000,
+        supportsStreaming: true,
+      },
+      {
+        id: "claude-4-instant",
+        name: "Claude 4 Instant",
+        provider: "anthropic",
+        contextWindow: 100000,
+        supportsStreaming: true,
+      },
+      {
+        id: "claude-3.7-sonnet-20250122",
+        name: "Claude 3.7 Sonnet",
+        provider: "anthropic",
+        contextWindow: 200000,
+        supportsStreaming: true,
+      },
+      {
+        id: "claude-3.5-sonnet-20241022",
+        name: "Claude 3.5 Sonnet",
+        provider: "anthropic",
+        contextWindow: 200000,
+        supportsStreaming: true,
+      },
+      {
+        id: "claude-3.5-sonnet-20240620",
+        name: "Claude 3.5 Sonnet (June)",
+        provider: "anthropic",
+        contextWindow: 200000,
+        supportsStreaming: true,
+      },
+      {
+        id: "claude-3-opus-20240229",
+        name: "Claude 3 Opus",
+        provider: "anthropic",
+        contextWindow: 200000,
+        supportsStreaming: true,
+      },
+      {
+        id: "claude-3-sonnet-20240229",
+        name: "Claude 3 Sonnet",
+        provider: "anthropic",
+        contextWindow: 200000,
+        supportsStreaming: true,
+      },
+      {
+        id: "claude-3-haiku-20240307",
+        name: "Claude 3 Haiku",
+        provider: "anthropic",
+        contextWindow: 200000,
+        supportsStreaming: true,
+      },
+      {
+        id: "claude-3.5-haiku-20241022",
+        name: "Claude 3.5 Haiku",
+        provider: "anthropic",
+        contextWindow: 200000,
+        supportsStreaming: true,
+      },
     ];
 
     // Gemini Models (9)
     const geminiModels: ModelConfig[] = [
-      { id: 'gemini-2.5-flash-exp-0128', name: 'Gemini 2.5 Flash Exp', provider: 'gemini', contextWindow: 1048576, supportsStreaming: true },
-      { id: 'gemini-2.5-pro-002', name: 'Gemini 2.5 Pro', provider: 'gemini', contextWindow: 2097152, supportsStreaming: true },
-      { id: 'gemini-2.0-flash-thinking-exp-0110', name: 'Gemini 2.0 Flash Thinking', provider: 'gemini', contextWindow: 32767, supportsStreaming: true },
-      { id: 'gemini-2.0-flash-thinking-exp-1219', name: 'Gemini 2.0 Flash Thinking (Dec)', provider: 'gemini', contextWindow: 32767, supportsStreaming: true },
-      { id: 'gemini-2.0-flash-exp', name: 'Gemini 2.0 Flash Exp', provider: 'gemini', contextWindow: 1048576, supportsStreaming: true },
-      { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash', provider: 'gemini', contextWindow: 1048576, supportsStreaming: true },
-      { id: 'gemini-1.5-flash-8b', name: 'Gemini 1.5 Flash 8B', provider: 'gemini', contextWindow: 1048576, supportsStreaming: true },
-      { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', provider: 'gemini', contextWindow: 2097152, supportsStreaming: true },
-      { id: 'gemini-exp-1206', name: 'Gemini Exp 1206', provider: 'gemini', contextWindow: 2097152, supportsStreaming: true },
+      {
+        id: "gemini-2.5-flash-exp-0128",
+        name: "Gemini 2.5 Flash Exp",
+        provider: "gemini",
+        contextWindow: 1048576,
+        supportsStreaming: true,
+      },
+      {
+        id: "gemini-2.5-pro-002",
+        name: "Gemini 2.5 Pro",
+        provider: "gemini",
+        contextWindow: 2097152,
+        supportsStreaming: true,
+      },
+      {
+        id: "gemini-2.0-flash-thinking-exp-0110",
+        name: "Gemini 2.0 Flash Thinking",
+        provider: "gemini",
+        contextWindow: 32767,
+        supportsStreaming: true,
+      },
+      {
+        id: "gemini-2.0-flash-thinking-exp-1219",
+        name: "Gemini 2.0 Flash Thinking (Dec)",
+        provider: "gemini",
+        contextWindow: 32767,
+        supportsStreaming: true,
+      },
+      {
+        id: "gemini-2.0-flash-exp",
+        name: "Gemini 2.0 Flash Exp",
+        provider: "gemini",
+        contextWindow: 1048576,
+        supportsStreaming: true,
+      },
+      {
+        id: "gemini-1.5-flash",
+        name: "Gemini 1.5 Flash",
+        provider: "gemini",
+        contextWindow: 1048576,
+        supportsStreaming: true,
+      },
+      {
+        id: "gemini-1.5-flash-8b",
+        name: "Gemini 1.5 Flash 8B",
+        provider: "gemini",
+        contextWindow: 1048576,
+        supportsStreaming: true,
+      },
+      {
+        id: "gemini-1.5-pro",
+        name: "Gemini 1.5 Pro",
+        provider: "gemini",
+        contextWindow: 2097152,
+        supportsStreaming: true,
+      },
+      {
+        id: "gemini-exp-1206",
+        name: "Gemini Exp 1206",
+        provider: "gemini",
+        contextWindow: 2097152,
+        supportsStreaming: true,
+      },
     ];
 
     // xAI Models (3)
     const xaiModels: ModelConfig[] = [
-      { id: 'grok-4', name: 'Grok 4', provider: 'xai', contextWindow: 131072, isNew: true, supportsStreaming: true },
-      { id: 'grok-3', name: 'Grok 3', provider: 'xai', contextWindow: 131072, supportsStreaming: true },
-      { id: 'grok-3-turbo', name: 'Grok 3 Turbo', provider: 'xai', contextWindow: 131072, supportsStreaming: true },
+      {
+        id: "grok-4",
+        name: "Grok 4",
+        provider: "xai",
+        contextWindow: 131072,
+        isNew: true,
+        supportsStreaming: true,
+      },
+      {
+        id: "grok-3",
+        name: "Grok 3",
+        provider: "xai",
+        contextWindow: 131072,
+        supportsStreaming: true,
+      },
+      {
+        id: "grok-3-turbo",
+        name: "Grok 3 Turbo",
+        provider: "xai",
+        contextWindow: 131072,
+        supportsStreaming: true,
+      },
     ];
 
     // DeepSeek Models (2)
     const deepseekModels: ModelConfig[] = [
-      { id: 'deepseek-chat', name: 'DeepSeek Chat', provider: 'deepseek', contextWindow: 128000, isNew: true, supportsStreaming: true },
-      { id: 'deepseek-reasoner', name: 'DeepSeek Reasoner', provider: 'deepseek', contextWindow: 128000, isNew: true, supportsStreaming: true },
+      {
+        id: "deepseek-chat",
+        name: "DeepSeek Chat",
+        provider: "deepseek",
+        contextWindow: 128000,
+        isNew: true,
+        supportsStreaming: true,
+      },
+      {
+        id: "deepseek-reasoner",
+        name: "DeepSeek Reasoner",
+        provider: "deepseek",
+        contextWindow: 128000,
+        isNew: true,
+        supportsStreaming: true,
+      },
     ];
 
     // Register all models
-    [...openaiModels, ...anthropicModels, ...geminiModels, ...xaiModels, ...deepseekModels].forEach(model => {
+    [
+      ...openaiModels,
+      ...anthropicModels,
+      ...geminiModels,
+      ...xaiModels,
+      ...deepseekModels,
+    ].forEach((model) => {
       this.models.set(model.id, model);
     });
   }
@@ -1101,7 +1467,9 @@ export class ModelRegistry {
   }
 
   getModelsByProvider(provider: string): ModelConfig[] {
-    return Array.from(this.models.values()).filter(m => m.provider === provider);
+    return Array.from(this.models.values()).filter(
+      (m) => m.provider === provider,
+    );
   }
 }
 ```
@@ -1113,16 +1481,16 @@ export class ModelRegistry {
 ```typescript
 // src/lib/ai/rate-limiter.ts
 export interface RateLimitConfig {
-  rpm: number;  // requests per minute
-  tpm: number;  // tokens per minute
-  rpd: number;  // requests per day
+  rpm: number; // requests per minute
+  tpm: number; // tokens per minute
+  rpd: number; // requests per day
 }
 
 export class RateLimiter {
   private requestsPerMinute: number;
   private tokensPerMinute: number;
   private requestsPerDay: number;
-  
+
   private minuteWindow: number[] = [];
   private dayWindow: number[] = [];
   private tokenWindow: Map<number, number> = new Map();
@@ -1135,10 +1503,10 @@ export class RateLimiter {
 
   async acquire(tokens: number = 0): Promise<void> {
     const now = Date.now();
-    
+
     // Clean old entries
     this.cleanWindows(now);
-    
+
     // Check rate limits
     if (this.minuteWindow.length >= this.requestsPerMinute) {
       const waitTime = 60000 - (now - this.minuteWindow[0]);
@@ -1173,10 +1541,10 @@ export class RateLimiter {
   private cleanWindows(now: number) {
     const minuteAgo = now - 60000;
     const dayAgo = now - 86400000;
-    
-    this.minuteWindow = this.minuteWindow.filter(t => t > minuteAgo);
-    this.dayWindow = this.dayWindow.filter(t => t > dayAgo);
-    
+
+    this.minuteWindow = this.minuteWindow.filter((t) => t > minuteAgo);
+    this.dayWindow = this.dayWindow.filter((t) => t > dayAgo);
+
     // Clean token window
     for (const [timestamp] of this.tokenWindow) {
       if (timestamp < minuteAgo) {
@@ -1188,18 +1556,18 @@ export class RateLimiter {
   private getCurrentTokensPerMinute(now: number): number {
     const minuteAgo = now - 60000;
     let total = 0;
-    
+
     for (const [timestamp, tokens] of this.tokenWindow) {
       if (timestamp > minuteAgo) {
         total += tokens;
       }
     }
-    
+
     return total;
   }
 
   private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }
 ```
@@ -1208,7 +1576,7 @@ export class RateLimiter {
 
 ```typescript
 // src/lib/ai/token-counter.ts
-import { encode } from '@dqbd/tiktoken';
+import { encode } from "@dqbd/tiktoken";
 
 export class TokenCounter {
   private encoders: Map<string, any> = new Map();
@@ -1222,13 +1590,13 @@ export class TokenCounter {
       totalTokens += 4; // Every message follows <im_start>{role/name}\n{content}<im_end>\n
       totalTokens += encoder(message.role).length;
       totalTokens += encoder(message.content).length;
-      
+
       if (message.name) {
         totalTokens += encoder(message.name).length;
         totalTokens -= 1; // Role is always there, so subtract 1 if name is present
       }
     }
-    
+
     totalTokens += 2; // Every reply is primed with <im_start>assistant
 
     return totalTokens;
@@ -1236,7 +1604,7 @@ export class TokenCounter {
 
   countChunk(chunk: StreamChunk): number {
     if (!chunk.choices[0]?.delta?.content) return 0;
-    const encoder = this.getEncoder('gpt-4'); // Default encoder
+    const encoder = this.getEncoder("gpt-4"); // Default encoder
     return encoder(chunk.choices[0].delta.content).length;
   }
 
@@ -1255,7 +1623,7 @@ export class TokenCounter {
 
 ```typescript
 // src/lib/ai/cache-manager.ts
-import crypto from 'crypto';
+import crypto from "crypto";
 
 export class CacheManager {
   private cache: Map<string, { data: any; expiry: number }> = new Map();
@@ -1264,12 +1632,12 @@ export class CacheManager {
   async get(key: string): Promise<any | null> {
     const entry = this.cache.get(key);
     if (!entry) return null;
-    
+
     if (Date.now() > entry.expiry) {
       this.cache.delete(key);
       return null;
     }
-    
+
     return entry.data;
   }
 
@@ -1278,7 +1646,7 @@ export class CacheManager {
       data,
       expiry: Date.now() + ttl,
     });
-    
+
     // Clean old entries periodically
     if (this.cache.size > 1000) {
       this.cleanup();
@@ -1292,11 +1660,11 @@ export class CacheManager {
       temperature: params.temperature,
       maxTokens: params.maxTokens,
     };
-    
+
     return crypto
-      .createHash('sha256')
+      .createHash("sha256")
       .update(JSON.stringify(keyData))
-      .digest('hex');
+      .digest("hex");
   }
 
   private cleanup() {
@@ -1339,23 +1707,25 @@ export class MCPManager {
   }
 
   async getEnabledServers(): Promise<MCPServer[]> {
-    const enabled = Array.from(this.servers.values()).filter(s => s.enabled);
-    
+    const enabled = Array.from(this.servers.values()).filter((s) => s.enabled);
+
     // Fetch latest context from each server
-    await Promise.all(enabled.map(async server => {
-      server.context = await this.fetchServerContext(server);
-    }));
-    
+    await Promise.all(
+      enabled.map(async (server) => {
+        server.context = await this.fetchServerContext(server);
+      }),
+    );
+
     return enabled;
   }
 
   private async validateServer(server: MCPServer): Promise<void> {
     try {
       const response = await fetch(`${server.endpoint}/validate`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Authorization': server.apiKey ? `Bearer ${server.apiKey}` : '',
-          'Content-Type': 'application/json',
+          Authorization: server.apiKey ? `Bearer ${server.apiKey}` : "",
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ capabilities: server.capabilities }),
       });
@@ -1364,44 +1734,50 @@ export class MCPManager {
         throw new Error(`MCP server validation failed: ${response.status}`);
       }
     } catch (error) {
-      throw new Error(`Failed to connect to MCP server ${server.name}: ${error}`);
+      throw new Error(
+        `Failed to connect to MCP server ${server.name}: ${error}`,
+      );
     }
   }
 
   private async fetchServerContext(server: MCPServer): Promise<string> {
     try {
       const response = await fetch(`${server.endpoint}/context`, {
-        method: 'GET',
+        method: "GET",
         headers: {
-          'Authorization': server.apiKey ? `Bearer ${server.apiKey}` : '',
+          Authorization: server.apiKey ? `Bearer ${server.apiKey}` : "",
         },
       });
 
       if (!response.ok) {
-        return '';
+        return "";
       }
 
       const data = await response.json();
-      return data.context || '';
+      return data.context || "";
     } catch (error) {
       console.error(`Failed to fetch context from ${server.name}:`, error);
-      return '';
+      return "";
     }
   }
 
-  async injectIntoMessages(messages: ChatMessage[], servers: MCPServer[]): Promise<ChatMessage[]> {
+  async injectIntoMessages(
+    messages: ChatMessage[],
+    servers: MCPServer[],
+  ): Promise<ChatMessage[]> {
     if (servers.length === 0) return messages;
 
     const contextMessage: ChatMessage = {
-      role: 'system',
+      role: "system",
       content: this.buildMCPContext(servers),
     };
 
     // Insert MCP context as the first system message
-    const systemIndex = messages.findIndex(m => m.role === 'system');
+    const systemIndex = messages.findIndex((m) => m.role === "system");
     if (systemIndex >= 0) {
       // Merge with existing system message
-      messages[systemIndex].content = `${contextMessage.content}\n\n${messages[systemIndex].content}`;
+      messages[systemIndex].content =
+        `${contextMessage.content}\n\n${messages[systemIndex].content}`;
       return messages;
     } else {
       // Add as new system message
@@ -1411,9 +1787,9 @@ export class MCPManager {
 
   private buildMCPContext(servers: MCPServer[]): string {
     const contexts = servers
-      .filter(s => s.enabled && s.context)
-      .map(s => `[${s.name}]\n${s.context}`)
-      .join('\n\n---\n\n');
+      .filter((s) => s.enabled && s.context)
+      .map((s) => `[${s.name}]\n${s.context}`)
+      .join("\n\n---\n\n");
 
     return `Available MCP Server Context:\n\n${contexts}`;
   }
@@ -1469,7 +1845,7 @@ export class TelemetryManager {
   recordCacheHit(model: string): void {
     this.record({
       model,
-      provider: 'cache',
+      provider: "cache",
       inputTokens: 0,
       outputTokens: 0,
       latency: 0,
@@ -1479,20 +1855,27 @@ export class TelemetryManager {
 
   getStats(timeRange?: { start: number; end: number }) {
     let eventsToAnalyze = this.events;
-    
+
     if (timeRange) {
       eventsToAnalyze = this.events.filter(
-        e => e.timestamp >= timeRange.start && e.timestamp <= timeRange.end
+        (e) => e.timestamp >= timeRange.start && e.timestamp <= timeRange.end,
       );
     }
 
     return {
       totalRequests: eventsToAnalyze.length,
-      totalTokens: eventsToAnalyze.reduce((sum, e) => sum + e.inputTokens + e.outputTokens, 0),
+      totalTokens: eventsToAnalyze.reduce(
+        (sum, e) => sum + e.inputTokens + e.outputTokens,
+        0,
+      ),
       totalCost: eventsToAnalyze.reduce((sum, e) => sum + (e.cost || 0), 0),
-      avgLatency: eventsToAnalyze.reduce((sum, e) => sum + e.latency, 0) / eventsToAnalyze.length,
-      errorRate: eventsToAnalyze.filter(e => e.error).length / eventsToAnalyze.length,
-      cacheHitRate: eventsToAnalyze.filter(e => e.cached).length / eventsToAnalyze.length,
+      avgLatency:
+        eventsToAnalyze.reduce((sum, e) => sum + e.latency, 0) /
+        eventsToAnalyze.length,
+      errorRate:
+        eventsToAnalyze.filter((e) => e.error).length / eventsToAnalyze.length,
+      cacheHitRate:
+        eventsToAnalyze.filter((e) => e.cached).length / eventsToAnalyze.length,
       byModel: this.groupByModel(eventsToAnalyze),
       byProvider: this.groupByProvider(eventsToAnalyze),
     };
@@ -1500,7 +1883,7 @@ export class TelemetryManager {
 
   private groupByModel(events: TelemetryData[]) {
     const groups: Record<string, any> = {};
-    
+
     for (const event of events) {
       if (!groups[event.model]) {
         groups[event.model] = {
@@ -1510,7 +1893,7 @@ export class TelemetryManager {
           avgLatency: 0,
         };
       }
-      
+
       groups[event.model].count++;
       groups[event.model].tokens += event.inputTokens + event.outputTokens;
       groups[event.model].cost += event.cost || 0;
@@ -1527,7 +1910,7 @@ export class TelemetryManager {
 
   private groupByProvider(events: TelemetryData[]) {
     const groups: Record<string, any> = {};
-    
+
     for (const event of events) {
       if (!groups[event.provider]) {
         groups[event.provider] = {
@@ -1537,7 +1920,7 @@ export class TelemetryManager {
           errors: 0,
         };
       }
-      
+
       groups[event.provider].count++;
       groups[event.provider].tokens += event.inputTokens + event.outputTokens;
       groups[event.provider].cost += event.cost || 0;
@@ -1549,7 +1932,7 @@ export class TelemetryManager {
 
   private sendToAnalytics(data: TelemetryData): void {
     // Send to analytics service (e.g., Mixpanel, Amplitude)
-    if (process.env.NEXT_PUBLIC_ANALYTICS_ENABLED === 'true') {
+    if (process.env.NEXT_PUBLIC_ANALYTICS_ENABLED === "true") {
       // Implementation depends on analytics provider
     }
   }
@@ -1562,65 +1945,76 @@ export class TelemetryManager {
 
 ```typescript
 // src/lib/ai/security/api-key-manager.ts
-import crypto from 'crypto';
+import crypto from "crypto";
 
 export class APIKeyManager {
   private encryptionKey: Buffer;
-  private algorithm = 'aes-256-gcm';
+  private algorithm = "aes-256-gcm";
 
   constructor() {
     // In production, this should come from a secure key management service
     this.encryptionKey = Buffer.from(
-      process.env.ENCRYPTION_KEY || crypto.randomBytes(32)
+      process.env.ENCRYPTION_KEY || crypto.randomBytes(32),
     );
   }
 
   encrypt(apiKey: string): { encrypted: string; iv: string; authTag: string } {
     const iv = crypto.randomBytes(16);
-    const cipher = crypto.createCipheriv(this.algorithm, this.encryptionKey, iv);
-    
-    let encrypted = cipher.update(apiKey, 'utf8', 'hex');
-    encrypted += cipher.final('hex');
-    
+    const cipher = crypto.createCipheriv(
+      this.algorithm,
+      this.encryptionKey,
+      iv,
+    );
+
+    let encrypted = cipher.update(apiKey, "utf8", "hex");
+    encrypted += cipher.final("hex");
+
     const authTag = cipher.getAuthTag();
-    
+
     return {
       encrypted,
-      iv: iv.toString('hex'),
-      authTag: authTag.toString('hex'),
+      iv: iv.toString("hex"),
+      authTag: authTag.toString("hex"),
     };
   }
 
-  decrypt(encryptedData: { encrypted: string; iv: string; authTag: string }): string {
+  decrypt(encryptedData: {
+    encrypted: string;
+    iv: string;
+    authTag: string;
+  }): string {
     const decipher = crypto.createDecipheriv(
       this.algorithm,
       this.encryptionKey,
-      Buffer.from(encryptedData.iv, 'hex')
+      Buffer.from(encryptedData.iv, "hex"),
     );
-    
-    decipher.setAuthTag(Buffer.from(encryptedData.authTag, 'hex'));
-    
-    let decrypted = decipher.update(encryptedData.encrypted, 'hex', 'utf8');
-    decrypted += decipher.final('utf8');
-    
+
+    decipher.setAuthTag(Buffer.from(encryptedData.authTag, "hex"));
+
+    let decrypted = decipher.update(encryptedData.encrypted, "hex", "utf8");
+    decrypted += decipher.final("utf8");
+
     return decrypted;
   }
 
   rotateKey(oldKey: string): string {
     // Generate new API key
-    const newKey = crypto.randomBytes(32).toString('hex');
-    
+    const newKey = crypto.randomBytes(32).toString("hex");
+
     // Schedule old key deprecation
     this.scheduleKeyDeprecation(oldKey);
-    
+
     return newKey;
   }
 
   private scheduleKeyDeprecation(key: string): void {
     // In production, this would mark the key for deletion after a grace period
-    setTimeout(() => {
-      console.log(`Deprecated API key: ${key.substring(0, 8)}...`);
-    }, 7 * 24 * 60 * 60 * 1000); // 7 days
+    setTimeout(
+      () => {
+        console.log(`Deprecated API key: ${key.substring(0, 8)}...`);
+      },
+      7 * 24 * 60 * 60 * 1000,
+    ); // 7 days
   }
 
   validateKeyFormat(key: string, provider: string): boolean {
@@ -1643,7 +2037,7 @@ export class APIKeyManager {
 // src/lib/ai/security/sanitizer.ts
 export class RequestSanitizer {
   sanitizeMessages(messages: ChatMessage[]): ChatMessage[] {
-    return messages.map(msg => ({
+    return messages.map((msg) => ({
       ...msg,
       content: this.sanitizeContent(msg.content),
     }));
@@ -1652,19 +2046,22 @@ export class RequestSanitizer {
   private sanitizeContent(content: string): string {
     // Remove potential injection attacks
     let sanitized = content;
-    
+
     // Remove system prompts that try to override behavior
-    sanitized = sanitized.replace(/ignore previous instructions/gi, '');
-    sanitized = sanitized.replace(/disregard all prior/gi, '');
-    
+    sanitized = sanitized.replace(/ignore previous instructions/gi, "");
+    sanitized = sanitized.replace(/disregard all prior/gi, "");
+
     // Remove potential data exfiltration attempts
-    sanitized = sanitized.replace(/\b(?:api[_-]?key|password|secret|token)\b[:\s]*[^\s]+/gi, '[REDACTED]');
-    
+    sanitized = sanitized.replace(
+      /\b(?:api[_-]?key|password|secret|token)\b[:\s]*[^\s]+/gi,
+      "[REDACTED]",
+    );
+
     // Limit length to prevent resource exhaustion
     if (sanitized.length > 100000) {
-      sanitized = sanitized.substring(0, 100000) + '... [truncated]';
+      sanitized = sanitized.substring(0, 100000) + "... [truncated]";
     }
-    
+
     return sanitized;
   }
 
@@ -1672,24 +2069,24 @@ export class RequestSanitizer {
     // Validate temperature
     if (params.temperature !== undefined) {
       if (params.temperature < 0 || params.temperature > 2) {
-        throw new Error('Temperature must be between 0 and 2');
+        throw new Error("Temperature must be between 0 and 2");
       }
     }
 
     // Validate max tokens
     if (params.maxTokens !== undefined) {
       if (params.maxTokens < 1 || params.maxTokens > 128000) {
-        throw new Error('Max tokens must be between 1 and 128000');
+        throw new Error("Max tokens must be between 1 and 128000");
       }
     }
 
     // Validate messages
     if (!params.messages || params.messages.length === 0) {
-      throw new Error('Messages array cannot be empty');
+      throw new Error("Messages array cannot be empty");
     }
 
     if (params.messages.length > 100) {
-      throw new Error('Too many messages in conversation');
+      throw new Error("Too many messages in conversation");
     }
   }
 }
@@ -1699,8 +2096,8 @@ export class RequestSanitizer {
 
 ```typescript
 // src/app/api/chat/route.ts
-import { AIManager } from '@/lib/ai/ai-manager';
-import { RequestSanitizer } from '@/lib/ai/security/sanitizer';
+import { AIManager } from "@/lib/ai/ai-manager";
+import { RequestSanitizer } from "@/lib/ai/security/sanitizer";
 
 const aiManager = new AIManager();
 const sanitizer = new RequestSanitizer();
@@ -1708,17 +2105,17 @@ const sanitizer = new RequestSanitizer();
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    
+
     // Sanitize and validate input
     const sanitizedMessages = sanitizer.sanitizeMessages(body.messages);
     const params: ChatCompletionParams = {
-      model: body.model || 'gpt-4-turbo-preview',
+      model: body.model || "gpt-4-turbo-preview",
       messages: sanitizedMessages,
       temperature: body.temperature,
       maxTokens: body.maxTokens,
       stream: body.stream || false,
     };
-    
+
     sanitizer.validateRequest(params);
 
     if (params.stream) {
@@ -1731,7 +2128,7 @@ export async function POST(request: Request) {
               const data = `data: ${JSON.stringify(chunk)}\n\n`;
               controller.enqueue(encoder.encode(data));
             }
-            controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+            controller.enqueue(encoder.encode("data: [DONE]\n\n"));
             controller.close();
           } catch (error) {
             controller.error(error);
@@ -1741,9 +2138,9 @@ export async function POST(request: Request) {
 
       return new Response(stream, {
         headers: {
-          'Content-Type': 'text/event-stream',
-          'Cache-Control': 'no-cache',
-          'Connection': 'keep-alive',
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache",
+          Connection: "keep-alive",
         },
       });
     } else {
@@ -1752,10 +2149,10 @@ export async function POST(request: Request) {
       return Response.json(response);
     }
   } catch (error: any) {
-    console.error('Chat API error:', error);
+    console.error("Chat API error:", error);
     return Response.json(
-      { error: error.message || 'Internal server error' },
-      { status: error.status || 500 }
+      { error: error.message || "Internal server error" },
+      { status: error.status || 500 },
     );
   }
 }
@@ -1776,16 +2173,16 @@ export class BatchProcessor {
   async add(params: ChatCompletionParams): Promise<ChatMessage> {
     return new Promise((resolve, reject) => {
       const provider = this.getProvider(params.model);
-      
+
       if (!this.queue.has(provider)) {
         this.queue.set(provider, []);
       }
-      
+
       this.queue.get(provider)!.push({
         ...params,
         callback: { resolve, reject },
       });
-      
+
       this.processBatch();
     });
   }
@@ -1793,37 +2190,37 @@ export class BatchProcessor {
   private async processBatch() {
     if (this.processing) return;
     this.processing = true;
-    
-    await new Promise(resolve => setTimeout(resolve, this.batchDelay));
-    
+
+    await new Promise((resolve) => setTimeout(resolve, this.batchDelay));
+
     for (const [provider, batch] of this.queue) {
       if (batch.length >= this.batchSize) {
         const processing = batch.splice(0, this.batchSize);
         await this.processBatchForProvider(provider, processing);
       }
     }
-    
+
     this.processing = false;
   }
 
   private async processBatchForProvider(provider: string, batch: any[]) {
     try {
       // Process batch in parallel
-      const promises = batch.map(item => 
-        this.processItem(item).then(result => 
-          item.callback.resolve(result)
-        ).catch(error => 
-          item.callback.reject(error)
-        )
+      const promises = batch.map((item) =>
+        this.processItem(item)
+          .then((result) => item.callback.resolve(result))
+          .catch((error) => item.callback.reject(error)),
       );
-      
+
       await Promise.all(promises);
     } catch (error) {
-      batch.forEach(item => item.callback.reject(error));
+      batch.forEach((item) => item.callback.reject(error));
     }
   }
 
-  private async processItem(params: ChatCompletionParams): Promise<ChatMessage> {
+  private async processItem(
+    params: ChatCompletionParams,
+  ): Promise<ChatMessage> {
     // Process individual item
     // This would use the AIManager
     return {} as ChatMessage;
@@ -1831,12 +2228,12 @@ export class BatchProcessor {
 
   private getProvider(model: string): string {
     // Extract provider from model name
-    if (model.startsWith('gpt') || model.startsWith('o')) return 'openai';
-    if (model.startsWith('claude')) return 'anthropic';
-    if (model.startsWith('gemini')) return 'gemini';
-    if (model.startsWith('grok')) return 'xai';
-    if (model.startsWith('deepseek')) return 'deepseek';
-    return 'unknown';
+    if (model.startsWith("gpt") || model.startsWith("o")) return "openai";
+    if (model.startsWith("claude")) return "anthropic";
+    if (model.startsWith("gemini")) return "gemini";
+    if (model.startsWith("grok")) return "xai";
+    if (model.startsWith("deepseek")) return "deepseek";
+    return "unknown";
   }
 }
 ```
@@ -1865,7 +2262,10 @@ export class CacheStrategy {
     return null;
   }
 
-  async cache(params: ChatCompletionParams, response: ChatMessage): Promise<void> {
+  async cache(
+    params: ChatCompletionParams,
+    response: ChatMessage,
+  ): Promise<void> {
     const exactKey = this.getExactKey(params);
     this.exactCache.set(exactKey, response);
 
@@ -1890,7 +2290,7 @@ export class CacheStrategy {
   private async getSemanticKey(params: ChatCompletionParams): Promise<string> {
     // Generate embedding for the conversation
     // This would use an embedding model
-    return 'semantic_key_placeholder';
+    return "semantic_key_placeholder";
   }
 }
 ```
@@ -1898,7 +2298,7 @@ export class CacheStrategy {
 This comprehensive architecture provides:
 
 1. **Unified Interface**: Single API for all providers with consistent request/response formats
-2. **Streaming Support**: Real-time streaming for all providers with standardized chunk format  
+2. **Streaming Support**: Real-time streaming for all providers with standardized chunk format
 3. **MCP Integration**: Automatic injection of MCP server context into OpenAI requests
 4. **Robust Error Handling**: Provider-specific error handling with retry logic
 5. **Security**: Encrypted API key storage, input sanitization, and request validation

@@ -3,27 +3,27 @@
  */
 
 // Store exports
-export { useChatStore } from './chat-store';
-export { useModelStore } from './model-store';
-export { useSettingsStore } from './settings-store';
-export { useMCPStore } from './mcp-store';
-export { useUIStore } from './ui-store';
+export { useChatStore } from "./chat-store";
+export { useModelStore } from "./model-store";
+export { useSettingsStore } from "./settings-store";
+export { useMCPStore } from "./mcp-store";
+export { useUIStore } from "./ui-store";
 
 // Hook exports
-export * from './hooks';
+export * from "./hooks";
 
 // Type exports
-export * from './types';
+export * from "./types";
 
 // Middleware exports
-export * from './middleware/persistence';
+export * from "./middleware/persistence";
 
 // Store initialization and cross-store subscriptions
-import { useChatStore } from './chat-store';
-import { useModelStore } from './model-store';
-import { useSettingsStore } from './settings-store';
-import { useMCPStore } from './mcp-store';
-import { useUIStore } from './ui-store';
+import { useChatStore } from "./chat-store";
+import { useModelStore } from "./model-store";
+import { useSettingsStore } from "./settings-store";
+import { useMCPStore } from "./mcp-store";
+import { useUIStore } from "./ui-store";
 
 /**
  * Initialize cross-store subscriptions and relationships
@@ -46,7 +46,7 @@ export const initializeStores = () => {
           }
         }
       }
-    }
+    },
   );
 
   // Subscribe to settings changes and apply them
@@ -54,7 +54,7 @@ export const initializeStores = () => {
     (state) => state.settings.sidebarWidth,
     (sidebarWidth) => {
       useUIStore.getState().setSidebarWidth(sidebarWidth);
-    }
+    },
   );
 
   // Subscribe to UI sidebar changes and persist to settings
@@ -62,16 +62,16 @@ export const initializeStores = () => {
     (state) => state.sidebarWidth,
     (sidebarWidth) => {
       useSettingsStore.getState().updateSettings({ sidebarWidth });
-    }
+    },
   );
 
   // Subscribe to theme changes and apply to document
   useSettingsStore.subscribe(
     (state) => state.effectiveTheme,
     (theme) => {
-      document.documentElement.classList.remove('light', 'dark');
+      document.documentElement.classList.remove("light", "dark");
       document.documentElement.classList.add(theme);
-    }
+    },
   );
 
   // Subscribe to MCP server changes and notify other stores
@@ -80,20 +80,22 @@ export const initializeStores = () => {
     (enabledServers) => {
       // Notify UI about MCP availability
       if (enabledServers.length > 0) {
-        useUIStore.getState().showToast(
-          `${enabledServers.length} MCP server${enabledServers.length > 1 ? 's' : ''} active`,
-          'info',
-          3000
-        );
+        useUIStore
+          .getState()
+          .showToast(
+            `${enabledServers.length} MCP server${enabledServers.length > 1 ? "s" : ""} active`,
+            "info",
+            3000,
+          );
       }
-    }
+    },
   );
 
   // Subscribe to errors across stores and show notifications
   const handleStoreError = (storeName: string) => (error: string | null) => {
     if (error) {
       useUIStore.getState().addNotification({
-        type: 'error',
+        type: "error",
         title: `${storeName} Error`,
         message: error,
         duration: 5000,
@@ -103,8 +105,8 @@ export const initializeStores = () => {
 
   // Error handling subscriptions would go here
   // Note: Individual stores handle their own error states
-  
-  console.log('Store subscriptions initialized');
+
+  console.log("Store subscriptions initialized");
 };
 
 /**
@@ -146,7 +148,7 @@ export const getGlobalSnapshot = () => ({
 /**
  * Development helpers
  */
-if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
   // Expose stores to window for debugging
   (window as any).stores = stores;
   (window as any).getGlobalSnapshot = getGlobalSnapshot;

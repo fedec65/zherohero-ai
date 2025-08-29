@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="3" failures="0" errors="0" time="0.246">
+  <testsuite name="Utils Tests" errors="0" failures="0" skipped="0" timestamp="2025-08-29T15:51:48" time="0.107" tests="3">
+    <testcase classname="Utils Tests should pass a basic test" name="Utils Tests should pass a basic test" time="0.001">
+    </testcase>
+    <testcase classname="Utils Tests should handle environment variables" name="Utils Tests should handle environment variables" time="0.001">
+    </testcase>
+    <testcase classname="Utils Tests should have test API keys set" name="Utils Tests should have test API keys set" time="0.003">
+    </testcase>
+  </testsuite>
+</testsuites>

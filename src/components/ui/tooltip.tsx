@@ -36,11 +36,11 @@ const Tooltip = ({
 
   const showTooltip = React.useCallback(() => {
     if (disabled) return;
-    
+
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
-    
+
     timeoutRef.current = setTimeout(() => {
       setIsVisible(true);
     }, delayDuration);
@@ -69,7 +69,7 @@ const Tooltip = ({
 
     const triggerRect = triggerRef.current.getBoundingClientRect();
     const tooltipRect = tooltipRef.current.getBoundingClientRect();
-    
+
     let top = 0;
     let left = 0;
 
@@ -96,7 +96,8 @@ const Tooltip = ({
           left = triggerRect.left;
           break;
         case "center":
-          left = triggerRect.left + triggerRect.width / 2 - tooltipRect.width / 2;
+          left =
+            triggerRect.left + triggerRect.width / 2 - tooltipRect.width / 2;
           break;
         case "end":
           left = triggerRect.right - tooltipRect.width;
@@ -108,7 +109,8 @@ const Tooltip = ({
           top = triggerRect.top;
           break;
         case "center":
-          top = triggerRect.top + triggerRect.height / 2 - tooltipRect.height / 2;
+          top =
+            triggerRect.top + triggerRect.height / 2 - tooltipRect.height / 2;
           break;
         case "end":
           top = triggerRect.bottom - tooltipRect.height;
@@ -145,8 +147,9 @@ const Tooltip = ({
 
   // Arrow position calculation
   const getArrowClasses = () => {
-    const baseClasses = "absolute w-2 h-2 bg-gray-900 dark:bg-gray-700 rotate-45";
-    
+    const baseClasses =
+      "absolute w-2 h-2 bg-gray-900 dark:bg-gray-700 rotate-45";
+
     switch (side) {
       case "top":
         return `${baseClasses} -bottom-1 left-1/2 -translate-x-1/2`;
@@ -191,7 +194,7 @@ const Tooltip = ({
         "fixed z-50 px-3 py-1.5 text-xs font-medium text-white bg-gray-900 rounded-md shadow-md pointer-events-none transition-opacity duration-150",
         "dark:bg-gray-700 dark:text-gray-100",
         isVisible ? "opacity-100" : "opacity-0",
-        className
+        className,
       )}
       style={getTooltipPosition()}
     >
@@ -211,10 +214,10 @@ const Tooltip = ({
 // Simple tooltip hook for programmatic usage
 export const useTooltip = () => {
   const [isVisible, setIsVisible] = React.useState(false);
-  
+
   const show = React.useCallback(() => setIsVisible(true), []);
   const hide = React.useCallback(() => setIsVisible(false), []);
-  const toggle = React.useCallback(() => setIsVisible(prev => !prev), []);
+  const toggle = React.useCallback(() => setIsVisible((prev) => !prev), []);
 
   return {
     isVisible,

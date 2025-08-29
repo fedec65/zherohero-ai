@@ -2,41 +2,41 @@
  * Anthropic Claude API Client - Supports all 10 Claude models
  */
 
-import Anthropic from '@anthropic-ai/sdk';
-import { Message, ModelConfig } from '../../lib/stores/types';
-import { 
-  BaseAPIClient, 
-  ChatCompletionParams, 
+import Anthropic from "@anthropic-ai/sdk";
+import { Message, ModelConfig } from "../../lib/stores/types";
+import {
+  BaseAPIClient,
+  ChatCompletionParams,
   ChatCompletionResponse,
   StreamingResponse,
   APIMessage,
   APIError,
   ProviderConfig,
   RequestContext,
-  ResponseMetadata
-} from './types';
+  ResponseMetadata,
+} from "./types";
 
 export class AnthropicClient implements BaseAPIClient {
-  public readonly provider = 'anthropic' as const;
+  public readonly provider = "anthropic" as const;
   private client: Anthropic;
   private config: ProviderConfig;
 
   // Supported Claude models (10 total as per model store)
   private static readonly SUPPORTED_MODELS = [
     // Claude Opus 4.1 (New)
-    'claude-4.1-opus',
+    "claude-4.1-opus",
     // Claude 4 Series
-    'claude-4-sonnet',
-    'claude-4-haiku',
+    "claude-4-sonnet",
+    "claude-4-haiku",
     // Claude 3.7/3.5 Sonnet
-    'claude-3-7-sonnet',
-    'claude-3-5-sonnet-20241022',
-    'claude-3-5-sonnet-20240620',
+    "claude-3-7-sonnet",
+    "claude-3-5-sonnet-20241022",
+    "claude-3-5-sonnet-20240620",
     // Claude 3 Series
-    'claude-3-opus-20240229',
-    'claude-3-sonnet-20240229',
-    'claude-3-haiku-20240307',
-    'claude-3-5-haiku-20241022'
+    "claude-3-opus-20240229",
+    "claude-3-sonnet-20240229",
+    "claude-3-haiku-20240307",
+    "claude-3-5-haiku-20241022",
   ];
 
   constructor(config: ProviderConfig) {
@@ -44,7 +44,7 @@ export class AnthropicClient implements BaseAPIClient {
       timeout: 30000,
       retryAttempts: 3,
       retryDelay: 1000,
-      ...config
+      ...config,
     };
 
     this.client = new Anthropic({
@@ -54,11 +54,13 @@ export class AnthropicClient implements BaseAPIClient {
     });
   }
 
-  async createChatCompletion(params: ChatCompletionParams): Promise<ChatCompletionResponse> {
+  async createChatCompletion(
+    params: ChatCompletionParams,
+  ): Promise<ChatCompletionResponse> {
     this.validateModel(params.model);
 
     const anthropicParams = this.transformParams(params);
-    
+
     try {
       const response = await this.executeWithRetry(async () => {
         return await this.client.messages.create(anthropicParams);
@@ -70,7 +72,9 @@ export class AnthropicClient implements BaseAPIClient {
     }
   }
 
-  async* streamChatCompletion(params: ChatCompletionParams): AsyncGenerator<StreamingResponse, void, unknown> {
+  async *streamChatCompletion(
+    params: ChatCompletionParams,
+  ): AsyncGenerator<StreamingResponse, void, unknown> {
     this.validateModel(params.model);
 
     const anthropicParams = this.transformParams({ ...params, stream: true });
@@ -78,11 +82,16 @@ export class AnthropicClient implements BaseAPIClient {
     try {
       const stream = await this.client.messages.create(anthropicParams);
 
-      let messageId = '';
+      let messageId = "";
       let messageIndex = 0;
-      
+
       for await (const chunk of stream as any) {
-        const transformedChunk = this.transformStreamChunk(chunk, messageId, messageIndex, params.model);
+        const transformedChunk = this.transformStreamChunk(
+          chunk,
+          messageId,
+          messageIndex,
+          params.model,
+        );
         if (transformedChunk) {
           if (!messageId && transformedChunk.id) {
             messageId = transformedChunk.id;
@@ -99,33 +108,33 @@ export class AnthropicClient implements BaseAPIClient {
     const errors: string[] = [];
 
     if (config.temperature < 0 || config.temperature > 1) {
-      errors.push('Temperature must be between 0 and 1 for Claude models');
+      errors.push("Temperature must be between 0 and 1 for Claude models");
     }
 
     if (config.topP < 0 || config.topP > 1) {
-      errors.push('Top P must be between 0 and 1');
+      errors.push("Top P must be between 0 and 1");
     }
 
     // Claude doesn't support frequency/presence penalties
     if (config.frequencyPenalty !== 0) {
-      errors.push('Claude models do not support frequency penalty');
+      errors.push("Claude models do not support frequency penalty");
     }
 
     if (config.presencePenalty !== 0) {
-      errors.push('Claude models do not support presence penalty');
+      errors.push("Claude models do not support presence penalty");
     }
 
     if (config.maxTokens !== undefined && config.maxTokens < 1) {
-      errors.push('Max tokens must be at least 1');
+      errors.push("Max tokens must be at least 1");
     }
 
     if (config.maxTokens !== undefined && config.maxTokens > 8192) {
-      errors.push('Claude models have a maximum output limit of 8192 tokens');
+      errors.push("Claude models have a maximum output limit of 8192 tokens");
     }
 
     return {
       isValid: errors.length === 0,
-      errors
+      errors,
     };
   }
 
@@ -137,23 +146,23 @@ export class AnthropicClient implements BaseAPIClient {
 
   formatMessages(messages: APIMessage[]): APIMessage[] {
     const formatted: APIMessage[] = [];
-    
+
     // Claude requires alternating user/assistant messages
     // System messages are handled separately
     for (const msg of messages) {
-      if (msg.role === 'system') continue; // Handle in system parameter
-      
+      if (msg.role === "system") continue; // Handle in system parameter
+
       formatted.push({
         role: msg.role,
-        content: msg.content
+        content: msg.content,
       });
     }
 
     // Ensure first message is from user
-    if (formatted.length > 0 && formatted[0].role === 'assistant') {
+    if (formatted.length > 0 && formatted[0].role === "assistant") {
       formatted.unshift({
-        role: 'user',
-        content: '...' // Placeholder if needed
+        role: "user",
+        content: "...", // Placeholder if needed
       });
     }
 
@@ -164,9 +173,9 @@ export class AnthropicClient implements BaseAPIClient {
     try {
       // Test with a simple completion
       await this.client.messages.create({
-        model: 'claude-3-haiku-20240307', // Use fastest, cheapest model
+        model: "claude-3-haiku-20240307", // Use fastest, cheapest model
         max_tokens: 1,
-        messages: [{ role: 'user', content: 'Hi' }],
+        messages: [{ role: "user", content: "Hi" }],
       });
       return true;
     } catch {
@@ -174,26 +183,28 @@ export class AnthropicClient implements BaseAPIClient {
     }
   }
 
-  async testConnection(testMessage = 'Hello!'): Promise<{ success: boolean; latency: number; error?: string }> {
+  async testConnection(
+    testMessage = "Hello!",
+  ): Promise<{ success: boolean; latency: number; error?: string }> {
     const startTime = Date.now();
-    
+
     try {
       await this.createChatCompletion({
-        model: 'claude-3-haiku-20240307', // Use fastest, cheapest model for testing
-        messages: [{ role: 'user', content: testMessage }],
+        model: "claude-3-haiku-20240307", // Use fastest, cheapest model for testing
+        messages: [{ role: "user", content: testMessage }],
         maxTokens: 10,
-        temperature: 0
+        temperature: 0,
       });
 
       return {
         success: true,
-        latency: Date.now() - startTime
+        latency: Date.now() - startTime,
       };
     } catch (error) {
       return {
         success: false,
         latency: Date.now() - startTime,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : "Unknown error",
       };
     }
   }
@@ -201,19 +212,21 @@ export class AnthropicClient implements BaseAPIClient {
   // Private helper methods
   private validateModel(model: string): void {
     if (!AnthropicClient.SUPPORTED_MODELS.includes(model)) {
-      throw new APIError(`Unsupported Anthropic model: ${model}`, 'anthropic');
+      throw new APIError(`Unsupported Anthropic model: ${model}`, "anthropic");
     }
   }
 
   private transformParams(params: ChatCompletionParams): any {
     const messages = params.messages;
-    const systemMessage = params.messages.find(m => m.role === 'system')?.content || params.systemPrompt;
-    
+    const systemMessage =
+      params.messages.find((m) => m.role === "system")?.content ||
+      params.systemPrompt;
+
     const anthropicParams: any = {
       model: this.mapModelName(params.model),
       max_tokens: params.maxTokens || 1024,
       messages,
-      stream: params.stream || false
+      stream: params.stream || false,
     };
 
     // Add system prompt if available
@@ -222,10 +235,12 @@ export class AnthropicClient implements BaseAPIClient {
     }
 
     // Add optional parameters if provided
-    if (params.temperature !== undefined) anthropicParams.temperature = params.temperature;
+    if (params.temperature !== undefined)
+      anthropicParams.temperature = params.temperature;
     if (params.topP !== undefined) anthropicParams.top_p = params.topP;
     if (params.topK !== undefined) anthropicParams.top_k = params.topK;
-    if (params.stopSequences?.length) anthropicParams.stop_sequences = params.stopSequences;
+    if (params.stopSequences?.length)
+      anthropicParams.stop_sequences = params.stopSequences;
 
     return anthropicParams;
   }
@@ -233,101 +248,121 @@ export class AnthropicClient implements BaseAPIClient {
   private mapModelName(internalModel: string): string {
     // Map internal model names to Anthropic API model names
     const modelMap: Record<string, string> = {
-      'claude-4.1-opus': 'claude-3-5-sonnet-20241022', // Fallback to latest available
-      'claude-4-sonnet': 'claude-3-5-sonnet-20241022', // Fallback to latest available
-      'claude-4-haiku': 'claude-3-5-haiku-20241022', // Fallback to latest available
-      'claude-3-7-sonnet': 'claude-3-5-sonnet-20241022', // Fallback to latest available
-      'claude-3-5-sonnet-20241022': 'claude-3-5-sonnet-20241022',
-      'claude-3-5-sonnet-20240620': 'claude-3-5-sonnet-20240620',
-      'claude-3-opus-20240229': 'claude-3-opus-20240229',
-      'claude-3-sonnet-20240229': 'claude-3-sonnet-20240229',
-      'claude-3-haiku-20240307': 'claude-3-haiku-20240307',
-      'claude-3-5-haiku-20241022': 'claude-3-5-haiku-20241022'
+      "claude-4.1-opus": "claude-3-5-sonnet-20241022", // Fallback to latest available
+      "claude-4-sonnet": "claude-3-5-sonnet-20241022", // Fallback to latest available
+      "claude-4-haiku": "claude-3-5-haiku-20241022", // Fallback to latest available
+      "claude-3-7-sonnet": "claude-3-5-sonnet-20241022", // Fallback to latest available
+      "claude-3-5-sonnet-20241022": "claude-3-5-sonnet-20241022",
+      "claude-3-5-sonnet-20240620": "claude-3-5-sonnet-20240620",
+      "claude-3-opus-20240229": "claude-3-opus-20240229",
+      "claude-3-sonnet-20240229": "claude-3-sonnet-20240229",
+      "claude-3-haiku-20240307": "claude-3-haiku-20240307",
+      "claude-3-5-haiku-20241022": "claude-3-5-haiku-20241022",
     };
 
     return modelMap[internalModel] || internalModel;
   }
 
-  private transformResponse(response: any, originalModel: string): ChatCompletionResponse {
-    const content = Array.isArray(response.content) 
-      ? response.content.map((item: any) => item.text).join('')
-      : response.content?.text || '';
+  private transformResponse(
+    response: any,
+    originalModel: string,
+  ): ChatCompletionResponse {
+    const content = Array.isArray(response.content)
+      ? response.content.map((item: any) => item.text).join("")
+      : response.content?.text || "";
 
     return {
       id: response.id || `anthropic-${Date.now()}`,
-      object: 'chat.completion',
+      object: "chat.completion",
       created: Math.floor(Date.now() / 1000),
       model: originalModel,
       usage: {
         promptTokens: response.usage?.input_tokens || 0,
         completionTokens: response.usage?.output_tokens || 0,
-        totalTokens: (response.usage?.input_tokens || 0) + (response.usage?.output_tokens || 0)
+        totalTokens:
+          (response.usage?.input_tokens || 0) +
+          (response.usage?.output_tokens || 0),
       },
-      choices: [{
-        index: 0,
-        message: {
-          role: 'assistant' as const,
-          content
+      choices: [
+        {
+          index: 0,
+          message: {
+            role: "assistant" as const,
+            content,
+          },
+          finishReason: this.mapStopReason(response.stop_reason),
         },
-        finishReason: this.mapStopReason(response.stop_reason)
-      }]
+      ],
     };
   }
 
-  private transformStreamChunk(chunk: any, messageId: string, messageIndex: number, originalModel: string): StreamingResponse | null {
-    if (chunk.type === 'message_start') {
+  private transformStreamChunk(
+    chunk: any,
+    messageId: string,
+    messageIndex: number,
+    originalModel: string,
+  ): StreamingResponse | null {
+    if (chunk.type === "message_start") {
       messageId = chunk.message?.id || `anthropic-${Date.now()}`;
       return {
         id: messageId,
-        object: 'chat.completion.chunk',
+        object: "chat.completion.chunk",
         created: Math.floor(Date.now() / 1000),
         model: originalModel,
-        choices: [{
-          index: 0,
-          delta: { role: 'assistant' },
-          finishReason: null
-        }]
+        choices: [
+          {
+            index: 0,
+            delta: { role: "assistant" },
+            finishReason: null,
+          },
+        ],
       };
     }
 
-    if (chunk.type === 'content_block_delta' && chunk.delta?.text) {
+    if (chunk.type === "content_block_delta" && chunk.delta?.text) {
       return {
         id: messageId || `anthropic-${Date.now()}`,
-        object: 'chat.completion.chunk',
+        object: "chat.completion.chunk",
         created: Math.floor(Date.now() / 1000),
         model: originalModel,
-        choices: [{
-          index: 0,
-          delta: { content: chunk.delta.text },
-          finishReason: null
-        }]
+        choices: [
+          {
+            index: 0,
+            delta: { content: chunk.delta.text },
+            finishReason: null,
+          },
+        ],
       };
     }
 
-    if (chunk.type === 'message_delta' && chunk.delta?.stop_reason) {
+    if (chunk.type === "message_delta" && chunk.delta?.stop_reason) {
       return {
         id: messageId || `anthropic-${Date.now()}`,
-        object: 'chat.completion.chunk',
+        object: "chat.completion.chunk",
         created: Math.floor(Date.now() / 1000),
         model: originalModel,
-        choices: [{
-          index: 0,
-          delta: {},
-          finishReason: this.mapStopReason(chunk.delta.stop_reason)
-        }]
+        choices: [
+          {
+            index: 0,
+            delta: {},
+            finishReason: this.mapStopReason(chunk.delta.stop_reason),
+          },
+        ],
       };
     }
 
     return null;
   }
 
-  private mapStopReason(stopReason: string): 'stop' | 'length' | 'content_filter' | null {
+  private mapStopReason(
+    stopReason: string,
+  ): "stop" | "length" | "content_filter" | null {
     switch (stopReason) {
-      case 'end_turn':
-      case 'stop_sequence':
-        return 'stop';
-      case 'max_tokens':
-        return 'length';
+      case "end_turn":
+      case "stop_sequence":
+        return "stop";
+      case "max_tokens":
+        return "length";
       default:
         return null;
     }
@@ -341,7 +376,7 @@ export class AnthropicClient implements BaseAPIClient {
         return await operation();
       } catch (error) {
         lastError = error;
-        
+
         // Don't retry on certain error types
         if (this.isNonRetryableError(error)) {
           break;
@@ -364,22 +399,21 @@ export class AnthropicClient implements BaseAPIClient {
   }
 
   private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   private handleError(error: any): APIError {
     const apiError = new APIError(
-      error.message || 'Anthropic API error',
-      'anthropic'
+      error.message || "Anthropic API error",
+      "anthropic",
     ) as APIError;
-    
+
     apiError.status = error?.status || error?.response?.status;
     apiError.code = error?.code;
     apiError.type = error?.type;
-    apiError.provider = 'anthropic';
+    apiError.provider = "anthropic";
     apiError.retryable = !this.isNonRetryableError(error);
 
     return apiError;
   }
 }
-

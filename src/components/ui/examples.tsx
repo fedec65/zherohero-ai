@@ -1,6 +1,6 @@
 /**
  * UI Components Usage Examples
- * 
+ *
  * This file demonstrates how to use all the UI components in the MindDeck clone.
  * Remove this file before production or use it for development testing.
  */
@@ -34,14 +34,14 @@ import {
   ContextBadge,
   NotificationBadge,
 } from "./index";
-import { 
-  Search, 
-  Settings, 
-  Plus, 
+import {
+  Search,
+  Settings,
+  Plus,
   MessageSquare,
   Send,
   Bell,
-  User
+  User,
 } from "lucide-react";
 
 export function UIComponentExamples() {
@@ -65,7 +65,7 @@ export function UIComponentExamples() {
         <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
           Buttons
         </h2>
-        
+
         <div className="space-y-4">
           <div className="flex flex-wrap gap-3">
             <Button variant="primary">Primary Button</Button>
@@ -84,11 +84,9 @@ export function UIComponentExamples() {
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <Button leftIcon={<Plus className="h-4 w-4" />}>
-              New Chat
-            </Button>
-            <Button 
-              variant="secondary" 
+            <Button leftIcon={<Plus className="h-4 w-4" />}>New Chat</Button>
+            <Button
+              variant="secondary"
               rightIcon={<Settings className="h-4 w-4" />}
             >
               Configure
@@ -106,14 +104,14 @@ export function UIComponentExamples() {
         <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
           Inputs
         </h2>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Input
             label="Standard Input"
             placeholder="Enter text here..."
             helperText="This is a helper text"
           />
-          
+
           <Input
             label="Input with Error"
             value={inputValue}
@@ -143,7 +141,7 @@ export function UIComponentExamples() {
         <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
           Textareas
         </h2>
-        
+
         <div className="space-y-4">
           <Textarea
             label="Standard Textarea"
@@ -174,7 +172,7 @@ export function UIComponentExamples() {
         <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
           Cards
         </h2>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <Card>
             <CardHeader>
@@ -189,7 +187,9 @@ export function UIComponentExamples() {
               </p>
             </CardContent>
             <CardFooter>
-              <Button variant="ghost" size="sm">Action</Button>
+              <Button variant="ghost" size="sm">
+                Action
+              </Button>
             </CardFooter>
           </Card>
 
@@ -199,7 +199,8 @@ export function UIComponentExamples() {
               provider: "OpenAI",
               contextWindow: "128K tokens",
               isNew: true,
-              description: "Most capable GPT-4 model with improved instruction following"
+              description:
+                "Most capable GPT-4 model with improved instruction following",
             }}
             onConfigure={() => console.log("Configure GPT-4")}
             badge={<ContextBadge tokens="128K" showLabel={false} />}
@@ -232,7 +233,7 @@ export function UIComponentExamples() {
         <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
           Badges
         </h2>
-        
+
         <div className="space-y-4">
           <div className="flex flex-wrap gap-2">
             <Badge>Default</Badge>
@@ -273,7 +274,7 @@ export function UIComponentExamples() {
                 <Bell className="h-4 w-4" />
               </Button>
             </NotificationBadge>
-            
+
             <NotificationBadge dot>
               <Button variant="ghost" size="icon">
                 <User className="h-4 w-4" />
@@ -288,25 +289,25 @@ export function UIComponentExamples() {
         <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
           Tooltips
         </h2>
-        
+
         <div className="flex flex-wrap gap-4">
           <Tooltip content="This is a tooltip on top" side="top">
             <Button variant="outline">Hover me (Top)</Button>
           </Tooltip>
-          
+
           <Tooltip content="This is a tooltip on the right" side="right">
             <Button variant="outline">Hover me (Right)</Button>
           </Tooltip>
-          
+
           <Tooltip content="This is a tooltip on bottom" side="bottom">
             <Button variant="outline">Hover me (Bottom)</Button>
           </Tooltip>
-          
+
           <Tooltip content="This is a tooltip on the left" side="left">
             <Button variant="outline">Hover me (Left)</Button>
           </Tooltip>
 
-          <Tooltip 
+          <Tooltip
             content="Chat with AI models"
             side="right"
             delayDuration={300}
@@ -323,7 +324,7 @@ export function UIComponentExamples() {
         <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
           Dialogs
         </h2>
-        
+
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button>Open Dialog</Button>
@@ -332,10 +333,11 @@ export function UIComponentExamples() {
             <DialogHeader>
               <DialogTitle>Model Configuration</DialogTitle>
               <DialogDescription>
-                Configure your AI model settings. You can adjust parameters and preferences here.
+                Configure your AI model settings. You can adjust parameters and
+                preferences here.
               </DialogDescription>
             </DialogHeader>
-            
+
             <div className="space-y-4 py-4">
               <Input
                 label="Model Name"
@@ -371,7 +373,7 @@ export function UIComponentExamples() {
         <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
           Component Integration
         </h2>
-        
+
         <Card variant="elevated" className="max-w-md mx-auto">
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -386,24 +388,22 @@ export function UIComponentExamples() {
               Complete chat interface with all components
             </CardDescription>
           </CardHeader>
-          
+
           <CardContent className="space-y-4">
-            <SearchInput
-              placeholder="Search messages..."
-            />
-            
+            <SearchInput placeholder="Search messages..." />
+
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <StatusBadge status="online" />
                 <span className="text-sm font-medium">GPT-4</span>
                 <ModelBadge type="new" />
               </div>
-              
+
               <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg text-sm">
                 Hello! How can I assist you today?
               </div>
             </div>
-            
+
             <ChatInput
               placeholder="Type your message..."
               sendButton={
@@ -415,7 +415,7 @@ export function UIComponentExamples() {
               }
             />
           </CardContent>
-          
+
           <CardFooter className="justify-between">
             <Badge variant="outline" size="sm">
               Connected

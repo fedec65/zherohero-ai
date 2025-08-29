@@ -2,9 +2,9 @@
  * UI Store - Manages UI state, modals, notifications, and interface interactions
  */
 
-import { createWithEqualityFn } from 'zustand/traditional';
-import { subscribeWithSelector } from 'zustand/middleware';
-import { immer } from 'zustand/middleware/immer';
+import { createWithEqualityFn } from "zustand/traditional";
+import { subscribeWithSelector } from "zustand/middleware";
+import { immer } from "zustand/middleware/immer";
 
 // UI state interfaces
 interface ModalState {
@@ -14,13 +14,13 @@ interface ModalState {
   options?: {
     closable?: boolean;
     overlay?: boolean;
-    size?: 'small' | 'medium' | 'large' | 'fullscreen';
+    size?: "small" | "medium" | "large" | "fullscreen";
   };
 }
 
 interface NotificationState {
   id: string;
-  type: 'success' | 'error' | 'warning' | 'info';
+  type: "success" | "error" | "warning" | "info";
   title: string;
   message?: string;
   duration?: number;
@@ -34,7 +34,7 @@ interface NotificationState {
 
 interface ToastState {
   id: string;
-  type: 'success' | 'error' | 'warning' | 'info';
+  type: "success" | "error" | "warning" | "info";
   message: string;
   duration: number;
   timestamp: Date;
@@ -45,7 +45,7 @@ interface KeyboardShortcut {
   modifiers: string[];
   action: string;
   description: string;
-  scope?: 'global' | 'chat' | 'models' | 'mcp';
+  scope?: "global" | "chat" | "models" | "mcp";
 }
 
 // UI store state interface
@@ -55,46 +55,52 @@ interface UIState {
   sidebarWidth: number;
   chatSidebarCollapsed: boolean;
   chatSidebarWidth: number;
-  
+
   // Modal system
   modals: ModalState[];
   modalHistory: string[];
-  
+
   // Notifications and toasts
   notifications: NotificationState[];
   toasts: ToastState[];
-  
+
   // Loading states
   loading: Record<string, boolean>;
-  
+
   // Error states
   errors: Record<string, string | null>;
-  
+
   // Search and filtering
-  searchStates: Record<string, {
-    query: string;
-    filters: Record<string, unknown>;
-    sortBy?: string;
-    sortOrder?: 'asc' | 'desc';
-  }>;
-  
+  searchStates: Record<
+    string,
+    {
+      query: string;
+      filters: Record<string, unknown>;
+      sortBy?: string;
+      sortOrder?: "asc" | "desc";
+    }
+  >;
+
   // UI preferences (not persisted)
-  dragStates: Record<string, {
-    isDragging: boolean;
-    dragData?: unknown;
-  }>;
-  
+  dragStates: Record<
+    string,
+    {
+      isDragging: boolean;
+      dragData?: unknown;
+    }
+  >;
+
   // Focus management
   focusStates: {
     activeElement: string | null;
     focusHistory: string[];
     trapFocus: boolean;
   };
-  
+
   // Keyboard shortcuts
   shortcuts: KeyboardShortcut[];
   shortcutsEnabled: boolean;
-  
+
   // Command palette
   commandPalette: {
     isOpen: boolean;
@@ -110,23 +116,26 @@ interface UIState {
       group?: string;
     }>;
   };
-  
+
   // Context menus
-  contextMenus: Record<string, {
-    isOpen: boolean;
-    x: number;
-    y: number;
-    items: Array<{
-      id: string;
-      label: string;
-      icon?: string;
-      shortcut?: string;
-      disabled?: boolean;
-      separator?: boolean;
-      action: () => void;
-    }>;
-  }>;
-  
+  contextMenus: Record<
+    string,
+    {
+      isOpen: boolean;
+      x: number;
+      y: number;
+      items: Array<{
+        id: string;
+        label: string;
+        icon?: string;
+        shortcut?: string;
+        disabled?: boolean;
+        separator?: boolean;
+        action: () => void;
+      }>;
+    }
+  >;
+
   // Tour and onboarding
   tour: {
     isActive: boolean;
@@ -145,75 +154,101 @@ interface UIActions {
   setChatSidebarWidth: (width: number) => void;
   toggleSidebar: () => void;
   toggleChatSidebar: () => void;
-  
+
   // Modal system
-  openModal: (component: string, props?: Record<string, unknown>, options?: ModalState['options']) => string;
+  openModal: (
+    component: string,
+    props?: Record<string, unknown>,
+    options?: ModalState["options"],
+  ) => string;
   closeModal: (modalId?: string) => void;
   closeAllModals: () => void;
   updateModalProps: (modalId: string, props: Record<string, unknown>) => void;
   isModalOpen: (component: string) => boolean;
   getActiveModal: () => ModalState | null;
-  
+
   // Notifications
-  addNotification: (notification: Omit<NotificationState, 'id' | 'timestamp'>) => string;
+  addNotification: (
+    notification: Omit<NotificationState, "id" | "timestamp">,
+  ) => string;
   removeNotification: (notificationId: string) => void;
   clearNotifications: () => void;
-  updateNotification: (notificationId: string, updates: Partial<NotificationState>) => void;
-  
+  updateNotification: (
+    notificationId: string,
+    updates: Partial<NotificationState>,
+  ) => void;
+
   // Toast system
-  showToast: (message: string, type?: ToastState['type'], duration?: number) => string;
+  showToast: (
+    message: string,
+    type?: ToastState["type"],
+    duration?: number,
+  ) => string;
   hideToast: (toastId: string) => void;
   clearToasts: () => void;
-  
+
   // Loading states
   setLoading: (key: string, loading: boolean) => void;
   isLoading: (key: string) => boolean;
   clearLoading: () => void;
-  
+
   // Error states
   setError: (key: string, error: string | null) => void;
   getError: (key: string) => string | null;
   clearError: (key: string) => void;
   clearAllErrors: () => void;
-  
+
   // Search states
-  setSearchState: (context: string, state: UIState['searchStates'][string]) => void;
+  setSearchState: (
+    context: string,
+    state: UIState["searchStates"][string],
+  ) => void;
   updateSearchQuery: (context: string, query: string) => void;
-  updateSearchFilters: (context: string, filters: Record<string, unknown>) => void;
+  updateSearchFilters: (
+    context: string,
+    filters: Record<string, unknown>,
+  ) => void;
   clearSearchState: (context: string) => void;
-  
+
   // Drag and drop
-  setDragState: (key: string, state: UIState['dragStates'][string]) => void;
+  setDragState: (key: string, state: UIState["dragStates"][string]) => void;
   clearDragState: (key: string) => void;
   isDragging: (key: string) => boolean;
-  
+
   // Focus management
   setActiveElement: (elementId: string | null) => void;
   focusElement: (elementId: string) => void;
   setTrapFocus: (trap: boolean) => void;
   restoreFocus: () => void;
-  
+
   // Keyboard shortcuts
   registerShortcut: (shortcut: KeyboardShortcut) => void;
   unregisterShortcut: (key: string) => void;
   executeShortcut: (key: string, modifiers: string[]) => boolean;
   setShortcutsEnabled: (enabled: boolean) => void;
-  getShortcutsForScope: (scope: KeyboardShortcut['scope']) => KeyboardShortcut[];
-  
+  getShortcutsForScope: (
+    scope: KeyboardShortcut["scope"],
+  ) => KeyboardShortcut[];
+
   // Command palette
   openCommandPalette: () => void;
   closeCommandPalette: () => void;
   setCommandQuery: (query: string) => void;
   selectCommand: (index: number) => void;
   executeSelectedCommand: () => void;
-  registerCommand: (command: UIState['commandPalette']['commands'][0]) => void;
+  registerCommand: (command: UIState["commandPalette"]["commands"][0]) => void;
   unregisterCommand: (commandId: string) => void;
-  
+
   // Context menus
-  openContextMenu: (menuId: string, x: number, y: number, items: UIState['contextMenus'][string]['items']) => void;
+  openContextMenu: (
+    menuId: string,
+    x: number,
+    y: number,
+    items: UIState["contextMenus"][string]["items"],
+  ) => void;
   closeContextMenu: (menuId: string) => void;
   closeAllContextMenus: () => void;
-  
+
   // Tour and onboarding
   startTour: () => void;
   nextTourStep: () => void;
@@ -221,10 +256,16 @@ interface UIActions {
   skipTour: () => void;
   completeTour: () => void;
   markStepCompleted: (stepId: string) => void;
-  
+
   // Utility functions
-  debounce: <T extends unknown[]>(fn: (...args: T) => void, delay: number) => (...args: T) => void;
-  throttle: <T extends unknown[]>(fn: (...args: T) => void, delay: number) => (...args: T) => void;
+  debounce: <T extends unknown[]>(
+    fn: (...args: T) => void,
+    delay: number,
+  ) => (...args: T) => void;
+  throttle: <T extends unknown[]>(
+    fn: (...args: T) => void,
+    delay: number,
+  ) => (...args: T) => void;
   generateId: () => string;
 }
 
@@ -233,39 +274,39 @@ type UIStore = UIState & UIActions;
 // Default keyboard shortcuts
 const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
   {
-    key: 'k',
-    modifiers: ['cmd'],
-    action: 'open-command-palette',
-    description: 'Open command palette',
-    scope: 'global',
+    key: "k",
+    modifiers: ["cmd"],
+    action: "open-command-palette",
+    description: "Open command palette",
+    scope: "global",
   },
   {
-    key: 'n',
-    modifiers: ['cmd'],
-    action: 'new-chat',
-    description: 'Create new chat',
-    scope: 'global',
+    key: "n",
+    modifiers: ["cmd"],
+    action: "new-chat",
+    description: "Create new chat",
+    scope: "global",
   },
   {
-    key: 'b',
-    modifiers: ['cmd'],
-    action: 'toggle-sidebar',
-    description: 'Toggle sidebar',
-    scope: 'global',
+    key: "b",
+    modifiers: ["cmd"],
+    action: "toggle-sidebar",
+    description: "Toggle sidebar",
+    scope: "global",
   },
   {
-    key: 'f',
-    modifiers: ['cmd'],
-    action: 'search',
-    description: 'Search chats',
-    scope: 'chat',
+    key: "f",
+    modifiers: ["cmd"],
+    action: "search",
+    description: "Search chats",
+    scope: "chat",
   },
   {
-    key: 'Escape',
+    key: "Escape",
     modifiers: [],
-    action: 'close-modal',
-    description: 'Close modal/dialog',
-    scope: 'global',
+    action: "close-modal",
+    description: "Close modal/dialog",
+    scope: "global",
   },
 ];
 
@@ -295,7 +336,7 @@ export const useUIStore = createWithEqualityFn<UIStore>()(
       shortcutsEnabled: true,
       commandPalette: {
         isOpen: false,
-        query: '',
+        query: "",
         selectedIndex: 0,
         commands: [],
       },
@@ -308,7 +349,7 @@ export const useUIStore = createWithEqualityFn<UIStore>()(
       },
 
       // Actions
-      
+
       // Layout management
       setSidebarCollapsed: (collapsed: boolean) => {
         set((state) => {
@@ -349,7 +390,7 @@ export const useUIStore = createWithEqualityFn<UIStore>()(
       // Modal system
       openModal: (component: string, props = {}, options = {}) => {
         const modalId = get().generateId();
-        
+
         set((state) => {
           const modal: ModalState = {
             id: modalId,
@@ -358,11 +399,11 @@ export const useUIStore = createWithEqualityFn<UIStore>()(
             options: {
               closable: true,
               overlay: true,
-              size: 'medium',
+              size: "medium",
               ...options,
             },
           };
-          
+
           state.modals.push(modal);
           state.modalHistory.push(modalId);
         });
@@ -373,8 +414,10 @@ export const useUIStore = createWithEqualityFn<UIStore>()(
       closeModal: (modalId?: string) => {
         set((state) => {
           if (modalId) {
-            state.modals = state.modals.filter(m => m.id !== modalId);
-            state.modalHistory = state.modalHistory.filter(id => id !== modalId);
+            state.modals = state.modals.filter((m) => m.id !== modalId);
+            state.modalHistory = state.modalHistory.filter(
+              (id) => id !== modalId,
+            );
           } else {
             // Close the most recent modal
             if (state.modals.length > 0) {
@@ -394,7 +437,7 @@ export const useUIStore = createWithEqualityFn<UIStore>()(
 
       updateModalProps: (modalId: string, props: Record<string, unknown>) => {
         set((state) => {
-          const modal = state.modals.find(m => m.id === modalId);
+          const modal = state.modals.find((m) => m.id === modalId);
           if (modal) {
             Object.assign(modal.props || {}, props);
           }
@@ -403,18 +446,20 @@ export const useUIStore = createWithEqualityFn<UIStore>()(
 
       isModalOpen: (component: string) => {
         const state = get();
-        return state.modals.some(m => m.component === component);
+        return state.modals.some((m) => m.component === component);
       },
 
       getActiveModal: () => {
         const state = get();
-        return state.modals.length > 0 ? state.modals[state.modals.length - 1] : null;
+        return state.modals.length > 0
+          ? state.modals[state.modals.length - 1]
+          : null;
       },
 
       // Notifications
       addNotification: (notification) => {
         const notificationId = get().generateId();
-        
+
         set((state) => {
           state.notifications.push({
             ...notification,
@@ -435,7 +480,9 @@ export const useUIStore = createWithEqualityFn<UIStore>()(
 
       removeNotification: (notificationId: string) => {
         set((state) => {
-          state.notifications = state.notifications.filter(n => n.id !== notificationId);
+          state.notifications = state.notifications.filter(
+            (n) => n.id !== notificationId,
+          );
         });
       },
 
@@ -445,9 +492,14 @@ export const useUIStore = createWithEqualityFn<UIStore>()(
         });
       },
 
-      updateNotification: (notificationId: string, updates: Partial<NotificationState>) => {
+      updateNotification: (
+        notificationId: string,
+        updates: Partial<NotificationState>,
+      ) => {
         set((state) => {
-          const notification = state.notifications.find(n => n.id === notificationId);
+          const notification = state.notifications.find(
+            (n) => n.id === notificationId,
+          );
           if (notification) {
             Object.assign(notification, updates);
           }
@@ -455,9 +507,9 @@ export const useUIStore = createWithEqualityFn<UIStore>()(
       },
 
       // Toast system
-      showToast: (message: string, type = 'info' as const, duration = 5000) => {
+      showToast: (message: string, type = "info" as const, duration = 5000) => {
         const toastId = get().generateId();
-        
+
         set((state) => {
           state.toasts.push({
             id: toastId,
@@ -478,7 +530,7 @@ export const useUIStore = createWithEqualityFn<UIStore>()(
 
       hideToast: (toastId: string) => {
         set((state) => {
-          state.toasts = state.toasts.filter(t => t.id !== toastId);
+          state.toasts = state.toasts.filter((t) => t.id !== toastId);
         });
       },
 
@@ -531,7 +583,10 @@ export const useUIStore = createWithEqualityFn<UIStore>()(
       },
 
       // Search states
-      setSearchState: (context: string, searchState: UIState['searchStates'][string]) => {
+      setSearchState: (
+        context: string,
+        searchState: UIState["searchStates"][string],
+      ) => {
         set((state) => {
           state.searchStates[context] = searchState;
         });
@@ -540,16 +595,19 @@ export const useUIStore = createWithEqualityFn<UIStore>()(
       updateSearchQuery: (context: string, query: string) => {
         set((state) => {
           if (!state.searchStates[context]) {
-            state.searchStates[context] = { query: '', filters: {} };
+            state.searchStates[context] = { query: "", filters: {} };
           }
           state.searchStates[context].query = query;
         });
       },
 
-      updateSearchFilters: (context: string, filters: Record<string, unknown>) => {
+      updateSearchFilters: (
+        context: string,
+        filters: Record<string, unknown>,
+      ) => {
         set((state) => {
           if (!state.searchStates[context]) {
-            state.searchStates[context] = { query: '', filters: {} };
+            state.searchStates[context] = { query: "", filters: {} };
           }
           Object.assign(state.searchStates[context].filters, filters);
         });
@@ -562,7 +620,7 @@ export const useUIStore = createWithEqualityFn<UIStore>()(
       },
 
       // Drag and drop
-      setDragState: (key: string, dragState: UIState['dragStates'][string]) => {
+      setDragState: (key: string, dragState: UIState["dragStates"][string]) => {
         set((state) => {
           state.dragStates[key] = dragState;
         });
@@ -583,7 +641,9 @@ export const useUIStore = createWithEqualityFn<UIStore>()(
       setActiveElement: (elementId: string | null) => {
         set((state) => {
           if (state.focusStates.activeElement) {
-            state.focusStates.focusHistory.push(state.focusStates.activeElement);
+            state.focusStates.focusHistory.push(
+              state.focusStates.activeElement,
+            );
           }
           state.focusStates.activeElement = elementId;
         });
@@ -591,10 +651,10 @@ export const useUIStore = createWithEqualityFn<UIStore>()(
 
       focusElement: (elementId: string) => {
         get().setActiveElement(elementId);
-        
+
         // Actually focus the element if it exists
         const element = document.getElementById(elementId);
-        if (element && typeof element.focus === 'function') {
+        if (element && typeof element.focus === "function") {
           element.focus();
         }
       },
@@ -610,10 +670,10 @@ export const useUIStore = createWithEqualityFn<UIStore>()(
           const lastElement = state.focusStates.focusHistory.pop();
           if (lastElement) {
             state.focusStates.activeElement = lastElement;
-            
+
             // Actually focus the element
             const element = document.getElementById(lastElement);
-            if (element && typeof element.focus === 'function') {
+            if (element && typeof element.focus === "function") {
               element.focus();
             }
           }
@@ -624,41 +684,47 @@ export const useUIStore = createWithEqualityFn<UIStore>()(
       registerShortcut: (shortcut: KeyboardShortcut) => {
         set((state) => {
           // Remove existing shortcut with same key combination
-          state.shortcuts = state.shortcuts.filter(s => 
-            !(s.key === shortcut.key && 
-              JSON.stringify(s.modifiers.sort()) === JSON.stringify(shortcut.modifiers.sort()))
+          state.shortcuts = state.shortcuts.filter(
+            (s) =>
+              !(
+                s.key === shortcut.key &&
+                JSON.stringify(s.modifiers.sort()) ===
+                  JSON.stringify(shortcut.modifiers.sort())
+              ),
           );
-          
+
           state.shortcuts.push(shortcut);
         });
       },
 
       unregisterShortcut: (key: string) => {
         set((state) => {
-          state.shortcuts = state.shortcuts.filter(s => s.key !== key);
+          state.shortcuts = state.shortcuts.filter((s) => s.key !== key);
         });
       },
 
       executeShortcut: (key: string, modifiers: string[]) => {
         const state = get();
-        
+
         if (!state.shortcutsEnabled) return false;
 
-        const shortcut = state.shortcuts.find(s => 
-          s.key.toLowerCase() === key.toLowerCase() && 
-          JSON.stringify(s.modifiers.sort()) === JSON.stringify(modifiers.sort())
+        const shortcut = state.shortcuts.find(
+          (s) =>
+            s.key.toLowerCase() === key.toLowerCase() &&
+            JSON.stringify(s.modifiers.sort()) ===
+              JSON.stringify(modifiers.sort()),
         );
 
         if (shortcut) {
           // Execute the action based on the shortcut
           switch (shortcut.action) {
-            case 'open-command-palette':
+            case "open-command-palette":
               get().openCommandPalette();
               return true;
-            case 'toggle-sidebar':
+            case "toggle-sidebar":
               get().toggleSidebar();
               return true;
-            case 'close-modal':
+            case "close-modal":
               get().closeModal();
               return true;
             default:
@@ -676,16 +742,18 @@ export const useUIStore = createWithEqualityFn<UIStore>()(
         });
       },
 
-      getShortcutsForScope: (scope: KeyboardShortcut['scope']) => {
+      getShortcutsForScope: (scope: KeyboardShortcut["scope"]) => {
         const state = get();
-        return state.shortcuts.filter(s => s.scope === scope || s.scope === 'global');
+        return state.shortcuts.filter(
+          (s) => s.scope === scope || s.scope === "global",
+        );
       },
 
       // Command palette
       openCommandPalette: () => {
         set((state) => {
           state.commandPalette.isOpen = true;
-          state.commandPalette.query = '';
+          state.commandPalette.query = "";
           state.commandPalette.selectedIndex = 0;
         });
       },
@@ -693,7 +761,7 @@ export const useUIStore = createWithEqualityFn<UIStore>()(
       closeCommandPalette: () => {
         set((state) => {
           state.commandPalette.isOpen = false;
-          state.commandPalette.query = '';
+          state.commandPalette.query = "";
           state.commandPalette.selectedIndex = 0;
         });
       },
@@ -708,14 +776,18 @@ export const useUIStore = createWithEqualityFn<UIStore>()(
       selectCommand: (index: number) => {
         set((state) => {
           const maxIndex = state.commandPalette.commands.length - 1;
-          state.commandPalette.selectedIndex = Math.max(0, Math.min(index, maxIndex));
+          state.commandPalette.selectedIndex = Math.max(
+            0,
+            Math.min(index, maxIndex),
+          );
         });
       },
 
       executeSelectedCommand: () => {
         const state = get();
-        const selectedCommand = state.commandPalette.commands[state.commandPalette.selectedIndex];
-        
+        const selectedCommand =
+          state.commandPalette.commands[state.commandPalette.selectedIndex];
+
         if (selectedCommand) {
           selectedCommand.action();
           get().closeCommandPalette();
@@ -725,14 +797,18 @@ export const useUIStore = createWithEqualityFn<UIStore>()(
       registerCommand: (command) => {
         set((state) => {
           // Remove existing command with same id
-          state.commandPalette.commands = state.commandPalette.commands.filter(c => c.id !== command.id);
+          state.commandPalette.commands = state.commandPalette.commands.filter(
+            (c) => c.id !== command.id,
+          );
           state.commandPalette.commands.push(command);
         });
       },
 
       unregisterCommand: (commandId: string) => {
         set((state) => {
-          state.commandPalette.commands = state.commandPalette.commands.filter(c => c.id !== commandId);
+          state.commandPalette.commands = state.commandPalette.commands.filter(
+            (c) => c.id !== commandId,
+          );
         });
       },
 
@@ -740,12 +816,12 @@ export const useUIStore = createWithEqualityFn<UIStore>()(
       openContextMenu: (menuId: string, x: number, y: number, items) => {
         set((state) => {
           // Close other context menus
-          Object.keys(state.contextMenus).forEach(id => {
+          Object.keys(state.contextMenus).forEach((id) => {
             if (id !== menuId) {
               state.contextMenus[id].isOpen = false;
             }
           });
-          
+
           state.contextMenus[menuId] = {
             isOpen: true,
             x,
@@ -765,7 +841,7 @@ export const useUIStore = createWithEqualityFn<UIStore>()(
 
       closeAllContextMenus: () => {
         set((state) => {
-          Object.keys(state.contextMenus).forEach(menuId => {
+          Object.keys(state.contextMenus).forEach((menuId) => {
             state.contextMenus[menuId].isOpen = false;
           });
         });
@@ -814,7 +890,10 @@ export const useUIStore = createWithEqualityFn<UIStore>()(
       },
 
       // Utility functions
-      debounce: <T extends unknown[]>(fn: (...args: T) => void, delay: number) => {
+      debounce: <T extends unknown[]>(
+        fn: (...args: T) => void,
+        delay: number,
+      ) => {
         let timeoutId: NodeJS.Timeout;
         return (...args: T) => {
           clearTimeout(timeoutId);
@@ -822,7 +901,10 @@ export const useUIStore = createWithEqualityFn<UIStore>()(
         };
       },
 
-      throttle: <T extends unknown[]>(fn: (...args: T) => void, delay: number) => {
+      throttle: <T extends unknown[]>(
+        fn: (...args: T) => void,
+        delay: number,
+      ) => {
         let lastCall = 0;
         return (...args: T) => {
           const now = Date.now();
@@ -834,8 +916,10 @@ export const useUIStore = createWithEqualityFn<UIStore>()(
       },
 
       generateId: () => {
-        return Math.random().toString(36).substring(2) + Date.now().toString(36);
+        return (
+          Math.random().toString(36).substring(2) + Date.now().toString(36)
+        );
       },
-    }))
-  )
+    })),
+  ),
 );

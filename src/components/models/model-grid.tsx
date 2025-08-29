@@ -1,61 +1,61 @@
-'use client';
+"use client";
 
-import React, { useState, useMemo, useCallback } from 'react';
-import { Search, Grid3X3, List, Plus, ExternalLink } from 'lucide-react';
-import { clsx } from 'clsx';
-import { ModelCard } from './model-card';
-import { ModelConfigDialog } from './model-config-dialog';
-import { OpenRouterModelCard } from './openrouter-model-card';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Dropdown } from '../ui/dropdown';
-import { ModelGridSkeleton } from '../ui/skeleton';
-import type { Model, CustomModel, OpenRouterModel, AIProvider } from '../../lib/stores/types';
-import { 
-  useOptimizedModelGrid, 
-  useModelGridActions, 
-  useModelSelection 
-} from '../../lib/stores/hooks';
-import { useModelStore } from '../../lib/stores/model-store';
-import { PerformanceMonitor } from '../dev/performance-monitor';
+import React, { useState, useMemo, useCallback } from "react";
+import { Search, Grid3X3, List, Plus, ExternalLink } from "lucide-react";
+import { clsx } from "clsx";
+import { ModelCard } from "./model-card";
+import { ModelConfigDialog } from "./model-config-dialog";
+import { OpenRouterModelCard } from "./openrouter-model-card";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Dropdown } from "../ui/dropdown";
+import { ModelGridSkeleton } from "../ui/skeleton";
+import type {
+  Model,
+  CustomModel,
+  OpenRouterModel,
+  AIProvider,
+} from "../../lib/stores/types";
+import {
+  useOptimizedModelGrid,
+  useModelGridActions,
+  useModelSelection,
+} from "../../lib/stores/hooks";
+import { useModelStore } from "../../lib/stores/model-store";
+import { PerformanceMonitor } from "../dev/performance-monitor";
 
 interface ModelGridProps {
   className?: string;
 }
 
-type ViewMode = 'grid' | 'list';
-type SortOption = 'name' | 'provider' | 'context' | 'newest';
+type ViewMode = "grid" | "list";
+type SortOption = "name" | "provider" | "context" | "newest";
 
 const providerLabels: Record<AIProvider, string> = {
-  openai: 'OpenAI',
-  anthropic: 'Anthropic',
-  gemini: 'Google Gemini',
-  xai: 'xAI',
-  deepseek: 'DeepSeek',
-  openrouter: 'OpenRouter',
-  custom: 'Custom Models',
-  tavily: 'Tavily Search',
+  openai: "OpenAI",
+  anthropic: "Anthropic",
+  gemini: "Google Gemini",
+  xai: "xAI",
+  deepseek: "DeepSeek",
+  openrouter: "OpenRouter",
+  custom: "Custom Models",
+  tavily: "Tavily Search",
 };
 
 const sortOptions = [
-  { value: 'name', label: 'Name' },
-  { value: 'provider', label: 'Provider' },
-  { value: 'context', label: 'Context Window' },
-  { value: 'newest', label: 'Newest First' },
+  { value: "name", label: "Name" },
+  { value: "provider", label: "Provider" },
+  { value: "context", label: "Context Window" },
+  { value: "newest", label: "Newest First" },
 ];
 
 export function ModelGrid({ className }: ModelGridProps) {
   // Use optimized hooks for better performance
-  const {
-    models,
-    customModels,
-    activeTab,
-    searchQuery,
-    selectedProvider,
-  } = useOptimizedModelGrid();
+  const { models, customModels, activeTab, searchQuery, selectedProvider } =
+    useOptimizedModelGrid();
 
   const { selectedModel } = useModelSelection();
-  
+
   const {
     setSearchQuery,
     setSelectedProvider,
@@ -65,8 +65,8 @@ export function ModelGrid({ className }: ModelGridProps) {
   } = useModelGridActions();
 
   // Model configuration management
-  const { 
-    updateModelConfig, 
+  const {
+    updateModelConfig,
     deleteCustomModel,
     // OpenRouter-specific functions
     openRouterModels,
@@ -74,8 +74,8 @@ export function ModelGrid({ className }: ModelGridProps) {
     refreshOpenRouterModels,
     getFilteredOpenRouterModels,
     loading,
-    testResults
-  } = useModelStore(state => ({
+    testResults,
+  } = useModelStore((state) => ({
     updateModelConfig: state.updateModelConfig,
     deleteCustomModel: state.deleteCustomModel,
     openRouterModels: state.openRouterModels,
@@ -86,46 +86,55 @@ export function ModelGrid({ className }: ModelGridProps) {
     testResults: state.testResults,
   }));
 
-  const [viewMode, setViewMode] = useState<ViewMode>('grid');
-  const [sortBy, setSortBy] = useState<SortOption>('provider');
-  const [configDialogModel, setConfigDialogModel] = useState<Model | CustomModel | OpenRouterModel | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>("grid");
+  const [sortBy, setSortBy] = useState<SortOption>("provider");
+  const [configDialogModel, setConfigDialogModel] = useState<
+    Model | CustomModel | OpenRouterModel | null
+  >(null);
   const [editingModel, setEditingModel] = useState<CustomModel | null>(null);
 
   // Memoize filtered models computation
   const allModels = useMemo(() => {
     const result: Array<Model | CustomModel | OpenRouterModel> = [];
-    
-    if (activeTab === 'builtin') {
+
+    if (activeTab === "builtin") {
       const filteredModels = getFilteredModels();
       Object.values(filteredModels).forEach((models) => {
         result.push(...models);
       });
-    } else if (activeTab === 'custom') {
+    } else if (activeTab === "custom") {
       const searchLower = searchQuery.toLowerCase();
-      const filtered = customModels.filter(model =>
-        model.name.toLowerCase().includes(searchLower) ||
-        model.id.toLowerCase().includes(searchLower)
+      const filtered = customModels.filter(
+        (model) =>
+          model.name.toLowerCase().includes(searchLower) ||
+          model.id.toLowerCase().includes(searchLower),
       );
       result.push(...filtered);
-    } else if (activeTab === 'openrouter') {
+    } else if (activeTab === "openrouter") {
       const filteredOpenRouterModels = getFilteredOpenRouterModels();
       result.push(...filteredOpenRouterModels);
     }
-    
+
     return result;
-  }, [activeTab, getFilteredModels, customModels, searchQuery, getFilteredOpenRouterModels]);
+  }, [
+    activeTab,
+    getFilteredModels,
+    customModels,
+    searchQuery,
+    getFilteredOpenRouterModels,
+  ]);
 
   // Memoize sorted models
   const sortedModels = useMemo(() => {
     return [...allModels].sort((a, b) => {
       switch (sortBy) {
-        case 'name':
+        case "name":
           return a.name.localeCompare(b.name);
-        case 'provider':
+        case "provider":
           return a.provider.localeCompare(b.provider);
-        case 'context':
+        case "context":
           return b.contextWindow - a.contextWindow;
-        case 'newest':
+        case "newest":
           return (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0);
         default:
           return 0;
@@ -135,21 +144,24 @@ export function ModelGrid({ className }: ModelGridProps) {
 
   // Memoize grouped models by provider
   const modelsByProvider = useMemo(() => {
-    return sortedModels.reduce((acc, model) => {
-      if (!acc[model.provider]) {
-        acc[model.provider] = [];
-      }
-      acc[model.provider].push(model);
-      return acc;
-    }, {} as Record<AIProvider, Array<Model | CustomModel>>);
+    return sortedModels.reduce(
+      (acc, model) => {
+        if (!acc[model.provider]) {
+          acc[model.provider] = [];
+        }
+        acc[model.provider].push(model);
+        return acc;
+      },
+      {} as Record<AIProvider, Array<Model | CustomModel>>,
+    );
   }, [sortedModels]);
 
   // Memoize provider options
   const providerOptions = useMemo(() => {
     const availableProviders = getAvailableProviders();
     return [
-      { value: 'all', label: 'All Providers' },
-      ...availableProviders.map(provider => ({
+      { value: "all", label: "All Providers" },
+      ...availableProviders.map((provider) => ({
         value: provider,
         label: providerLabels[provider] || provider,
       })),
@@ -157,23 +169,36 @@ export function ModelGrid({ className }: ModelGridProps) {
   }, [getAvailableProviders]);
 
   // Memoize event handlers to prevent child re-renders
-  const handleModelSelect = useCallback((provider: AIProvider, modelId: string) => {
-    setSelectedModel(provider, modelId);
-  }, [setSelectedModel]);
+  const handleModelSelect = useCallback(
+    (provider: AIProvider, modelId: string) => {
+      setSelectedModel(provider, modelId);
+    },
+    [setSelectedModel],
+  );
 
-  const handleModelConfigure = useCallback((model: Model | CustomModel | OpenRouterModel) => {
-    setConfigDialogModel(model);
-  }, []);
+  const handleModelConfigure = useCallback(
+    (model: Model | CustomModel | OpenRouterModel) => {
+      setConfigDialogModel(model);
+    },
+    [],
+  );
 
   const handleCloseConfigDialog = useCallback(() => {
     setConfigDialogModel(null);
   }, []);
 
-  const handleDeleteCustomModel = useCallback((model: CustomModel) => {
-    if (confirm(`Are you sure you want to delete "${model.name}"? This action cannot be undone.`)) {
-      deleteCustomModel(model.id);
-    }
-  }, [deleteCustomModel]);
+  const handleDeleteCustomModel = useCallback(
+    (model: CustomModel) => {
+      if (
+        confirm(
+          `Are you sure you want to delete "${model.name}"? This action cannot be undone.`,
+        )
+      ) {
+        deleteCustomModel(model.id);
+      }
+    },
+    [deleteCustomModel],
+  );
 
   const handleEditCustomModel = useCallback((model: CustomModel) => {
     setEditingModel(model);
@@ -181,25 +206,40 @@ export function ModelGrid({ className }: ModelGridProps) {
     setConfigDialogModel(model);
   }, []);
 
-  const handleConfigSave = useCallback((modelId: string, config: any) => {
-    if (!configDialogModel) return;
-    updateModelConfig(configDialogModel.provider, modelId, config);
-  }, [configDialogModel, updateModelConfig]);
+  const handleConfigSave = useCallback(
+    (modelId: string, config: any) => {
+      if (!configDialogModel) return;
+      updateModelConfig(configDialogModel.provider, modelId, config);
+    },
+    [configDialogModel, updateModelConfig],
+  );
 
   // Memoize selection check to prevent recalculation on every render
-  const isModelSelected = useCallback((provider: AIProvider, modelId: string) => {
-    return selectedModel?.provider === provider && selectedModel?.modelId === modelId;
-  }, [selectedModel]);
+  const isModelSelected = useCallback(
+    (provider: AIProvider, modelId: string) => {
+      return (
+        selectedModel?.provider === provider &&
+        selectedModel?.modelId === modelId
+      );
+    },
+    [selectedModel],
+  );
 
   // Memoize search input handler
-  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-  }, [setSearchQuery]);
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchQuery(e.target.value);
+    },
+    [setSearchQuery],
+  );
 
   // Memoize provider filter change
-  const handleProviderChange = useCallback((value: string) => {
-    setSelectedProvider(value as AIProvider | 'all');
-  }, [setSelectedProvider]);
+  const handleProviderChange = useCallback(
+    (value: string) => {
+      setSelectedProvider(value as AIProvider | "all");
+    },
+    [setSelectedProvider],
+  );
 
   // Memoize sort change
   const handleSortChange = useCallback((value: string) => {
@@ -207,37 +247,46 @@ export function ModelGrid({ className }: ModelGridProps) {
   }, []);
 
   // Memoize view mode toggles
-  const handleGridView = useCallback(() => setViewMode('grid'), []);
-  const handleListView = useCallback(() => setViewMode('list'), []);
+  const handleGridView = useCallback(() => setViewMode("grid"), []);
+  const handleListView = useCallback(() => setViewMode("list"), []);
 
   // Effect to fetch OpenRouter models when activeTab changes to 'openrouter'
   React.useEffect(() => {
-    if (activeTab === 'openrouter' && openRouterModels.length === 0 && !loading.fetchOpenRouterModels) {
-      fetchOpenRouterModels().catch(error => {
-        console.error('Failed to fetch OpenRouter models:', error);
+    if (
+      activeTab === "openrouter" &&
+      openRouterModels.length === 0 &&
+      !loading.fetchOpenRouterModels
+    ) {
+      fetchOpenRouterModels().catch((error) => {
+        console.error("Failed to fetch OpenRouter models:", error);
         // Error is already handled in the store
       });
     }
-  }, [activeTab, openRouterModels.length, loading.fetchOpenRouterModels, fetchOpenRouterModels]);
+  }, [
+    activeTab,
+    openRouterModels.length,
+    loading.fetchOpenRouterModels,
+    fetchOpenRouterModels,
+  ]);
 
   // Memoize OpenRouter refresh handler
   const handleRefreshOpenRouter = useCallback(async () => {
     try {
       await refreshOpenRouterModels();
     } catch (error) {
-      console.error('Failed to refresh OpenRouter models:', error);
+      console.error("Failed to refresh OpenRouter models:", error);
       // Error is already handled in the store and will show in UI
     }
   }, [refreshOpenRouterModels]);
 
   // OpenRouter tab rendering
-  if (activeTab === 'openrouter') {
-    const openRouterError = testResults['openrouter:error'];
-    
+  if (activeTab === "openrouter") {
+    const openRouterError = testResults["openrouter:error"];
+
     // Professional loading state with skeleton
     if (loading.fetchOpenRouterModels) {
       return (
-        <div className={clsx('space-y-6', className)}>
+        <div className={clsx("space-y-6", className)}>
           {/* Grid skeleton with staggered animation */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {Array.from({ length: 12 }).map((_, i) => (
@@ -268,7 +317,7 @@ export function ModelGrid({ className }: ModelGridProps) {
               </div>
             ))}
           </div>
-          
+
           {/* Professional loading toast */}
           <div className="fixed top-4 right-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-4 max-w-sm z-50">
             <div className="flex items-center space-x-3">
@@ -290,7 +339,7 @@ export function ModelGrid({ className }: ModelGridProps) {
     // Error state - show specific error message
     if (openRouterError && openRouterError.error) {
       return (
-        <div className={clsx('space-y-6', className)}>
+        <div className={clsx("space-y-6", className)}>
           <div className="flex flex-col items-center justify-center py-16">
             <div className="w-16 h-16 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center mx-auto mb-4">
               <ExternalLink className="w-8 h-8 text-red-600 dark:text-red-400" />
@@ -302,33 +351,33 @@ export function ModelGrid({ className }: ModelGridProps) {
               {openRouterError.error}
             </p>
             <div className="flex gap-3">
-              {openRouterError.error.includes('API key') && (
+              {openRouterError.error.includes("API key") && (
                 <>
-                  <Button 
+                  <Button
                     variant="primary"
                     onClick={() => {
-                      window.open('https://openrouter.ai/keys', '_blank');
+                      window.open("https://openrouter.ai/keys", "_blank");
                     }}
                   >
                     Get API Key
                   </Button>
-                  <Button 
+                  <Button
                     variant="outline"
                     onClick={() => {
                       // TODO: Open Settings modal to API Keys tab
-                      console.log('Open Settings modal to API Keys tab');
+                      console.log("Open Settings modal to API Keys tab");
                     }}
                   >
                     Add in Settings
                   </Button>
                 </>
               )}
-              <Button 
+              <Button
                 variant="outline"
                 onClick={handleRefreshOpenRouter}
                 disabled={loading.fetchOpenRouterModels}
               >
-                {loading.fetchOpenRouterModels ? 'Retrying...' : 'Retry'}
+                {loading.fetchOpenRouterModels ? "Retrying..." : "Retry"}
               </Button>
             </div>
           </div>
@@ -337,9 +386,13 @@ export function ModelGrid({ className }: ModelGridProps) {
     }
 
     // No models loaded but no specific error - assume API key missing
-    if (openRouterModels.length === 0 && !loading.fetchOpenRouterModels && !openRouterError) {
+    if (
+      openRouterModels.length === 0 &&
+      !loading.fetchOpenRouterModels &&
+      !openRouterError
+    ) {
       return (
-        <div className={clsx('space-y-6', className)}>
+        <div className={clsx("space-y-6", className)}>
           <div className="flex flex-col items-center justify-center py-16">
             <div className="w-16 h-16 bg-orange-100 dark:bg-orange-900 rounded-full flex items-center justify-center mx-auto mb-4">
               <ExternalLink className="w-8 h-8 text-orange-600 dark:text-orange-400" />
@@ -348,32 +401,33 @@ export function ModelGrid({ className }: ModelGridProps) {
               Connect OpenRouter
             </h3>
             <p className="text-gray-600 dark:text-gray-400 mb-6 text-center max-w-md">
-              Add your OpenRouter API key in Settings to access hundreds of AI models from various providers with competitive pricing.
+              Add your OpenRouter API key in Settings to access hundreds of AI
+              models from various providers with competitive pricing.
             </p>
             <div className="flex gap-3">
-              <Button 
+              <Button
                 variant="primary"
                 onClick={() => {
-                  window.open('https://openrouter.ai/keys', '_blank');
+                  window.open("https://openrouter.ai/keys", "_blank");
                 }}
               >
                 Get API Key
               </Button>
-              <Button 
+              <Button
                 variant="outline"
                 onClick={() => {
                   // TODO: Open Settings modal to API Keys tab
-                  console.log('Open Settings modal to API Keys tab');
+                  console.log("Open Settings modal to API Keys tab");
                 }}
               >
                 Add in Settings
               </Button>
-              <Button 
+              <Button
                 variant="outline"
                 onClick={handleRefreshOpenRouter}
                 disabled={loading.fetchOpenRouterModels}
               >
-                {loading.fetchOpenRouterModels ? 'Retrying...' : 'Retry'}
+                {loading.fetchOpenRouterModels ? "Retrying..." : "Retry"}
               </Button>
             </div>
           </div>
@@ -383,17 +437,17 @@ export function ModelGrid({ className }: ModelGridProps) {
 
     // Models loaded - render the OpenRouter grid
     return (
-      <div className={clsx('space-y-6', className)}>
-        <PerformanceMonitor 
-          componentName="OpenRouterModelGrid" 
-          showDetails={process.env.NODE_ENV === 'development'}
+      <div className={clsx("space-y-6", className)}>
+        <PerformanceMonitor
+          componentName="OpenRouterModelGrid"
+          showDetails={process.env.NODE_ENV === "development"}
         />
-        
+
         {/* Header with refresh */}
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-              OpenRouter Models 
+              OpenRouter Models
               <span className="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">
                 ({sortedModels.length} models)
               </span>
@@ -402,8 +456,8 @@ export function ModelGrid({ className }: ModelGridProps) {
               Access hundreds of AI models with transparent pricing
             </p>
           </div>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             size="sm"
             onClick={handleRefreshOpenRouter}
             disabled={loading.fetchOpenRouterModels}
@@ -424,7 +478,7 @@ export function ModelGrid({ className }: ModelGridProps) {
               className="pl-10"
             />
           </div>
-          
+
           <div className="flex items-center gap-2">
             <Dropdown
               options={providerOptions}
@@ -432,17 +486,17 @@ export function ModelGrid({ className }: ModelGridProps) {
               onChange={handleProviderChange}
               triggerClassName="min-w-0"
             />
-            
+
             <Dropdown
               options={sortOptions}
               value={sortBy}
               onChange={handleSortChange}
               triggerClassName="min-w-0"
             />
-            
+
             <div className="flex border border-gray-200 dark:border-gray-700 rounded-lg">
               <Button
-                variant={viewMode === 'grid' ? 'primary' : 'ghost'}
+                variant={viewMode === "grid" ? "primary" : "ghost"}
                 size="iconSm"
                 onClick={handleGridView}
                 className="rounded-r-none"
@@ -450,7 +504,7 @@ export function ModelGrid({ className }: ModelGridProps) {
                 <Grid3X3 className="h-4 w-4" />
               </Button>
               <Button
-                variant={viewMode === 'list' ? 'primary' : 'ghost'}
+                variant={viewMode === "list" ? "primary" : "ghost"}
                 size="iconSm"
                 onClick={handleListView}
                 className="rounded-l-none border-l"
@@ -471,19 +525,18 @@ export function ModelGrid({ className }: ModelGridProps) {
               No models found
             </h3>
             <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
-              {searchQuery 
+              {searchQuery
                 ? `No models match "${searchQuery}". Try adjusting your search or filters.`
-                : 'No models available.'
-              }
+                : "No models available."}
             </p>
           </div>
-        ) : viewMode === 'grid' ? (
+        ) : viewMode === "grid" ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {sortedModels.map((model) => (
               <OpenRouterModelCard
                 key={model.id}
                 model={model as OpenRouterModel}
-                selected={isModelSelected('openrouter', model.id)}
+                selected={isModelSelected("openrouter", model.id)}
                 onSelect={handleModelSelect}
                 onConfigure={handleModelConfigure}
                 showAvailability={true}
@@ -496,7 +549,7 @@ export function ModelGrid({ className }: ModelGridProps) {
               <OpenRouterModelCard
                 key={model.id}
                 model={model as OpenRouterModel}
-                selected={isModelSelected('openrouter', model.id)}
+                selected={isModelSelected("openrouter", model.id)}
                 onSelect={handleModelSelect}
                 onConfigure={handleModelConfigure}
                 showAvailability={true}
@@ -510,10 +563,10 @@ export function ModelGrid({ className }: ModelGridProps) {
   }
 
   return (
-    <div className={clsx('space-y-6', className)}>
-      <PerformanceMonitor 
-        componentName="ModelGrid" 
-        showDetails={process.env.NODE_ENV === 'development'}
+    <div className={clsx("space-y-6", className)}>
+      <PerformanceMonitor
+        componentName="ModelGrid"
+        showDetails={process.env.NODE_ENV === "development"}
       />
       {/* Search and Filter Bar */}
       <div className="flex flex-col sm:flex-row gap-4">
@@ -527,9 +580,9 @@ export function ModelGrid({ className }: ModelGridProps) {
             className="pl-10"
           />
         </div>
-        
+
         <div className="flex items-center gap-2">
-          {activeTab === 'builtin' && (
+          {activeTab === "builtin" && (
             <Dropdown
               options={providerOptions}
               value={selectedProvider}
@@ -537,17 +590,17 @@ export function ModelGrid({ className }: ModelGridProps) {
               triggerClassName="min-w-0"
             />
           )}
-          
+
           <Dropdown
             options={sortOptions}
             value={sortBy}
             onChange={handleSortChange}
             triggerClassName="min-w-0"
           />
-          
+
           <div className="flex border border-gray-200 dark:border-gray-700 rounded-lg">
             <Button
-              variant={viewMode === 'grid' ? 'primary' : 'ghost'}
+              variant={viewMode === "grid" ? "primary" : "ghost"}
               size="iconSm"
               onClick={handleGridView}
               className="rounded-r-none"
@@ -555,7 +608,7 @@ export function ModelGrid({ className }: ModelGridProps) {
               <Grid3X3 className="h-4 w-4" />
             </Button>
             <Button
-              variant={viewMode === 'list' ? 'primary' : 'ghost'}
+              variant={viewMode === "list" ? "primary" : "ghost"}
               size="iconSm"
               onClick={handleListView}
               className="rounded-l-none border-l"
@@ -568,7 +621,7 @@ export function ModelGrid({ className }: ModelGridProps) {
 
       {/* Models Display */}
       {sortedModels.length === 0 ? (
-        activeTab === 'custom' && !searchQuery ? (
+        activeTab === "custom" && !searchQuery ? (
           // Custom Models Empty State
           <div className="text-center py-20">
             <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -578,12 +631,15 @@ export function ModelGrid({ className }: ModelGridProps) {
               No Custom Models Yet
             </h3>
             <p className="text-gray-600 dark:text-gray-400 max-w-lg mx-auto mb-8 leading-relaxed">
-              Add custom models to use local LLMs or other AI providers with MindDeck.
+              Add custom models to use local LLMs or other AI providers with
+              MindDeck.
             </p>
             <button
               onClick={() => {
                 // Trigger the Add Custom Model dialog
-                const addButton = document.querySelector('[data-add-custom-model]') as HTMLButtonElement;
+                const addButton = document.querySelector(
+                  "[data-add-custom-model]",
+                ) as HTMLButtonElement;
                 if (addButton) addButton.click();
               }}
               className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
@@ -602,47 +658,56 @@ export function ModelGrid({ className }: ModelGridProps) {
               No models found
             </h3>
             <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
-              {searchQuery 
+              {searchQuery
                 ? `No models match "${searchQuery}". Try adjusting your search or filters.`
-                : 'No models available.'
-              }
+                : "No models available."}
             </p>
           </div>
         )
-      ) : viewMode === 'grid' ? (
-        activeTab === 'builtin' ? (
+      ) : viewMode === "grid" ? (
+        activeTab === "builtin" ? (
           // Group by provider for built-in models
           <div className="space-y-8">
-            {Object.entries(modelsByProvider).map(([provider, providerModels]) => {
-              if (providerModels.length === 0) return null;
-              
-              return (
-                <div key={provider}>
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                      {providerLabels[provider as AIProvider]} 
-                      <span className="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">
-                        ({providerModels.length} models)
-                      </span>
-                    </h2>
+            {Object.entries(modelsByProvider).map(
+              ([provider, providerModels]) => {
+                if (providerModels.length === 0) return null;
+
+                return (
+                  <div key={provider}>
+                    <div className="flex items-center justify-between mb-4">
+                      <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                        {providerLabels[provider as AIProvider]}
+                        <span className="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">
+                          ({providerModels.length} models)
+                        </span>
+                      </h2>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                      {providerModels.map((model) => (
+                        <ModelCard
+                          key={`${model.provider}-${model.id}`}
+                          model={model}
+                          selected={isModelSelected(model.provider, model.id)}
+                          onSelect={handleModelSelect}
+                          onConfigure={handleModelConfigure}
+                          onDelete={
+                            model.provider === "custom"
+                              ? handleDeleteCustomModel
+                              : undefined
+                          }
+                          onEdit={
+                            model.provider === "custom"
+                              ? handleEditCustomModel
+                              : undefined
+                          }
+                        />
+                      ))}
+                    </div>
                   </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    {providerModels.map((model) => (
-                      <ModelCard
-                        key={`${model.provider}-${model.id}`}
-                        model={model}
-                        selected={isModelSelected(model.provider, model.id)}
-                        onSelect={handleModelSelect}
-                        onConfigure={handleModelConfigure}
-                        onDelete={model.provider === 'custom' ? handleDeleteCustomModel : undefined}
-                        onEdit={model.provider === 'custom' ? handleEditCustomModel : undefined}
-                      />
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
+                );
+              },
+            )}
           </div>
         ) : (
           // Simple grid for custom models
@@ -654,8 +719,16 @@ export function ModelGrid({ className }: ModelGridProps) {
                 selected={isModelSelected(model.provider, model.id)}
                 onSelect={handleModelSelect}
                 onConfigure={handleModelConfigure}
-                onDelete={model.provider === 'custom' ? handleDeleteCustomModel : undefined}
-                onEdit={model.provider === 'custom' ? handleEditCustomModel : undefined}
+                onDelete={
+                  model.provider === "custom"
+                    ? handleDeleteCustomModel
+                    : undefined
+                }
+                onEdit={
+                  model.provider === "custom"
+                    ? handleEditCustomModel
+                    : undefined
+                }
               />
             ))}
           </div>
@@ -670,8 +743,14 @@ export function ModelGrid({ className }: ModelGridProps) {
               selected={isModelSelected(model.provider, model.id)}
               onSelect={handleModelSelect}
               onConfigure={handleModelConfigure}
-              onDelete={model.provider === 'custom' ? handleDeleteCustomModel : undefined}
-              onEdit={model.provider === 'custom' ? handleEditCustomModel : undefined}
+              onDelete={
+                model.provider === "custom"
+                  ? handleDeleteCustomModel
+                  : undefined
+              }
+              onEdit={
+                model.provider === "custom" ? handleEditCustomModel : undefined
+              }
             />
           ))}
         </div>

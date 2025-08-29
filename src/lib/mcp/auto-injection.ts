@@ -1,20 +1,24 @@
 /**
  * MCP Auto-Injection System
- * 
+ *
  * Automatically injects MCP server capabilities into OpenAI API calls
  * when servers are enabled and configured for auto-injection.
  */
 
-import { TavilyMCPServer, MCPToolCallParams, MCPToolResult } from './servers/tavily';
-import { ChatCompletionParams, APIMessage } from '../api/types';
-import { MCPServer } from '../stores/types';
+import {
+  TavilyMCPServer,
+  MCPToolCallParams,
+  MCPToolResult,
+} from "./servers/tavily";
+import { ChatCompletionParams, APIMessage } from "../api/types";
+import { MCPServer } from "../stores/types";
 
 // OpenAI function calling types
 export interface OpenAIFunction {
   name: string;
   description: string;
   parameters: {
-    type: 'object';
+    type: "object";
     properties: Record<string, unknown>;
     required?: string[];
   };
@@ -26,7 +30,7 @@ export interface OpenAIFunctionCall {
 }
 
 export interface OpenAIToolChoice {
-  type: 'function';
+  type: "function";
   function: OpenAIFunctionCall;
 }
 
@@ -34,7 +38,7 @@ export interface OpenAIToolChoice {
 export interface EnhancedAPIMessage extends APIMessage {
   tool_calls?: Array<{
     id: string;
-    type: 'function';
+    type: "function";
     function: OpenAIFunctionCall;
   }>;
   tool_call_id?: string;
@@ -51,18 +55,21 @@ export interface AutoInjectionContext {
 
 /**
  * MCP Auto-Injection Manager
- * 
+ *
  * Handles automatic injection of MCP tools into OpenAI API calls
  * and processes function call responses.
  */
 export class MCPAutoInjectionManager {
   private servers: Map<string, TavilyMCPServer> = new Map();
-  private functionCallHistory: Map<string, Array<{
-    function: string;
-    arguments: Record<string, unknown>;
-    result: MCPToolResult;
-    timestamp: Date;
-  }>> = new Map();
+  private functionCallHistory: Map<
+    string,
+    Array<{
+      function: string;
+      arguments: Record<string, unknown>;
+      result: MCPToolResult;
+      timestamp: Date;
+    }>
+  > = new Map();
 
   /**
    * Register an MCP server for auto-injection
@@ -98,16 +105,19 @@ export class MCPAutoInjectionManager {
   async injectTools(
     params: ChatCompletionParams,
     enabledServers: MCPServer[],
-    context: AutoInjectionContext
-  ): Promise<ChatCompletionParams & { 
-    functions?: OpenAIFunction[]; 
-    function_call?: 'auto' | 'none';
-    tools?: Array<{ type: 'function'; function: OpenAIFunction }>;
-    tool_choice?: 'auto' | 'none';
-  }> {
+    context: AutoInjectionContext,
+  ): Promise<
+    ChatCompletionParams & {
+      functions?: OpenAIFunction[];
+      function_call?: "auto" | "none";
+      tools?: Array<{ type: "function"; function: OpenAIFunction }>;
+      tool_choice?: "auto" | "none";
+    }
+  > {
     // Filter servers that are enabled and have auto-inject enabled
-    const autoInjectServers = enabledServers.filter(server => 
-      server.enabled && server.autoInject && this.servers.has(server.id)
+    const autoInjectServers = enabledServers.filter(
+      (server) =>
+        server.enabled && server.autoInject && this.servers.has(server.id),
     );
 
     if (autoInjectServers.length === 0) {
@@ -116,7 +126,7 @@ export class MCPAutoInjectionManager {
 
     // Collect all available tools from enabled servers
     const availableTools: OpenAIFunction[] = [];
-    
+
     for (const serverConfig of autoInjectServers) {
       const server = this.servers.get(serverConfig.id);
       if (server) {
@@ -130,7 +140,10 @@ export class MCPAutoInjectionManager {
             });
           }
         } catch (error) {
-          console.warn(`Failed to get tools from server ${serverConfig.id}:`, error);
+          console.warn(
+            `Failed to get tools from server ${serverConfig.id}:`,
+            error,
+          );
         }
       }
     }
@@ -142,26 +155,28 @@ export class MCPAutoInjectionManager {
     // Use tools format (newer OpenAI API)
     const enhancedParams = {
       ...params,
-      tools: availableTools.map(func => ({
-        type: 'function' as const,
+      tools: availableTools.map((func) => ({
+        type: "function" as const,
         function: func,
       })),
-      tool_choice: 'auto' as const,
+      tool_choice: "auto" as const,
     };
 
     // Add system message about available tools if not present
-    const hasSystemMessage = params.messages.some(msg => msg.role === 'system');
+    const hasSystemMessage = params.messages.some(
+      (msg) => msg.role === "system",
+    );
     if (!hasSystemMessage) {
       const toolDescriptions = availableTools
-        .map(tool => `- ${tool.name}: ${tool.description}`)
-        .join('\n');
-      
+        .map((tool) => `- ${tool.name}: ${tool.description}`)
+        .join("\n");
+
       enhancedParams.messages = [
         {
-          role: 'system',
-          content: `You have access to the following tools for web search and information retrieval:\n\n${toolDescriptions}\n\nUse these tools when you need current information, real-time data, or to search the web. Always explain what information you're looking for before using the tools.`
+          role: "system",
+          content: `You have access to the following tools for web search and information retrieval:\n\n${toolDescriptions}\n\nUse these tools when you need current information, real-time data, or to search the web. Always explain what information you're looking for before using the tools.`,
         },
-        ...params.messages
+        ...params.messages,
       ];
     }
 
@@ -174,19 +189,21 @@ export class MCPAutoInjectionManager {
   async processFunctionCalls(
     toolCalls: Array<{
       id: string;
-      type: 'function';
+      type: "function";
       function: OpenAIFunctionCall;
     }>,
-    context: AutoInjectionContext
-  ): Promise<Array<{
-    tool_call_id: string;
-    role: 'tool';
-    content: string;
-    name: string;
-  }>> {
+    context: AutoInjectionContext,
+  ): Promise<
+    Array<{
+      tool_call_id: string;
+      role: "tool";
+      content: string;
+      name: string;
+    }>
+  > {
     const results: Array<{
       tool_call_id: string;
-      role: 'tool';
+      role: "tool";
       content: string;
       name: string;
     }> = [];
@@ -201,7 +218,7 @@ export class MCPAutoInjectionManager {
         if (!server) {
           results.push({
             tool_call_id: toolCall.id,
-            role: 'tool',
+            role: "tool",
             content: `Error: No server found for function ${functionName}`,
             name: functionName,
           });
@@ -226,20 +243,22 @@ export class MCPAutoInjectionManager {
 
         // Format result for OpenAI
         const content = this.formatToolResultForOpenAI(result);
-        
+
         results.push({
           tool_call_id: toolCall.id,
-          role: 'tool',
+          role: "tool",
           content,
           name: functionName,
         });
-
       } catch (error) {
-        console.error(`Error processing function call ${toolCall.function.name}:`, error);
+        console.error(
+          `Error processing function call ${toolCall.function.name}:`,
+          error,
+        );
         results.push({
           tool_call_id: toolCall.id,
-          role: 'tool',
-          content: `Error executing function: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          role: "tool",
+          content: `Error executing function: ${error instanceof Error ? error.message : "Unknown error"}`,
           name: toolCall.function.name,
         });
       }
@@ -255,7 +274,7 @@ export class MCPAutoInjectionManager {
     for (const server of this.servers.values()) {
       try {
         const tools = server.getTools();
-        if (tools.some(tool => tool.name === functionName)) {
+        if (tools.some((tool) => tool.name === functionName)) {
           return server;
         }
       } catch (error) {
@@ -271,29 +290,29 @@ export class MCPAutoInjectionManager {
    */
   private formatToolResultForOpenAI(result: MCPToolResult): string {
     if (result.isError) {
-      return `Error: ${result.content.map(c => c.text).join('\n')}`;
+      return `Error: ${result.content.map((c) => c.text).join("\n")}`;
     }
 
     // Combine all content parts
     const textContent = result.content
-      .filter(c => c.type === 'text')
-      .map(c => c.text)
-      .join('\n\n');
+      .filter((c) => c.type === "text")
+      .map((c) => c.text)
+      .join("\n\n");
 
-    return textContent || 'Tool executed successfully but returned no content.';
+    return textContent || "Tool executed successfully but returned no content.";
   }
 
   /**
    * Store function call in history
    */
   private storeFunctionCall(
-    chatId: string, 
+    chatId: string,
     call: {
       function: string;
       arguments: Record<string, unknown>;
       result: MCPToolResult;
       timestamp: Date;
-    }
+    },
   ): void {
     if (!this.functionCallHistory.has(chatId)) {
       this.functionCallHistory.set(chatId, []);
@@ -345,16 +364,17 @@ export class MCPAutoInjectionManager {
     for (const history of this.functionCallHistory.values()) {
       for (const call of history) {
         totalFunctionCalls++;
-        
+
         // Count function usage
-        functionCounts[call.function] = (functionCounts[call.function] || 0) + 1;
-        
+        functionCounts[call.function] =
+          (functionCounts[call.function] || 0) + 1;
+
         // Count server usage (approximate based on function names)
         const serverName = this.getServerNameForFunction(call.function);
         if (serverName) {
           serverCounts[serverName] = (serverCounts[serverName] || 0) + 1;
         }
-        
+
         // Count errors
         if (call.result.isError) {
           errorCount++;
@@ -376,21 +396,26 @@ export class MCPAutoInjectionManager {
    */
   private getServerNameForFunction(functionName: string): string | null {
     // Map function names to server types
-    if (functionName.startsWith('tavily_')) {
-      return 'Tavily Search';
+    if (functionName.startsWith("tavily_")) {
+      return "Tavily Search";
     }
-    
+
     return null;
   }
 
   /**
    * Health check all registered servers
    */
-  async healthCheckAllServers(): Promise<Map<string, {
-    healthy: boolean;
-    latency: number;
-    error?: string;
-  }>> {
+  async healthCheckAllServers(): Promise<
+    Map<
+      string,
+      {
+        healthy: boolean;
+        latency: number;
+        error?: string;
+      }
+    >
+  > {
     const results = new Map();
 
     for (const [serverId, server] of this.servers.entries()) {
@@ -404,7 +429,7 @@ export class MCPAutoInjectionManager {
         results.set(serverId, {
           healthy: false,
           latency: 0,
-          error: error instanceof Error ? error.message : 'Unknown error',
+          error: error instanceof Error ? error.message : "Unknown error",
         });
       }
     }
@@ -418,12 +443,12 @@ export class MCPAutoInjectionManager {
   cleanup(): void {
     // Clear all history
     this.functionCallHistory.clear();
-    
+
     // Disconnect all servers
     for (const server of this.servers.values()) {
       server.disconnect().catch(console.error);
     }
-    
+
     this.servers.clear();
   }
 }
@@ -445,7 +470,7 @@ export function messageHasToolCalls(message: EnhancedAPIMessage): boolean {
  */
 export function extractToolCalls(message: EnhancedAPIMessage): Array<{
   id: string;
-  type: 'function';
+  type: "function";
   function: OpenAIFunctionCall;
 }> {
   return message.tool_calls || [];
@@ -454,29 +479,32 @@ export function extractToolCalls(message: EnhancedAPIMessage): Array<{
 /**
  * Create a system message explaining available tools
  */
-export function createToolSystemMessage(availableFunctions: string[]): APIMessage {
+export function createToolSystemMessage(
+  availableFunctions: string[],
+): APIMessage {
   if (availableFunctions.length === 0) {
     return {
-      role: 'system',
-      content: 'You are a helpful AI assistant.',
+      role: "system",
+      content: "You are a helpful AI assistant.",
     };
   }
 
   const toolList = availableFunctions
-    .map(name => {
+    .map((name) => {
       // Provide human-readable descriptions for common functions
       const descriptions: Record<string, string> = {
-        tavily_search: 'Search the web for current information and real-time data',
-        tavily_extract: 'Extract and summarize content from specific web pages',
-        tavily_get_usage: 'Check API usage statistics and quota',
+        tavily_search:
+          "Search the web for current information and real-time data",
+        tavily_extract: "Extract and summarize content from specific web pages",
+        tavily_get_usage: "Check API usage statistics and quota",
       };
-      
-      return `- ${name}: ${descriptions[name] || 'Execute custom function'}`;
+
+      return `- ${name}: ${descriptions[name] || "Execute custom function"}`;
     })
-    .join('\n');
+    .join("\n");
 
   return {
-    role: 'system',
+    role: "system",
     content: `You are a helpful AI assistant with access to real-time web search capabilities through the following tools:
 
 ${toolList}
@@ -487,6 +515,6 @@ When using web search:
 - Be specific with your search queries
 - Use recent date filters when looking for current information
 - Summarize and synthesize information from multiple sources
-- Cite sources when presenting facts or statistics`
+- Cite sources when presenting facts or statistics`,
   };
 }

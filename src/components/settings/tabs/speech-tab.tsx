@@ -1,29 +1,40 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { Volume2, Mic, Play, Pause, RotateCcw, AlertTriangle, CheckCircle } from 'lucide-react';
-import { cn } from '../../../lib/utils';
-import { useSettingsStore } from '../../../lib/stores/settings-store';
-import { getSpeechRecognitionService } from '../../../lib/services/speech-recognition';
+import React, { useState, useEffect } from "react";
+import {
+  Volume2,
+  Mic,
+  Play,
+  Pause,
+  RotateCcw,
+  AlertTriangle,
+  CheckCircle,
+} from "lucide-react";
+import { cn } from "../../../lib/utils";
+import { useSettingsStore } from "../../../lib/stores/settings-store";
+import { getSpeechRecognitionService } from "../../../lib/services/speech-recognition";
 
 interface VoiceOption {
   id: string;
   name: string;
   language: string;
-  gender: 'male' | 'female' | 'neutral';
+  gender: "male" | "female" | "neutral";
 }
 
 export function SpeechTab() {
-  const { settings, updateSpeechSettings, setSpeechSetting, hasApiKey } = useSettingsStore();
+  const { settings, updateSpeechSettings, setSpeechSetting, hasApiKey } =
+    useSettingsStore();
   const [voices, setVoices] = useState<VoiceOption[]>([]);
   const [isTesting, setIsTesting] = useState(false);
-  const [microphonePermission, setMicrophonePermission] = useState<'unknown' | 'granted' | 'denied'>('unknown');
+  const [microphonePermission, setMicrophonePermission] = useState<
+    "unknown" | "granted" | "denied"
+  >("unknown");
   const [speechSupported, setSpeechSupported] = useState(false);
-  
+
   // Get current speech settings with defaults
   const speechSettings = settings.speech || {
     enabled: false,
-    selectedVoice: '',
+    selectedVoice: "",
     rate: 1.0,
     pitch: 1.0,
     autoSpeak: false,
@@ -35,31 +46,33 @@ export function SpeechTab() {
   // Initialize and check capabilities
   useEffect(() => {
     // Check speech synthesis support
-    setSpeechSupported(typeof speechSynthesis !== 'undefined');
+    setSpeechSupported(typeof speechSynthesis !== "undefined");
 
     // Check microphone permission
     const checkMicrophonePermission = async () => {
       const hasPermission = await speechService.checkPermission();
-      setMicrophonePermission(hasPermission ? 'granted' : 'denied');
+      setMicrophonePermission(hasPermission ? "granted" : "denied");
     };
 
     // Load available voices
     const loadVoices = () => {
-      if (typeof speechSynthesis !== 'undefined') {
+      if (typeof speechSynthesis !== "undefined") {
         const availableVoices = speechSynthesis.getVoices();
-        const voiceOptions: VoiceOption[] = availableVoices.map(voice => ({
+        const voiceOptions: VoiceOption[] = availableVoices.map((voice) => ({
           id: voice.name,
           name: voice.name,
           language: voice.lang,
-          gender: voice.name.toLowerCase().includes('male') 
-            ? (voice.name.toLowerCase().includes('female') ? 'female' : 'male')
-            : 'neutral'
+          gender: voice.name.toLowerCase().includes("male")
+            ? voice.name.toLowerCase().includes("female")
+              ? "female"
+              : "male"
+            : "neutral",
         }));
         setVoices(voiceOptions);
-        
+
         // Set default voice if none selected and voices are available
         if (!speechSettings.selectedVoice && voiceOptions.length > 0) {
-          setSpeechSetting('selectedVoice', voiceOptions[0].id);
+          setSpeechSetting("selectedVoice", voiceOptions[0].id);
         }
       }
     };
@@ -69,12 +82,12 @@ export function SpeechTab() {
     checkMicrophonePermission();
 
     // Some browsers load voices asynchronously
-    if (typeof speechSynthesis !== 'undefined') {
+    if (typeof speechSynthesis !== "undefined") {
       speechSynthesis.onvoiceschanged = loadVoices;
     }
 
     return () => {
-      if (typeof speechSynthesis !== 'undefined') {
+      if (typeof speechSynthesis !== "undefined") {
         speechSynthesis.onvoiceschanged = null;
       }
     };
@@ -84,33 +97,35 @@ export function SpeechTab() {
     if (!speechSettings.selectedVoice || !speechSupported) return;
 
     setIsTesting(true);
-    
+
     try {
       const utterance = new SpeechSynthesisUtterance(
-        "Hello! This is a test of your selected voice settings."
+        "Hello! This is a test of your selected voice settings.",
       );
-      
-      const voice = voices.find(v => v.id === speechSettings.selectedVoice);
-      const systemVoice = speechSynthesis.getVoices().find(v => v.name === voice?.name);
-      
+
+      const voice = voices.find((v) => v.id === speechSettings.selectedVoice);
+      const systemVoice = speechSynthesis
+        .getVoices()
+        .find((v) => v.name === voice?.name);
+
       if (systemVoice) {
         utterance.voice = systemVoice;
       }
-      
+
       utterance.rate = speechSettings.rate;
       utterance.pitch = speechSettings.pitch;
-      
+
       utterance.onend = () => {
         setIsTesting(false);
       };
-      
+
       utterance.onerror = () => {
         setIsTesting(false);
       };
-      
+
       speechSynthesis.speak(utterance);
     } catch (error) {
-      console.error('Speech test error:', error);
+      console.error("Speech test error:", error);
       setIsTesting(false);
     }
   };
@@ -126,37 +141,37 @@ export function SpeechTab() {
     updateSpeechSettings({
       rate: 1.0,
       pitch: 1.0,
-      selectedVoice: voices.length > 0 ? voices[0].id : '',
+      selectedVoice: voices.length > 0 ? voices[0].id : "",
     });
   };
 
   const handleVoiceChange = (voiceId: string) => {
-    setSpeechSetting('selectedVoice', voiceId);
+    setSpeechSetting("selectedVoice", voiceId);
   };
 
   const handleRateChange = (rate: number) => {
-    setSpeechSetting('rate', rate);
+    setSpeechSetting("rate", rate);
   };
 
   const handlePitchChange = (pitch: number) => {
-    setSpeechSetting('pitch', pitch);
+    setSpeechSetting("pitch", pitch);
   };
 
   const handleToggleSpeechOutput = () => {
-    setSpeechSetting('enabled', !speechSettings.enabled);
+    setSpeechSetting("enabled", !speechSettings.enabled);
   };
 
   const handleToggleVoiceInput = () => {
-    setSpeechSetting('voiceInput', !speechSettings.voiceInput);
+    setSpeechSetting("voiceInput", !speechSettings.voiceInput);
   };
 
   const handleRequestMicrophonePermission = async () => {
     const granted = await speechService.requestPermission();
-    setMicrophonePermission(granted ? 'granted' : 'denied');
+    setMicrophonePermission(granted ? "granted" : "denied");
   };
 
   // Check if OpenAI API key is configured
-  const hasOpenAIKey = hasApiKey('openai');
+  const hasOpenAIKey = hasApiKey("openai");
 
   return (
     <div className="space-y-6">
@@ -165,7 +180,8 @@ export function SpeechTab() {
           Speech Settings
         </h2>
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          Configure text-to-speech and voice recognition settings for enhanced interaction.
+          Configure text-to-speech and voice recognition settings for enhanced
+          interaction.
         </p>
       </div>
 
@@ -194,13 +210,15 @@ export function SpeechTab() {
                 "relative inline-flex h-6 w-11 items-center rounded-full transition-colors",
                 "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
                 "disabled:opacity-50 disabled:cursor-not-allowed",
-                speechSettings.enabled ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"
+                speechSettings.enabled
+                  ? "bg-blue-600"
+                  : "bg-gray-300 dark:bg-gray-600",
               )}
             >
               <span
                 className={cn(
                   "inline-block h-4 w-4 transform rounded-full bg-white transition-transform",
-                  speechSettings.enabled ? "translate-x-6" : "translate-x-1"
+                  speechSettings.enabled ? "translate-x-6" : "translate-x-1",
                 )}
               />
             </button>
@@ -222,7 +240,7 @@ export function SpeechTab() {
                 "text-gray-900 dark:text-white",
                 "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
                 "disabled:opacity-50 disabled:cursor-not-allowed",
-                "transition-colors"
+                "transition-colors",
               )}
             >
               {voices.map((voice) => (
@@ -256,7 +274,7 @@ export function SpeechTab() {
                 "disabled:opacity-50 disabled:cursor-not-allowed",
                 "[&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4",
                 "[&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-600",
-                "[&::-webkit-slider-thumb]:cursor-pointer"
+                "[&::-webkit-slider-thumb]:cursor-pointer",
               )}
             />
           </div>
@@ -284,7 +302,7 @@ export function SpeechTab() {
                 "disabled:opacity-50 disabled:cursor-not-allowed",
                 "[&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4",
                 "[&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-600",
-                "[&::-webkit-slider-thumb]:cursor-pointer"
+                "[&::-webkit-slider-thumb]:cursor-pointer",
               )}
             />
           </div>
@@ -293,12 +311,16 @@ export function SpeechTab() {
           <div className="flex gap-2">
             <button
               onClick={isTesting ? handleStopSpeech : handleTestVoice}
-              disabled={!speechSettings.selectedVoice || !speechSettings.enabled || !speechSupported}
+              disabled={
+                !speechSettings.selectedVoice ||
+                !speechSettings.enabled ||
+                !speechSupported
+              }
               className={cn(
                 "px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700",
                 "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
                 "disabled:opacity-50 disabled:cursor-not-allowed",
-                "transition-colors flex items-center gap-2"
+                "transition-colors flex items-center gap-2",
               )}
             >
               {isTesting ? (
@@ -322,7 +344,7 @@ export function SpeechTab() {
                 "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700",
                 "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
                 "disabled:opacity-50 disabled:cursor-not-allowed",
-                "transition-colors flex items-center gap-2"
+                "transition-colors flex items-center gap-2",
               )}
             >
               <RotateCcw className="h-4 w-4" />
@@ -357,13 +379,15 @@ export function SpeechTab() {
                 "relative inline-flex h-6 w-11 items-center rounded-full transition-colors",
                 "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
                 "disabled:opacity-50 disabled:cursor-not-allowed",
-                speechSettings.voiceInput ? "bg-blue-600" : "bg-gray-300 dark:bg-gray-600"
+                speechSettings.voiceInput
+                  ? "bg-blue-600"
+                  : "bg-gray-300 dark:bg-gray-600",
               )}
             >
               <span
                 className={cn(
                   "inline-block h-4 w-4 transform rounded-full bg-white transition-transform",
-                  speechSettings.voiceInput ? "translate-x-6" : "translate-x-1"
+                  speechSettings.voiceInput ? "translate-x-6" : "translate-x-1",
                 )}
               />
             </button>
@@ -385,17 +409,29 @@ export function SpeechTab() {
                       ) : (
                         <AlertTriangle className="h-4 w-4 text-orange-600 dark:text-orange-400" />
                       )}
-                      <span className={hasOpenAIKey ? "text-green-700 dark:text-green-300" : ""}>
+                      <span
+                        className={
+                          hasOpenAIKey
+                            ? "text-green-700 dark:text-green-300"
+                            : ""
+                        }
+                      >
                         OpenAI API key is required
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
-                      {microphonePermission === 'granted' ? (
+                      {microphonePermission === "granted" ? (
                         <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
                       ) : (
                         <AlertTriangle className="h-4 w-4 text-orange-600 dark:text-orange-400" />
                       )}
-                      <span className={microphonePermission === 'granted' ? "text-green-700 dark:text-green-300" : ""}>
+                      <span
+                        className={
+                          microphonePermission === "granted"
+                            ? "text-green-700 dark:text-green-300"
+                            : ""
+                        }
+                      >
                         Microphone access permission will be requested
                       </span>
                     </div>
@@ -404,8 +440,8 @@ export function SpeechTab() {
                       <span>Audio is sent directly to OpenAI</span>
                     </div>
                   </div>
-                  
-                  {microphonePermission === 'denied' && (
+
+                  {microphonePermission === "denied" && (
                     <button
                       onClick={handleRequestMicrophonePermission}
                       className="text-sm px-3 py-1.5 bg-orange-600 text-white rounded hover:bg-orange-700 transition-colors"
@@ -429,7 +465,9 @@ export function SpeechTab() {
                   <span className="flex-shrink-0 w-5 h-5 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs font-medium text-gray-600 dark:text-gray-300">
                     1
                   </span>
-                  <span>Click the microphone button in the chat input area</span>
+                  <span>
+                    Click the microphone button in the chat input area
+                  </span>
                 </div>
                 <div className="flex items-start gap-2">
                   <span className="flex-shrink-0 w-5 h-5 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center text-xs font-medium text-gray-600 dark:text-gray-300">
@@ -466,7 +504,7 @@ export function SpeechTab() {
             className={cn(
               "px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700",
               "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
-              "transition-colors flex items-center gap-2"
+              "transition-colors flex items-center gap-2",
             )}
           >
             <CheckCircle className="h-4 w-4" />
@@ -481,8 +519,9 @@ export function SpeechTab() {
           Browser Compatibility
         </h4>
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          Speech features require modern browser support. Voice input uses OpenAI Whisper API for transcription. 
-          Text-to-speech uses your browser&apos;s built-in Web Speech API.
+          Speech features require modern browser support. Voice input uses
+          OpenAI Whisper API for transcription. Text-to-speech uses your
+          browser&apos;s built-in Web Speech API.
         </p>
       </div>
     </div>

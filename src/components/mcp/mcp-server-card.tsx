@@ -2,15 +2,15 @@
  * MCP Server Card Component
  * Displays individual MCP server information with controls
  */
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { 
-  Server, 
-  Settings, 
+import React, { useState } from "react";
+import {
+  Server,
+  Settings,
   Power,
   PowerOff,
-  Trash2, 
+  Trash2,
   Copy,
   ExternalLink,
   CheckCircle,
@@ -19,19 +19,19 @@ import {
   Loader2,
   Eye,
   EyeOff,
-  Key
-} from 'lucide-react';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Tooltip } from '../ui/tooltip';
-import { Badge } from '../ui/badge';
-import { MCPServer, MCPCapability } from '../../lib/stores/types/index';
-import { useMCPStore } from '../../lib/stores/mcp-store';
-import { useSettingsStore } from '../../lib/stores/settings-store';
+  Key,
+} from "lucide-react";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Tooltip } from "../ui/tooltip";
+import { Badge } from "../ui/badge";
+import { MCPServer, MCPCapability } from "../../lib/stores/types/index";
+import { useMCPStore } from "../../lib/stores/mcp-store";
+import { useSettingsStore } from "../../lib/stores/settings-store";
 
 interface MCPServerCardProps {
   server: MCPServer;
-  connectionStatus: 'connecting' | 'connected' | 'disconnected' | 'error';
+  connectionStatus: "connecting" | "connected" | "disconnected" | "error";
   onEdit?: (server: MCPServer) => void;
   onDuplicate?: (server: MCPServer) => void;
   onDelete?: (server: MCPServer) => void;
@@ -46,7 +46,7 @@ export function MCPServerCard({
   onDuplicate,
   onDelete,
   isBuiltin = false,
-  className = ''
+  className = "",
 }: MCPServerCardProps) {
   const [showApiKey, setShowApiKey] = useState(false);
   const [isConfiguring, setIsConfiguring] = useState(false);
@@ -57,19 +57,24 @@ export function MCPServerCard({
     disconnectServer,
     testConnection,
     updateServerConfig,
-    loading
+    loading,
   } = useMCPStore();
 
-  const { getApiKey, setApiKey: setSettingsApiKey, hasApiKey } = useSettingsStore();
-  
+  const {
+    getApiKey,
+    setApiKey: setSettingsApiKey,
+    hasApiKey,
+  } = useSettingsStore();
+
   // Get API key from settings store for Tavily
-  const currentApiKey = server.name === 'Tavily Search' ? getApiKey('tavily') || '' : '';
+  const currentApiKey =
+    server.name === "Tavily Search" ? getApiKey("tavily") || "" : "";
   const [apiKey, setApiKey] = useState(currentApiKey);
 
   const isLoading = loading.testConnection;
-  const isConnecting = connectionStatus === 'connecting';
-  const isConnected = connectionStatus === 'connected';
-  const hasError = connectionStatus === 'error';
+  const isConnecting = connectionStatus === "connecting";
+  const isConnected = connectionStatus === "connected";
+  const hasError = connectionStatus === "error";
 
   const handleToggleEnabled = async () => {
     toggleServerEnabled(server.id, !server.enabled);
@@ -78,17 +83,19 @@ export function MCPServerCard({
   const handleTestConnection = async () => {
     try {
       const success = await testConnection(server.id);
-      console.log(`Connection test ${success ? 'succeeded' : 'failed'} for server ${server.name}`);
+      console.log(
+        `Connection test ${success ? "succeeded" : "failed"} for server ${server.name}`,
+      );
     } catch (error) {
-      console.error('Connection test failed:', error);
+      console.error("Connection test failed:", error);
     }
   };
 
   const handleSaveApiKey = async () => {
     if (apiKey.trim()) {
       // Save to settings store for Tavily servers
-      if (server.name === 'Tavily Search') {
-        setSettingsApiKey('tavily', apiKey.trim());
+      if (server.name === "Tavily Search") {
+        setSettingsApiKey("tavily", apiKey.trim());
         // Trigger server instance update to use new API key
         await updateServerConfig(server.id, {});
       } else {
@@ -102,44 +109,46 @@ export function MCPServerCard({
     if (isConnecting || isLoading) {
       return <Loader2 className="h-4 w-4 animate-spin text-blue-500" />;
     }
-    
+
     if (isConnected) {
       return <CheckCircle className="h-4 w-4 text-green-500" />;
     }
-    
+
     if (hasError) {
       return <XCircle className="h-4 w-4 text-red-500" />;
     }
-    
+
     return <AlertCircle className="h-4 w-4 text-gray-400" />;
   };
 
   const getStatusText = () => {
-    if (isConnecting) return 'Connecting...';
-    if (isConnected) return 'Connected';
-    if (hasError) return 'Error';
-    return 'Disconnected';
+    if (isConnecting) return "Connecting...";
+    if (isConnected) return "Connected";
+    if (hasError) return "Error";
+    return "Disconnected";
   };
 
   const getStatusColor = () => {
-    if (isConnecting) return 'text-blue-600 dark:text-blue-400';
-    if (isConnected) return 'text-green-600 dark:text-green-400';
-    if (hasError) return 'text-red-600 dark:text-red-400';
-    return 'text-gray-500 dark:text-gray-400';
+    if (isConnecting) return "text-blue-600 dark:text-blue-400";
+    if (isConnected) return "text-green-600 dark:text-green-400";
+    if (hasError) return "text-red-600 dark:text-red-400";
+    return "text-gray-500 dark:text-gray-400";
   };
 
   const capabilityLabels: Record<MCPCapability, string> = {
-    tools: 'Tools',
-    resources: 'Resources',
-    prompts: 'Prompts',
-    logging: 'Logging'
+    tools: "Tools",
+    resources: "Resources",
+    prompts: "Prompts",
+    logging: "Logging",
   };
 
   return (
-    <div className={`
+    <div
+      className={`
       bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 
       hover:shadow-lg transition-all duration-200 ${className}
-    `}>
+    `}
+    >
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1 min-w-0">
@@ -154,11 +163,11 @@ export function MCPServerCard({
               </Badge>
             )}
           </div>
-          
+
           <p className="text-xs text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">
             {server.description}
           </p>
-          
+
           <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
             <ExternalLink className="h-3 w-3" />
             <span className="truncate">{server.url}</span>
@@ -166,20 +175,25 @@ export function MCPServerCard({
         </div>
 
         {/* Enable/Disable Toggle */}
-        <Tooltip content={server.enabled ? 'Disable server' : 'Enable server'}>
+        <Tooltip content={server.enabled ? "Disable server" : "Enable server"}>
           <Button
             variant="ghost"
             size="iconSm"
             onClick={handleToggleEnabled}
             className={`
               flex-shrink-0 ml-2
-              ${server.enabled 
-                ? 'text-green-600 hover:text-green-700 dark:text-green-400' 
-                : 'text-gray-400 hover:text-gray-500'
+              ${
+                server.enabled
+                  ? "text-green-600 hover:text-green-700 dark:text-green-400"
+                  : "text-gray-400 hover:text-gray-500"
               }
             `}
           >
-            {server.enabled ? <Power className="h-4 w-4" /> : <PowerOff className="h-4 w-4" />}
+            {server.enabled ? (
+              <Power className="h-4 w-4" />
+            ) : (
+              <PowerOff className="h-4 w-4" />
+            )}
           </Button>
         </Tooltip>
       </div>
@@ -196,10 +210,7 @@ export function MCPServerCard({
         <div className="flex items-center gap-1">
           {server.capabilities.map((capability) => (
             <Tooltip key={capability} content={capabilityLabels[capability]}>
-              <Badge 
-                variant="outline" 
-                className="text-xs px-1.5 py-0.5"
-              >
+              <Badge variant="outline" className="text-xs px-1.5 py-0.5">
                 {capability}
               </Badge>
             </Tooltip>
@@ -208,13 +219,13 @@ export function MCPServerCard({
       </div>
 
       {/* API Key Configuration (for servers that need it) */}
-      {server.name === 'Tavily Search' && (
+      {server.name === "Tavily Search" && (
         <div className="mb-3">
           {isConfiguring ? (
             <div className="flex items-center gap-2">
               <div className="relative flex-1">
                 <Input
-                  type={showApiKey ? 'text' : 'password'}
+                  type={showApiKey ? "text" : "password"}
                   value={apiKey}
                   onChange={(e) => setApiKey(e.target.value)}
                   placeholder="Enter Tavily API key..."
@@ -226,20 +237,24 @@ export function MCPServerCard({
                   onClick={() => setShowApiKey(!showApiKey)}
                   className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6"
                 >
-                  {showApiKey ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                  {showApiKey ? (
+                    <EyeOff className="h-3 w-3" />
+                  ) : (
+                    <Eye className="h-3 w-3" />
+                  )}
                 </Button>
               </div>
-              <Button 
-                size="sm" 
+              <Button
+                size="sm"
                 onClick={handleSaveApiKey}
                 disabled={!apiKey.trim()}
                 className="text-xs"
               >
                 Save
               </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => setIsConfiguring(false)}
                 className="text-xs"
               >
@@ -254,7 +269,7 @@ export function MCPServerCard({
               leftIcon={<Key className="h-3 w-3" />}
               className="text-xs"
             >
-              {currentApiKey ? 'Update API Key' : 'Configure API Key'}
+              {currentApiKey ? "Update API Key" : "Configure API Key"}
             </Button>
           )}
         </div>
@@ -274,7 +289,7 @@ export function MCPServerCard({
               {isLoading ? (
                 <Loader2 className="h-3 w-3 animate-spin" />
               ) : (
-                'Test'
+                "Test"
               )}
             </Button>
           </Tooltip>

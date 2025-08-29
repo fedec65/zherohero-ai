@@ -2,18 +2,22 @@
  * Settings Store - Manages user preferences, theme, and application settings
  */
 
-import { createWithEqualityFn } from 'zustand/traditional';
-import { subscribeWithSelector } from 'zustand/middleware';
-import { persist } from 'zustand/middleware';
-import { immer } from 'zustand/middleware/immer';
-import { UserSettings, AIProvider } from './types';
-import { createStorage, createPartializer, PersistOptions } from './middleware/persistence';
+import { createWithEqualityFn } from "zustand/traditional";
+import { subscribeWithSelector } from "zustand/middleware";
+import { persist } from "zustand/middleware";
+import { immer } from "zustand/middleware/immer";
+import { UserSettings, AIProvider } from "./types";
+import {
+  createStorage,
+  createPartializer,
+  PersistOptions,
+} from "./middleware/persistence";
 
 // Default settings
 const DEFAULT_SETTINGS: UserSettings = {
-  theme: 'system',
+  theme: "system",
   sidebarWidth: 320,
-  fontSize: 'medium',
+  fontSize: "medium",
   sendOnEnter: true,
   showTokenCount: false,
   autoSave: true,
@@ -25,7 +29,7 @@ const DEFAULT_SETTINGS: UserSettings = {
   },
   speech: {
     enabled: false,
-    selectedVoice: '',
+    selectedVoice: "",
     rate: 1.0,
     pitch: 1.0,
     autoSpeak: false,
@@ -36,10 +40,10 @@ const DEFAULT_SETTINGS: UserSettings = {
 // Settings store state interface
 interface SettingsState {
   settings: UserSettings;
-  
+
   // Computed values
-  effectiveTheme: 'light' | 'dark';
-  
+  effectiveTheme: "light" | "dark";
+
   // Temporary state (not persisted)
   unsavedChanges: boolean;
   importingSettings: boolean;
@@ -49,17 +53,17 @@ interface SettingsState {
 // Settings store actions interface
 interface SettingsActions {
   // Theme management
-  setTheme: (theme: 'light' | 'dark' | 'system') => void;
+  setTheme: (theme: "light" | "dark" | "system") => void;
   toggleTheme: () => void;
-  getEffectiveTheme: () => 'light' | 'dark';
-  
+  getEffectiveTheme: () => "light" | "dark";
+
   // UI preferences
   setSidebarWidth: (width: number) => void;
-  setFontSize: (size: 'small' | 'medium' | 'large') => void;
+  setFontSize: (size: "small" | "medium" | "large") => void;
   setSendOnEnter: (enabled: boolean) => void;
   setShowTokenCount: (show: boolean) => void;
   setAutoSave: (enabled: boolean) => void;
-  
+
   // API Keys management
   setApiKey: (provider: AIProvider, key: string) => void;
   removeApiKey: (provider: AIProvider) => void;
@@ -67,38 +71,47 @@ interface SettingsActions {
   hasApiKey: (provider: AIProvider) => boolean;
   validateApiKey: (provider: AIProvider, key: string) => Promise<boolean>;
   testApiConnection: (provider: AIProvider) => Promise<boolean>;
-  
+
   // Privacy settings
-  setPrivacySetting: (setting: keyof UserSettings['privacy'], value: boolean) => void;
-  updatePrivacySettings: (privacy: Partial<UserSettings['privacy']>) => void;
-  
+  setPrivacySetting: (
+    setting: keyof UserSettings["privacy"],
+    value: boolean,
+  ) => void;
+  updatePrivacySettings: (privacy: Partial<UserSettings["privacy"]>) => void;
+
   // Speech settings
-  setSpeechSetting: (setting: keyof UserSettings['speech'], value: boolean | string | number) => void;
-  updateSpeechSettings: (speech: Partial<UserSettings['speech']>) => void;
+  setSpeechSetting: (
+    setting: keyof UserSettings["speech"],
+    value: boolean | string | number,
+  ) => void;
+  updateSpeechSettings: (speech: Partial<UserSettings["speech"]>) => void;
   toggleVoiceInput: () => void;
-  
+
   // Bulk operations
   updateSettings: (updates: Partial<UserSettings>) => void;
   resetSettings: () => void;
   resetToDefaults: () => void;
-  
+
   // Import/Export
   exportSettings: () => Promise<Blob>;
   importSettings: (file: File) => Promise<void>;
   getSettingsAsJson: () => string;
   loadSettingsFromJson: (json: string) => void;
-  
+
   // Validation
-  validateSettings: (settings: Partial<UserSettings>) => { isValid: boolean; errors: string[] };
-  
+  validateSettings: (settings: Partial<UserSettings>) => {
+    isValid: boolean;
+    errors: string[];
+  };
+
   // Keyboard shortcuts
   getKeyboardShortcuts: () => Record<string, string>;
   updateKeyboardShortcut: (action: string, shortcut: string) => void;
-  
+
   // Advanced settings
   getDeveloperSettings: () => Record<string, unknown>;
   setDeveloperSetting: (key: string, value: unknown) => void;
-  
+
   // Settings synchronization (for multi-device)
   syncSettings: () => Promise<void>;
   enableSettingsSync: (enabled: boolean) => void;
@@ -107,12 +120,12 @@ interface SettingsActions {
 type SettingsStore = SettingsState & SettingsActions;
 
 // Helper function to detect system theme
-function getSystemTheme(): 'light' | 'dark' {
-  if (typeof window === 'undefined') return 'light';
-  
-  return window.matchMedia('(prefers-color-scheme: dark)').matches 
-    ? 'dark' 
-    : 'light';
+function getSystemTheme(): "light" | "dark" {
+  if (typeof window === "undefined") return "light";
+
+  return window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
 }
 
 // Create the settings store
@@ -122,35 +135,36 @@ export const useSettingsStore = createWithEqualityFn<SettingsStore>()(
       immer((set, get) => ({
         // Initial state
         settings: DEFAULT_SETTINGS,
-        effectiveTheme: 'light',
+        effectiveTheme: "light",
         unsavedChanges: false,
         importingSettings: false,
         exportingSettings: false,
 
         // Theme management
-        setTheme: (theme: 'light' | 'dark' | 'system') => {
+        setTheme: (theme: "light" | "dark" | "system") => {
           set((state) => {
             state.settings.theme = theme;
-            state.effectiveTheme = theme === 'system' ? getSystemTheme() : theme;
+            state.effectiveTheme =
+              theme === "system" ? getSystemTheme() : theme;
             state.unsavedChanges = true;
           });
 
           // Apply theme to document
-          const effectiveTheme = theme === 'system' ? getSystemTheme() : theme;
-          document.documentElement.setAttribute('data-theme', effectiveTheme);
-          document.documentElement.classList.remove('light', 'dark');
+          const effectiveTheme = theme === "system" ? getSystemTheme() : theme;
+          document.documentElement.setAttribute("data-theme", effectiveTheme);
+          document.documentElement.classList.remove("light", "dark");
           document.documentElement.classList.add(effectiveTheme);
         },
 
         toggleTheme: () => {
           const currentTheme = get().effectiveTheme;
-          const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+          const newTheme = currentTheme === "light" ? "dark" : "light";
           get().setTheme(newTheme);
         },
 
         getEffectiveTheme: () => {
           const { theme } = get().settings;
-          return theme === 'system' ? getSystemTheme() : theme;
+          return theme === "system" ? getSystemTheme() : theme;
         },
 
         // UI preferences
@@ -161,7 +175,7 @@ export const useSettingsStore = createWithEqualityFn<SettingsStore>()(
           });
         },
 
-        setFontSize: (size: 'small' | 'medium' | 'large') => {
+        setFontSize: (size: "small" | "medium" | "large") => {
           set((state) => {
             state.settings.fontSize = size;
             state.unsavedChanges = true;
@@ -169,11 +183,14 @@ export const useSettingsStore = createWithEqualityFn<SettingsStore>()(
 
           // Apply font size to document
           const sizeMap = {
-            small: '14px',
-            medium: '16px',
-            large: '18px',
+            small: "14px",
+            medium: "16px",
+            large: "18px",
           };
-          document.documentElement.style.setProperty('--base-font-size', sizeMap[size]);
+          document.documentElement.style.setProperty(
+            "--base-font-size",
+            sizeMap[size],
+          );
         },
 
         setSendOnEnter: (enabled: boolean) => {
@@ -253,9 +270,9 @@ export const useSettingsStore = createWithEqualityFn<SettingsStore>()(
           try {
             // TODO: Implement actual API connection testing
             // This would make a minimal API call to verify the key works
-            
+
             // Simulate API test
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise((resolve) => setTimeout(resolve, 1000));
             return Math.random() > 0.2; // 80% success rate for demo
           } catch (error) {
             console.error(`API test failed for ${provider}:`, error);
@@ -264,14 +281,17 @@ export const useSettingsStore = createWithEqualityFn<SettingsStore>()(
         },
 
         // Privacy settings
-        setPrivacySetting: (setting: keyof UserSettings['privacy'], value: boolean) => {
+        setPrivacySetting: (
+          setting: keyof UserSettings["privacy"],
+          value: boolean,
+        ) => {
           set((state) => {
             state.settings.privacy[setting] = value;
             state.unsavedChanges = true;
           });
         },
 
-        updatePrivacySettings: (privacy: Partial<UserSettings['privacy']>) => {
+        updatePrivacySettings: (privacy: Partial<UserSettings["privacy"]>) => {
           set((state) => {
             Object.assign(state.settings.privacy, privacy);
             state.unsavedChanges = true;
@@ -279,7 +299,10 @@ export const useSettingsStore = createWithEqualityFn<SettingsStore>()(
         },
 
         // Speech settings
-        setSpeechSetting: (setting: keyof UserSettings['speech'], value: boolean | string | number) => {
+        setSpeechSetting: (
+          setting: keyof UserSettings["speech"],
+          value: boolean | string | number,
+        ) => {
           set((state) => {
             if (!state.settings.speech) {
               state.settings.speech = { ...DEFAULT_SETTINGS.speech };
@@ -289,7 +312,7 @@ export const useSettingsStore = createWithEqualityFn<SettingsStore>()(
           });
         },
 
-        updateSpeechSettings: (speech: Partial<UserSettings['speech']>) => {
+        updateSpeechSettings: (speech: Partial<UserSettings["speech"]>) => {
           set((state) => {
             if (!state.settings.speech) {
               state.settings.speech = { ...DEFAULT_SETTINGS.speech };
@@ -304,7 +327,8 @@ export const useSettingsStore = createWithEqualityFn<SettingsStore>()(
             if (!state.settings.speech) {
               state.settings.speech = { ...DEFAULT_SETTINGS.speech };
             }
-            state.settings.speech.voiceInput = !state.settings.speech.voiceInput;
+            state.settings.speech.voiceInput =
+              !state.settings.speech.voiceInput;
             state.unsavedChanges = true;
           });
         },
@@ -351,7 +375,7 @@ export const useSettingsStore = createWithEqualityFn<SettingsStore>()(
 
           try {
             const settings = get().settings;
-            
+
             // Remove sensitive data for export
             const exportData = {
               ...settings,
@@ -359,7 +383,7 @@ export const useSettingsStore = createWithEqualityFn<SettingsStore>()(
             };
 
             const blob = new Blob([JSON.stringify(exportData, null, 2)], {
-              type: 'application/json',
+              type: "application/json",
             });
 
             set((state) => {
@@ -383,11 +407,13 @@ export const useSettingsStore = createWithEqualityFn<SettingsStore>()(
           try {
             const text = await file.text();
             const importedSettings = JSON.parse(text) as Partial<UserSettings>;
-            
+
             // Validate imported settings
             const validation = get().validateSettings(importedSettings);
             if (!validation.isValid) {
-              throw new Error(`Invalid settings: ${validation.errors.join(', ')}`);
+              throw new Error(
+                `Invalid settings: ${validation.errors.join(", ")}`,
+              );
             }
 
             // Merge with current settings, preserving API keys
@@ -418,14 +444,18 @@ export const useSettingsStore = createWithEqualityFn<SettingsStore>()(
           try {
             const settings = JSON.parse(json) as Partial<UserSettings>;
             const validation = get().validateSettings(settings);
-            
+
             if (!validation.isValid) {
-              throw new Error(`Invalid settings: ${validation.errors.join(', ')}`);
+              throw new Error(
+                `Invalid settings: ${validation.errors.join(", ")}`,
+              );
             }
 
             get().updateSettings(settings);
           } catch (error) {
-            throw new Error(`Failed to load settings: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            throw new Error(
+              `Failed to load settings: ${error instanceof Error ? error.message : "Unknown error"}`,
+            );
           }
         },
 
@@ -433,21 +463,30 @@ export const useSettingsStore = createWithEqualityFn<SettingsStore>()(
         validateSettings: (settings: Partial<UserSettings>) => {
           const errors: string[] = [];
 
-          if (settings.theme && !['light', 'dark', 'system'].includes(settings.theme)) {
-            errors.push('Invalid theme value');
+          if (
+            settings.theme &&
+            !["light", "dark", "system"].includes(settings.theme)
+          ) {
+            errors.push("Invalid theme value");
           }
 
-          if (settings.sidebarWidth && (settings.sidebarWidth < 200 || settings.sidebarWidth > 600)) {
-            errors.push('Sidebar width must be between 200 and 600 pixels');
+          if (
+            settings.sidebarWidth &&
+            (settings.sidebarWidth < 200 || settings.sidebarWidth > 600)
+          ) {
+            errors.push("Sidebar width must be between 200 and 600 pixels");
           }
 
-          if (settings.fontSize && !['small', 'medium', 'large'].includes(settings.fontSize)) {
-            errors.push('Invalid font size value');
+          if (
+            settings.fontSize &&
+            !["small", "medium", "large"].includes(settings.fontSize)
+          ) {
+            errors.push("Invalid font size value");
           }
 
           if (settings.apiKeys) {
             Object.entries(settings.apiKeys).forEach(([provider, key]) => {
-              if (key && typeof key !== 'string') {
+              if (key && typeof key !== "string") {
                 errors.push(`Invalid API key format for ${provider}`);
               }
             });
@@ -463,13 +502,13 @@ export const useSettingsStore = createWithEqualityFn<SettingsStore>()(
         getKeyboardShortcuts: () => {
           // Default keyboard shortcuts
           return {
-            'new-chat': 'Cmd+N',
-            'search': 'Cmd+K',
-            'toggle-theme': 'Cmd+Shift+T',
-            'toggle-sidebar': 'Cmd+B',
-            'send-message': 'Enter',
-            'new-line': 'Shift+Enter',
-            'clear-chat': 'Cmd+Shift+C',
+            "new-chat": "Cmd+N",
+            search: "Cmd+K",
+            "toggle-theme": "Cmd+Shift+T",
+            "toggle-sidebar": "Cmd+B",
+            "send-message": "Enter",
+            "new-line": "Shift+Enter",
+            "clear-chat": "Cmd+Shift+C",
           };
         },
 
@@ -497,58 +536,64 @@ export const useSettingsStore = createWithEqualityFn<SettingsStore>()(
         // Settings synchronization
         syncSettings: async () => {
           // TODO: Implement cloud settings synchronization
-          console.log('Syncing settings...');
+          console.log("Syncing settings...");
         },
 
         enableSettingsSync: (enabled: boolean) => {
           // TODO: Implement settings sync toggle
-          console.log(`Settings sync ${enabled ? 'enabled' : 'disabled'}`);
+          console.log(`Settings sync ${enabled ? "enabled" : "disabled"}`);
         },
       })),
       {
-        name: 'minddeck-settings-store',
-        storage: createStorage('localStorage'),
+        name: "minddeck-settings-store",
+        storage: createStorage("localStorage"),
         version: 1,
-        partialize: createPartializer(['unsavedChanges', 'importingSettings', 'exportingSettings']),
+        partialize: createPartializer([
+          "unsavedChanges",
+          "importingSettings",
+          "exportingSettings",
+        ]),
         onRehydrateStorage: () => (state) => {
           if (state) {
             // Apply theme and font size after rehydration
             const effectiveTheme = state.getEffectiveTheme();
             state.effectiveTheme = effectiveTheme;
-            
+
             // Apply to DOM
-            document.documentElement.setAttribute('data-theme', effectiveTheme);
-            document.documentElement.classList.remove('light', 'dark');
+            document.documentElement.setAttribute("data-theme", effectiveTheme);
+            document.documentElement.classList.remove("light", "dark");
             document.documentElement.classList.add(effectiveTheme);
-            
+
             const sizeMap = {
-              small: '14px',
-              medium: '16px',
-              large: '18px',
+              small: "14px",
+              medium: "16px",
+              large: "18px",
             };
             document.documentElement.style.setProperty(
-              '--base-font-size', 
-              sizeMap[state.settings.fontSize]
+              "--base-font-size",
+              sizeMap[state.settings.fontSize],
             );
-            
+
             // Listen for system theme changes
-            if (typeof window !== 'undefined') {
-              const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            if (typeof window !== "undefined") {
+              const mediaQuery = window.matchMedia(
+                "(prefers-color-scheme: dark)",
+              );
               const handleThemeChange = () => {
-                if (state.settings.theme === 'system') {
+                if (state.settings.theme === "system") {
                   const newTheme = getSystemTheme();
                   state.effectiveTheme = newTheme;
-                  document.documentElement.setAttribute('data-theme', newTheme);
-                  document.documentElement.classList.remove('light', 'dark');
+                  document.documentElement.setAttribute("data-theme", newTheme);
+                  document.documentElement.classList.remove("light", "dark");
                   document.documentElement.classList.add(newTheme);
                 }
               };
-              
-              mediaQuery.addEventListener('change', handleThemeChange);
+
+              mediaQuery.addEventListener("change", handleThemeChange);
             }
           }
         },
-      } as any
-    )
-  )
+      } as any,
+    ),
+  ),
 );

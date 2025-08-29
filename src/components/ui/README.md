@@ -46,8 +46,8 @@ import {
   Card,
   ModelCard,
   Badge,
-  Tooltip
-} from '@/components/ui';
+  Tooltip,
+} from "@/components/ui";
 
 function MyComponent() {
   return (
@@ -55,21 +55,17 @@ function MyComponent() {
       <Button variant="primary" size="lg">
         Get Started
       </Button>
-      
-      <Input
-        label="Email"
-        placeholder="Enter your email"
-        type="email"
-      />
-      
+
+      <Input label="Email" placeholder="Enter your email" type="email" />
+
       <ModelCard
         model={{
           name: "GPT-4",
           provider: "OpenAI",
           contextWindow: "128K tokens",
-          isNew: true
+          isNew: true,
         }}
-        onConfigure={() => console.log('Configure')}
+        onConfigure={() => console.log("Configure")}
       />
     </div>
   );
@@ -166,13 +162,11 @@ Accessible modal dialogs with focus management.
   <DialogContent>
     <DialogHeader>
       <DialogTitle>Settings</DialogTitle>
-      <DialogDescription>
-        Configure your preferences
-      </DialogDescription>
+      <DialogDescription>Configure your preferences</DialogDescription>
     </DialogHeader>
-    
+
     {/* Dialog content */}
-    
+
     <DialogFooter>
       <DialogClose asChild>
         <Button variant="outline">Cancel</Button>
@@ -344,15 +338,15 @@ Use className prop for custom styling:
 Extend component variants using class-variance-authority:
 
 ```tsx
-import { buttonVariants } from '@/components/ui';
-import { cva } from 'class-variance-authority';
+import { buttonVariants } from "@/components/ui";
+import { cva } from "class-variance-authority";
 
 const customButtonVariants = cva(buttonVariants(), {
   variants: {
     customVariant: {
-      rainbow: "bg-gradient-to-r from-red-500 via-yellow-500 to-blue-500"
-    }
-  }
+      rainbow: "bg-gradient-to-r from-red-500 via-yellow-500 to-blue-500",
+    },
+  },
 });
 ```
 
@@ -371,7 +365,7 @@ All components follow WCAG guidelines:
 Full type safety with comprehensive interfaces:
 
 ```tsx
-import type { ButtonProps, InputProps, ModelCardProps } from '@/components/ui';
+import type { ButtonProps, InputProps, ModelCardProps } from "@/components/ui";
 
 // All props are fully typed
 const MyButton: React.FC<ButtonProps> = (props) => {
@@ -390,6 +384,7 @@ interface Model {
 ## 🏗️ Architecture
 
 ### Component Structure
+
 ```
 components/ui/
 ├── button.tsx         # Button variants and loading states

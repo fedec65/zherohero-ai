@@ -3,14 +3,14 @@
  * Interfaces with Next.js API routes from the browser
  */
 
-import { AIProvider, Message, ModelConfig } from '../stores/types';
+import { AIProvider, Message, ModelConfig } from "../stores/types";
 
 // Request/Response types
 interface ChatRequest {
   provider: AIProvider;
   model: string;
   messages: Array<{
-    role: 'user' | 'assistant' | 'system';
+    role: "user" | "assistant" | "system";
     content: string;
   }>;
   stream?: boolean;
@@ -32,7 +32,7 @@ interface ChatResponse {
   choices: Array<{
     index: number;
     message: {
-      role: 'assistant';
+      role: "assistant";
       content: string;
     };
     finishReason: string | null;
@@ -52,7 +52,7 @@ interface StreamingChunk {
   choices: Array<{
     index: number;
     delta: {
-      role?: 'assistant';
+      role?: "assistant";
       content?: string;
     };
     finishReason?: string | null;
@@ -68,7 +68,7 @@ export interface StreamingOptions {
 
 export class AIClientAPI {
   private static instance: AIClientAPI;
-  private baseURL = '/api/ai';
+  private baseURL = "/api/ai";
 
   private constructor() {}
 
@@ -82,29 +82,31 @@ export class AIClientAPI {
   // Create non-streaming chat completion
   async createChatCompletion(request: ChatRequest): Promise<ChatResponse> {
     // Get API keys from settings store
-    const { useSettingsStore } = await import('../stores/settings-store');
+    const { useSettingsStore } = await import("../stores/settings-store");
     const settingsState = useSettingsStore.getState();
-    
+
     // Prepare headers with API keys for secure transmission
     const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     };
-    
+
     // Add API key for the requested provider
     const apiKey = settingsState.getApiKey(request.provider);
     if (apiKey) {
       headers[`x-${request.provider}-key`] = apiKey;
     }
-    
+
     const response = await fetch(`${this.baseURL}/chat`, {
-      method: 'POST',
+      method: "POST",
       headers,
       body: JSON.stringify({ ...request, stream: false }),
     });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+      throw new Error(
+        errorData.error || `HTTP ${response.status}: ${response.statusText}`,
+      );
     }
 
     return response.json();
@@ -113,25 +115,25 @@ export class AIClientAPI {
   // Create streaming chat completion
   async streamChatCompletion(
     request: ChatRequest,
-    options: StreamingOptions = {}
+    options: StreamingOptions = {},
   ): Promise<void> {
     // Get API keys from settings store
-    const { useSettingsStore } = await import('../stores/settings-store');
+    const { useSettingsStore } = await import("../stores/settings-store");
     const settingsState = useSettingsStore.getState();
-    
+
     // Prepare headers with API keys for secure transmission
     const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     };
-    
+
     // Add API key for the requested provider
     const apiKey = settingsState.getApiKey(request.provider);
     if (apiKey) {
       headers[`x-${request.provider}-key`] = apiKey;
     }
-    
+
     const response = await fetch(`${this.baseURL}/chat`, {
-      method: 'POST',
+      method: "POST",
       headers,
       body: JSON.stringify({ ...request, stream: true }),
       signal: options.signal,
@@ -139,20 +141,21 @@ export class AIClientAPI {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      const error = errorData.error || `HTTP ${response.status}: ${response.statusText}`;
+      const error =
+        errorData.error || `HTTP ${response.status}: ${response.statusText}`;
       options.onError?.(error);
       throw new Error(error);
     }
 
     if (!response.body) {
-      const error = 'No response body for streaming request';
+      const error = "No response body for streaming request";
       options.onError?.(error);
       throw new Error(error);
     }
 
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
-    let fullContent = '';
+    let fullContent = "";
 
     try {
       while (true) {
@@ -160,29 +163,32 @@ export class AIClientAPI {
         if (done) break;
 
         const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split('\n');
+        const lines = chunk.split("\n");
 
         for (const line of lines) {
-          if (line.startsWith('data: ')) {
+          if (line.startsWith("data: ")) {
             const data = line.slice(6).trim();
-            
-            if (data === '[DONE]') {
+
+            if (data === "[DONE]") {
               options.onComplete?.(fullContent);
               return;
             }
 
             try {
               const parsed: StreamingChunk = JSON.parse(data);
-              
+
               // Check for errors
               if ((parsed as any).error) {
-                const error = (parsed as any).error.message || 'Streaming error';
+                const error =
+                  (parsed as any).error.message || "Streaming error";
                 options.onError?.(error);
                 return;
               }
 
-              const content = parsed.choices?.[0]?.delta?.content || '';
-              const isComplete = parsed.choices?.[0]?.finishReason !== null && parsed.choices?.[0]?.finishReason !== undefined;
+              const content = parsed.choices?.[0]?.delta?.content || "";
+              const isComplete =
+                parsed.choices?.[0]?.finishReason !== null &&
+                parsed.choices?.[0]?.finishReason !== undefined;
 
               if (content) {
                 fullContent += content;
@@ -194,10 +200,9 @@ export class AIClientAPI {
                 options.onComplete?.(fullContent);
                 return;
               }
-
             } catch (e) {
               // Skip invalid JSON chunks
-              console.warn('Failed to parse streaming chunk:', data);
+              console.warn("Failed to parse streaming chunk:", data);
             }
           }
         }
@@ -215,15 +220,18 @@ export class AIClientAPI {
       providersHealthy: number;
       totalProviders: number;
     };
-    providers: Record<string, {
-      initialized: boolean;
-      hasApiKey: boolean;
-      healthy: boolean;
-      status: string;
-    }>;
+    providers: Record<
+      string,
+      {
+        initialized: boolean;
+        hasApiKey: boolean;
+        healthy: boolean;
+        status: string;
+      }
+    >;
   }> {
     const response = await fetch(`${this.baseURL}/health`);
-    
+
     if (!response.ok) {
       throw new Error(`Failed to get health status: ${response.statusText}`);
     }
@@ -232,7 +240,10 @@ export class AIClientAPI {
   }
 
   // Test specific provider
-  async testProvider(provider: AIProvider, testMessage = 'Hello!'): Promise<{
+  async testProvider(
+    provider: AIProvider,
+    testMessage = "Hello!",
+  ): Promise<{
     provider: string;
     test: {
       success: boolean;
@@ -241,9 +252,9 @@ export class AIClientAPI {
     };
   }> {
     const response = await fetch(`${this.baseURL}/health`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({ provider, testMessage }),
     });
@@ -257,12 +268,12 @@ export class AIClientAPI {
 
   // Get available models
   async getModels(provider?: AIProvider): Promise<any> {
-    const url = provider 
+    const url = provider
       ? `${this.baseURL}/models?provider=${provider}&includeStatus=true`
       : `${this.baseURL}/models?includeStatus=true`;
 
     const response = await fetch(url);
-    
+
     if (!response.ok) {
       throw new Error(`Failed to get models: ${response.statusText}`);
     }
@@ -272,8 +283,8 @@ export class AIClientAPI {
 
   // Get model recommendations
   async getModelRecommendations(
-    task: 'chat' | 'code' | 'analysis' | 'creative',
-    providers?: AIProvider[]
+    task: "chat" | "code" | "analysis" | "creative",
+    providers?: AIProvider[],
   ): Promise<{
     task: string;
     recommendation: {
@@ -283,9 +294,9 @@ export class AIClientAPI {
     } | null;
   }> {
     const response = await fetch(`${this.baseURL}/models`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({ task, providers }),
     });
@@ -298,10 +309,10 @@ export class AIClientAPI {
   }
 
   // Convert store messages to API format
-  static formatMessages(messages: Message[]): ChatRequest['messages'] {
-    return messages.map(msg => ({
+  static formatMessages(messages: Message[]): ChatRequest["messages"] {
+    return messages.map((msg) => ({
       role: msg.role,
-      content: msg.content
+      content: msg.content,
     }));
   }
 
@@ -315,7 +326,7 @@ export class AIClientAPI {
       frequencyPenalty: config.frequencyPenalty,
       presencePenalty: config.presencePenalty,
       systemPrompt: config.systemPrompt,
-      stopSequences: config.stopSequences
+      stopSequences: config.stopSequences,
     };
   }
 }

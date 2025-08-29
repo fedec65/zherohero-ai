@@ -1,16 +1,31 @@
-'use client';
+"use client";
 
-import React, { useEffect } from 'react';
-import { MessageSquare, Edit3, Crown, MoreHorizontal, Share, Star, Archive, Trash2 } from 'lucide-react';
-import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
-import { Tooltip } from '../ui/tooltip';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
-import { MessageList } from './message-list';
-import { ChatInputComponent } from './chat-input';
-import { useChatStore } from '../../lib/stores/chat-store';
-import { useModelStore } from '../../lib/stores/model-store';
-import { cn } from '../../lib/utils';
+import React, { useEffect } from "react";
+import {
+  MessageSquare,
+  Edit3,
+  Crown,
+  MoreHorizontal,
+  Share,
+  Star,
+  Archive,
+  Trash2,
+} from "lucide-react";
+import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
+import { Tooltip } from "../ui/tooltip";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
+import { MessageList } from "./message-list";
+import { ChatInputComponent } from "./chat-input";
+import { useChatStore } from "../../lib/stores/chat-store";
+import { useModelStore } from "../../lib/stores/model-store";
+import { cn } from "../../lib/utils";
 
 interface ChatInterfaceProps {
   chatId: string;
@@ -18,17 +33,17 @@ interface ChatInterfaceProps {
 }
 
 export function ChatInterface({ chatId, className }: ChatInterfaceProps) {
-  const { 
-    chats, 
+  const {
+    chats,
     messages,
     updateChat,
     deleteChat,
     starChat,
     getChatMessageCount,
-    streamingMessage 
+    streamingMessage,
   } = useChatStore();
   const { models, selectedModel } = useModelStore();
-  
+
   const chat = chats[chatId];
   const chatMessages = messages[chatId] || [];
   const messageCount = getChatMessageCount(chatId);
@@ -36,10 +51,12 @@ export function ChatInterface({ chatId, className }: ChatInterfaceProps) {
 
   // Auto-update chat title from first message
   useEffect(() => {
-    if (chat && chatMessages.length > 0 && chat.title === 'New Chat') {
-      const firstMessage = chatMessages.find(m => m.role === 'user');
+    if (chat && chatMessages.length > 0 && chat.title === "New Chat") {
+      const firstMessage = chatMessages.find((m) => m.role === "user");
       if (firstMessage) {
-        const title = firstMessage.content.slice(0, 50) + (firstMessage.content.length > 50 ? '...' : '');
+        const title =
+          firstMessage.content.slice(0, 50) +
+          (firstMessage.content.length > 50 ? "..." : "");
         updateChat(chatId, { id: chatId, title });
       }
     }
@@ -54,7 +71,8 @@ export function ChatInterface({ chatId, className }: ChatInterfaceProps) {
             Chat not found
           </h3>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            The chat you&apos;re looking for doesn&apos;t exist or has been deleted.
+            The chat you&apos;re looking for doesn&apos;t exist or has been
+            deleted.
           </p>
         </div>
       </div>
@@ -62,11 +80,14 @@ export function ChatInterface({ chatId, className }: ChatInterfaceProps) {
   }
 
   // Get selected model info
-  const selectedModelInfo = selectedModel ? 
-    Object.values(models).flat().find(m => m.id === selectedModel.modelId) : null;
+  const selectedModelInfo = selectedModel
+    ? Object.values(models)
+        .flat()
+        .find((m) => m.id === selectedModel.modelId)
+    : null;
 
   const handleEditTitle = () => {
-    const newTitle = prompt('Enter new chat title:', chat.title);
+    const newTitle = prompt("Enter new chat title:", chat.title);
     if (newTitle && newTitle !== chat.title) {
       updateChat(chatId, { id: chatId, title: newTitle.trim() });
     }
@@ -77,14 +98,17 @@ export function ChatInterface({ chatId, className }: ChatInterfaceProps) {
   };
 
   const handleDeleteChat = () => {
-    if (confirm('Are you sure you want to delete this chat? This action cannot be undone.')) {
+    if (
+      confirm(
+        "Are you sure you want to delete this chat? This action cannot be undone.",
+      )
+    ) {
       deleteChat(chatId);
     }
   };
 
   return (
-    <div className={cn('flex flex-col h-full', className)}>
-
+    <div className={cn("flex flex-col h-full", className)}>
       {/* Message list */}
       <div className="flex-1 overflow-hidden">
         <MessageList chatId={chatId} />

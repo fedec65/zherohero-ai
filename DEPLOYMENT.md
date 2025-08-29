@@ -18,6 +18,7 @@
 ## Pre-Deployment Checklist
 
 ### ✅ Code Quality & Security
+
 - [ ] All TypeScript errors resolved
 - [ ] ESLint security rules passing
 - [ ] No hardcoded secrets in code
@@ -28,6 +29,7 @@
 - [ ] API key encryption in place
 
 ### ✅ Performance & Optimization
+
 - [ ] Bundle size analysis completed
 - [ ] Lazy loading implemented
 - [ ] Image optimization configured
@@ -37,6 +39,7 @@
 - [ ] Code splitting implemented
 
 ### ✅ Testing & Quality Assurance
+
 - [ ] Unit tests passing (>90% coverage)
 - [ ] Integration tests complete
 - [ ] E2E tests validated
@@ -45,6 +48,7 @@
 - [ ] Cross-browser compatibility verified
 
 ### ✅ Monitoring & Observability
+
 - [ ] Error tracking configured (Sentry)
 - [ ] Performance monitoring setup
 - [ ] Analytics implementation complete
@@ -118,6 +122,7 @@ vercel env add GOOGLE_API_KEY production
 ### 2. Environment Variables Configuration
 
 #### Production Environment Variables
+
 ```bash
 # Core Application
 vercel env add NODE_ENV production
@@ -143,6 +148,7 @@ vercel env add NEXT_PUBLIC_POSTHOG_KEY "phc_..." production
 ```
 
 #### Staging Environment Variables
+
 ```bash
 # Use same pattern but with staging values
 vercel env add NEXT_PUBLIC_APP_URL https://minddeck-clone-staging.vercel.app staging
@@ -180,7 +186,7 @@ vercel certs ls
 
 ```typescript
 // All API keys are encrypted at rest
-import { APIKeyManager } from '@/lib/security';
+import { APIKeyManager } from "@/lib/security";
 
 // Encrypt before storing
 const encryptedKey = APIKeyManager.encrypt(apiKey);
@@ -193,15 +199,15 @@ const decryptedKey = APIKeyManager.decrypt(encryptedKey);
 
 ```typescript
 // Implemented at API route level
-import { RateLimiter } from '@/lib/security';
+import { RateLimiter } from "@/lib/security";
 
 export async function POST(request: Request) {
   const clientIP = getClientIP(request);
-  
+
   if (RateLimiter.isRateLimited(clientIP)) {
-    return new Response('Rate limit exceeded', { status: 429 });
+    return new Response("Rate limit exceeded", { status: 429 });
   }
-  
+
   // Continue with request processing
 }
 ```
@@ -210,7 +216,7 @@ export async function POST(request: Request) {
 
 ```typescript
 // All user inputs are sanitized
-import { InputSanitizer } from '@/lib/security';
+import { InputSanitizer } from "@/lib/security";
 
 const sanitizedMessage = InputSanitizer.sanitizeChatMessage(userMessage);
 ```
@@ -218,6 +224,7 @@ const sanitizedMessage = InputSanitizer.sanitizeChatMessage(userMessage);
 ### 4. Content Security Policy
 
 Configured in `next.config.js` with strict policies:
+
 - Script sources limited to self and trusted CDNs
 - Connect sources limited to AI provider APIs
 - No unsafe-eval except where necessary
@@ -261,13 +268,13 @@ npm run test:lighthouse
 
 ```typescript
 // Automatic error capture
-import * as Sentry from '@sentry/nextjs';
+import * as Sentry from "@sentry/nextjs";
 
 // Manual error reporting
 Sentry.captureException(error, {
-  tags: { component: 'chat', feature: 'message-send' },
+  tags: { component: "chat", feature: "message-send" },
   user: { id: userId },
-  extra: { messageId, modelUsed }
+  extra: { messageId, modelUsed },
 });
 ```
 
@@ -275,12 +282,12 @@ Sentry.captureException(error, {
 
 ```typescript
 // Track Core Web Vitals
-import { trackPerformance } from '@/lib/monitoring';
+import { trackPerformance } from "@/lib/monitoring";
 
 // Track custom metrics
-trackPerformance('model_response_time', duration, {
-  model: 'gpt-4',
-  provider: 'openai'
+trackPerformance("model_response_time", duration, {
+  model: "gpt-4",
+  provider: "openai",
 });
 ```
 
@@ -288,12 +295,12 @@ trackPerformance('model_response_time', duration, {
 
 ```typescript
 // Track user interactions
-import { trackUserAction } from '@/lib/monitoring';
+import { trackUserAction } from "@/lib/monitoring";
 
-trackUserAction('chat_message_sent', {
+trackUserAction("chat_message_sent", {
   model: selectedModel,
   messageLength: message.length,
-  hasAttachments: attachments.length > 0
+  hasAttachments: attachments.length > 0,
 });
 ```
 
@@ -372,27 +379,27 @@ vercel rollback dpl_abc123
 ```typescript
 // LocalStorage for user preferences
 const preferences = {
-  theme: 'dark',
+  theme: "dark",
   sidebarWidth: 320,
-  defaultModel: 'gpt-4',
-  apiKeys: encryptedApiKeys
+  defaultModel: "gpt-4",
+  apiKeys: encryptedApiKeys,
 };
 
-localStorage.setItem('userPreferences', JSON.stringify(preferences));
+localStorage.setItem("userPreferences", JSON.stringify(preferences));
 ```
 
 ```typescript
 // IndexedDB for chat history
-import { openDB } from 'idb';
+import { openDB } from "idb";
 
-const db = await openDB('MindDeckClone', 1, {
+const db = await openDB("MindDeckClone", 1, {
   upgrade(db) {
-    const chatStore = db.createObjectStore('chats', { keyPath: 'id' });
-    chatStore.createIndex('timestamp', 'timestamp');
-    
-    const messageStore = db.createObjectStore('messages', { keyPath: 'id' });
-    messageStore.createIndex('chatId', 'chatId');
-  }
+    const chatStore = db.createObjectStore("chats", { keyPath: "id" });
+    chatStore.createIndex("timestamp", "timestamp");
+
+    const messageStore = db.createObjectStore("messages", { keyPath: "id" });
+    messageStore.createIndex("chatId", "chatId");
+  },
 });
 ```
 
@@ -407,7 +414,7 @@ const redis = new Redis(process.env.REDIS_URL);
 // PostgreSQL for user data
 const db = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
+  ssl: { rejectUnauthorized: false },
 });
 ```
 
@@ -418,7 +425,7 @@ const db = new Pool({
 const migrations = {
   1: (data) => ({ ...data, version: 1 }),
   2: (data) => ({ ...data, folders: [], version: 2 }),
-  3: (data) => ({ ...data, mcpServers: [], version: 3 })
+  3: (data) => ({ ...data, mcpServers: [], version: 3 }),
 };
 
 const migrateData = (data, currentVersion) => {
@@ -442,15 +449,15 @@ export const exportUserData = () => {
     chats: getAllChats(),
     preferences: getUserPreferences(),
     models: getModelConfigurations(),
-    timestamp: Date.now()
+    timestamp: Date.now(),
   };
-  
+
   const blob = new Blob([JSON.stringify(data, null, 2)], {
-    type: 'application/json'
+    type: "application/json",
   });
-  
+
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
+  const a = document.createElement("a");
   a.href = url;
   a.download = `minddeck-backup-${Date.now()}.json`;
   a.click();
@@ -466,23 +473,23 @@ export const importUserData = (file: File) => {
   reader.onload = (e) => {
     try {
       const data = JSON.parse(e.target?.result as string);
-      
+
       // Validate data structure
       if (!validateDataStructure(data)) {
-        throw new Error('Invalid backup file format');
+        throw new Error("Invalid backup file format");
       }
-      
+
       // Migrate if necessary
       const migratedData = migrateData(data, CURRENT_VERSION);
-      
+
       // Restore data
       restoreChats(migratedData.chats);
       restorePreferences(migratedData.preferences);
       restoreModelConfigurations(migratedData.models);
-      
-      showSuccessMessage('Data restored successfully');
+
+      showSuccessMessage("Data restored successfully");
     } catch (error) {
-      showErrorMessage('Failed to restore data: ' + error.message);
+      showErrorMessage("Failed to restore data: " + error.message);
     }
   };
   reader.readAsText(file);
@@ -591,25 +598,25 @@ Monitor these metrics:
 ```typescript
 const keyMetrics = {
   availability: {
-    target: '99.9%',
-    current: '99.95%',
-    status: 'healthy'
+    target: "99.9%",
+    current: "99.95%",
+    status: "healthy",
   },
   performance: {
-    p95_response_time: '1.2s',
-    core_web_vitals: 'passing',
-    status: 'healthy'
+    p95_response_time: "1.2s",
+    core_web_vitals: "passing",
+    status: "healthy",
   },
   errors: {
-    error_rate: '0.05%',
+    error_rate: "0.05%",
     critical_errors: 0,
-    status: 'healthy'
+    status: "healthy",
   },
   usage: {
     daily_active_users: 1250,
     api_calls_per_minute: 45,
-    status: 'normal'
-  }
+    status: "normal",
+  },
 };
 ```
 
@@ -621,12 +628,12 @@ alerts:
     - error_rate > 1%
     - response_time > 5s
     - availability < 99%
-    
+
   warning:
     - error_rate > 0.5%
     - response_time > 3s
     - cpu_usage > 80%
-    
+
   info:
     - deployment_completed
     - backup_completed
@@ -717,12 +724,12 @@ vercel rollback
 const exportData = () => {
   const data = {
     timestamp: new Date().toISOString(),
-    chats: localStorage.getItem('chats'),
-    settings: localStorage.getItem('settings'),
-    models: localStorage.getItem('models')
+    chats: localStorage.getItem("chats"),
+    settings: localStorage.getItem("settings"),
+    models: localStorage.getItem("models"),
   };
-  
-  console.log('EMERGENCY_BACKUP:', JSON.stringify(data));
+
+  console.log("EMERGENCY_BACKUP:", JSON.stringify(data));
 };
 ```
 

@@ -175,11 +175,13 @@ export class TavilySearchClient {
       throw new TavilyError('Invalid Tavily API key format', { retryable: false });
     }
 
-    // Set up periodic cache cleanup
-    setInterval(() => {
-      this.searchCache.cleanup();
-      this.extractCache.cleanup();
-    }, 60000); // Clean up every minute
+    // Set up periodic cache cleanup only in runtime
+    if (typeof window === 'undefined' && process.env.NEXT_PHASE !== 'phase-production-build') {
+      setInterval(() => {
+        this.searchCache.cleanup();
+        this.extractCache.cleanup();
+      }, 60000); // Clean up every minute
+    }
   }
 
   /**

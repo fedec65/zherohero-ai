@@ -227,15 +227,20 @@ export class StreamManager {
       ));
     });
     
-    // Start cleanup timer
-    this.cleanupTimer = setInterval(() => {
-      this.performCleanup();
-    }, 30000); // 30 seconds
-    
-    // Cleanup on process exit
-    process.on('exit', () => {
-      clearInterval(this.cleanupTimer);
-    });
+    // Only start timers and event listeners in runtime, not during build
+    if (typeof window === 'undefined' && process.env.NEXT_PHASE !== 'phase-production-build') {
+      // Start cleanup timer
+      this.cleanupTimer = setInterval(() => {
+        this.performCleanup();
+      }, 30000); // 30 seconds
+      
+      // Cleanup on process exit
+      process.on('exit', () => {
+        if (this.cleanupTimer) {
+          clearInterval(this.cleanupTimer);
+        }
+      });
+    }
   }
 
   static getInstance(): StreamManager {

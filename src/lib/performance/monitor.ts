@@ -103,15 +103,20 @@ export class PerformanceMonitor {
       this.streamingMetrics.set(provider, new MetricsBuffer(this.MAX_BUFFER_SIZE));
     });
 
-    // Start cleanup timer
-    this.cleanupTimer = setInterval(() => {
-      this.performCleanup();
-    }, this.CLEANUP_INTERVAL);
-    
-    // Cleanup on process exit
-    process.on('exit', () => {
-      clearInterval(this.cleanupTimer);
-    });
+    // Only start timers and event listeners in runtime, not during build
+    if (typeof window === 'undefined' && process.env.NEXT_PHASE !== 'phase-production-build') {
+      // Start cleanup timer
+      this.cleanupTimer = setInterval(() => {
+        this.performCleanup();
+      }, this.CLEANUP_INTERVAL);
+      
+      // Cleanup on process exit
+      process.on('exit', () => {
+        if (this.cleanupTimer) {
+          clearInterval(this.cleanupTimer);
+        }
+      });
+    }
   }
 
   static getInstance(): PerformanceMonitor {

@@ -2,7 +2,7 @@
  * MCP Store - Manages Model Context Protocol servers and integrations
  */
 
-import { create } from 'zustand';
+import { createWithEqualityFn } from 'zustand/traditional';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
@@ -186,7 +186,7 @@ const serverInstances: MCPServerInstances = {
 };
 
 // Create the MCP store
-export const useMCPStore = create<MCPStore>()(
+export const useMCPStore = createWithEqualityFn<MCPStore>()(
   subscribeWithSelector(
     persist(
       immer((set, get) => ({

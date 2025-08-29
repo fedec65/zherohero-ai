@@ -25,39 +25,70 @@ const nextConfig = {
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 
-  // Bundle analysis
+  // Bundle analysis and optimization
   webpack: (config, { buildId, dev, isServer, defaultLoaders, nextRuntime, webpack }) => {
     // Bundle analyzer in development
     if (dev && !isServer) {
-      const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
-      if (process.env.ANALYZE === 'true') {
-        config.plugins.push(
-          new BundleAnalyzerPlugin({
-            analyzerMode: 'server',
-            openAnalyzer: true,
-          })
-        );
+      try {
+        const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
+        if (process.env.ANALYZE === 'true') {
+          config.plugins.push(
+            new BundleAnalyzerPlugin({
+              analyzerMode: 'server',
+              openAnalyzer: true,
+            })
+          );
+        }
+      } catch (error) {
+        console.warn('Bundle analyzer not available:', error.message);
       }
     }
 
-    // Optimize chunks
-    if (!dev && !isServer) {
-      config.optimization.splitChunks.chunks = 'all';
-      config.optimization.splitChunks.cacheGroups = {
-        ...config.optimization.splitChunks.cacheGroups,
-        ai: {
-          name: 'ai-providers',
-          chunks: 'all',
-          test: /[\\/]node_modules[\\/](openai|@anthropic-ai|@google\/generative-ai)[\\/]/,
-          priority: 40,
-        },
-        ui: {
-          name: 'ui-components',
-          chunks: 'all',
-          test: /[\\/]node_modules[\\/](@headlessui|framer-motion|lucide-react)[\\/]/,
-          priority: 30,
+    // Optimize chunks and reduce bundle size
+    if (!dev) {
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        minSize: 20000,
+        minRemainingSize: 0,
+        minChunks: 1,
+        maxAsyncRequests: 30,
+        maxInitialRequests: 30,
+        enforceSizeThreshold: 50000,
+        cacheGroups: {
+          ...config.optimization.splitChunks.cacheGroups,
+          ai: {
+            name: 'ai-providers',
+            chunks: 'all',
+            test: /[\\/]node_modules[\\/](openai|@anthropic-ai|@google\/generative-ai)[\\/]/,
+            priority: 40,
+            enforce: true,
+          },
+          ui: {
+            name: 'ui-components', 
+            chunks: 'all',
+            test: /[\\/]node_modules[\\/](@headlessui|framer-motion|lucide-react)[\\/]/,
+            priority: 30,
+            enforce: true,
+          },
+          sentry: {
+            name: 'sentry',
+            chunks: 'all',
+            test: /[\\/]node_modules[\\/](@sentry)[\\/]/,
+            priority: 20,
+            enforce: true,
+          },
         },
       };
+
+      // Tree shaking optimizations
+      config.optimization.usedExports = true;
+      config.optimization.sideEffects = false;
+    }
+
+    // Reduce memory usage during build
+    if (!dev && isServer) {
+      config.optimization.minimize = true;
+      config.optimization.concatenateModules = true;
     }
 
     return config;

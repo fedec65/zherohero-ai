@@ -2,7 +2,7 @@
  * Model Store - Manages AI models, configurations, and provider settings
  */
 
-import { create } from 'zustand';
+import { createWithEqualityFn } from 'zustand/traditional';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
@@ -556,7 +556,7 @@ interface ModelActions {
 type ModelStore = ModelState & ModelActions;
 
 // Create the model store
-export const useModelStore = create<ModelStore>()(
+export const useModelStore = createWithEqualityFn<ModelStore>()(
   subscribeWithSelector(
     persist(
       immer((set, get) => ({

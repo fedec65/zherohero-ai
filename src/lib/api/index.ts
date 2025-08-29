@@ -301,31 +301,45 @@ export const aiAPI = AIAPIManager.getInstance();
 
 // Initialize provider with environment variables
 export function initializeProviderFromEnv(provider: AIProvider): boolean {
+  // Skip initialization during build time
+  if (typeof window !== 'undefined' || process.env.NODE_ENV === 'development') {
+    // Only attempt initialization in browser or development mode
+    return false;
+  }
+
   let apiKey: string | undefined;
   
-  switch (provider) {
-    case 'openai':
-      apiKey = process.env.OPENAI_API_KEY;
-      break;
-    case 'anthropic':
-      apiKey = process.env.ANTHROPIC_API_KEY;
-      break;
-    case 'gemini':
-      apiKey = process.env.GOOGLE_API_KEY;
-      break;
-    case 'xai':
-      apiKey = process.env.XAI_API_KEY;
-      break;
-    case 'deepseek':
-      apiKey = process.env.DEEPSEEK_API_KEY;
-      break;
-    case 'openrouter':
-      apiKey = process.env.OPENROUTER_API_KEY;
-      break;
+  try {
+    switch (provider) {
+      case 'openai':
+        apiKey = process.env.OPENAI_API_KEY;
+        break;
+      case 'anthropic':
+        apiKey = process.env.ANTHROPIC_API_KEY;
+        break;
+      case 'gemini':
+        apiKey = process.env.GOOGLE_API_KEY;
+        break;
+      case 'xai':
+        apiKey = process.env.XAI_API_KEY;
+        break;
+      case 'deepseek':
+        apiKey = process.env.DEEPSEEK_API_KEY;
+        break;
+      case 'openrouter':
+        apiKey = process.env.OPENROUTER_API_KEY;
+        break;
+    }
+  } catch (error) {
+    // Environment variable access failed (e.g., during build)
+    return false;
   }
   
   if (!apiKey) {
-    console.warn(`No API key found for provider ${provider}`);
+    // Don't log warnings during build time
+    if (process.env.NODE_ENV === 'production' && process.env.VERCEL_ENV) {
+      console.warn(`No API key found for provider ${provider}`);
+    }
     return false;
   }
   
@@ -340,16 +354,27 @@ export function initializeProviderFromEnv(provider: AIProvider): boolean {
 
 // Initialize all providers from environment
 export function initializeAllProviders(): { initialized: AIProvider[]; failed: AIProvider[] } {
+  // Skip during build time to prevent Vercel deployment issues
+  if (typeof window !== 'undefined' || process.env.NEXT_PHASE === 'phase-production-build') {
+    return { initialized: [], failed: [] };
+  }
+
   const providers: AIProvider[] = ['openai', 'anthropic', 'gemini', 'xai', 'deepseek'];
   const initialized: AIProvider[] = [];
   const failed: AIProvider[] = [];
   
-  for (const provider of providers) {
-    if (initializeProviderFromEnv(provider)) {
-      initialized.push(provider);
-    } else {
-      failed.push(provider);
+  try {
+    for (const provider of providers) {
+      if (initializeProviderFromEnv(provider)) {
+        initialized.push(provider);
+      } else {
+        failed.push(provider);
+      }
     }
+  } catch (error) {
+    // If initialization fails during build, return empty arrays
+    console.error('Provider initialization failed during build:', error);
+    return { initialized: [], failed: providers };
   }
   
   return { initialized, failed };

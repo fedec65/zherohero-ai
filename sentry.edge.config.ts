@@ -2,8 +2,10 @@ import * as Sentry from '@sentry/nextjs';
 
 const SENTRY_DSN = process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN;
 
-Sentry.init({
-  dsn: SENTRY_DSN,
+// Only initialize Sentry in production to avoid build issues
+if (process.env.NODE_ENV === 'production' && SENTRY_DSN) {
+  Sentry.init({
+    dsn: SENTRY_DSN,
   
   // Edge runtime has limited performance monitoring
   tracesSampleRate: 0,
@@ -26,6 +28,7 @@ Sentry.init({
   
   // Debug mode in development
   debug: false, // Keep false for edge runtime
-});
+  });
+}
 
 export {};

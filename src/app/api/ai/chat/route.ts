@@ -4,14 +4,13 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { aiAPI, initializeAllProviders } from '../../../../lib/api';
+import { aiAPI } from '../../../../lib/api';
 import { AIProvider } from '../../../../lib/stores/types/index';
 import { PerformanceMonitor } from '../../../../lib/performance/monitor';
 import { StreamManager } from '../../../../lib/streaming/manager';
 
-// Initialize providers on server startup
-const { initialized } = initializeAllProviders();
-console.log(`Initialized AI providers: ${initialized.join(', ')}`);
+// Note: Providers will be initialized on-demand when API keys are provided in request headers
+// This prevents build-time environment variable access issues on Vercel
 
 // Performance monitoring
 const performanceMonitor = PerformanceMonitor.getInstance();

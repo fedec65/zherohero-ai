@@ -2,7 +2,7 @@
  * UI Store - Manages UI state, modals, notifications, and interface interactions
  */
 
-import { create } from 'zustand';
+import { createWithEqualityFn } from 'zustand/traditional';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 
@@ -270,7 +270,7 @@ const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
 ];
 
 // Create the UI store
-export const useUIStore = create<UIStore>()(
+export const useUIStore = createWithEqualityFn<UIStore>()(
   subscribeWithSelector(
     immer((set, get) => ({
       // Initial state

@@ -2,7 +2,7 @@
  * Chat Store - Manages conversations, messages, and chat operations
  */
 
-import { create } from 'zustand';
+import { createWithEqualityFn } from 'zustand/traditional';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
@@ -108,7 +108,7 @@ interface ChatActions {
 type ChatStore = ChatState & ChatActions;
 
 // Create the chat store
-export const useChatStore = create<ChatStore>()(
+export const useChatStore = createWithEqualityFn<ChatStore>()(
   subscribeWithSelector(
     persist(
       immer((set, get) => ({

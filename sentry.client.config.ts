@@ -2,8 +2,10 @@ import * as Sentry from '@sentry/nextjs';
 
 const SENTRY_DSN = process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN;
 
-Sentry.init({
-  dsn: SENTRY_DSN,
+// Only initialize Sentry in production to avoid build issues  
+if (process.env.NODE_ENV === 'production' && SENTRY_DSN) {
+  Sentry.init({
+    dsn: SENTRY_DSN,
   
   // Performance monitoring
   tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
@@ -106,7 +108,7 @@ Sentry.init({
   },
   
   // Debug mode in development
-  debug: process.env.NODE_ENV === 'development',
+  debug: false, // Disable debug in production
   
   // Ignore certain URLs
   ignoreErrors: [
@@ -131,6 +133,7 @@ Sentry.init({
     '/_next/static',
     '/favicon.ico',
   ],
-});
+  });
+}
 
 export {};

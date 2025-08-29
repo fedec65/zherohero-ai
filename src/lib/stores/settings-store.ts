@@ -2,7 +2,7 @@
  * Settings Store - Manages user preferences, theme, and application settings
  */
 
-import { create } from 'zustand';
+import { createWithEqualityFn } from 'zustand/traditional';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
@@ -116,7 +116,7 @@ function getSystemTheme(): 'light' | 'dark' {
 }
 
 // Create the settings store
-export const useSettingsStore = create<SettingsStore>()(
+export const useSettingsStore = createWithEqualityFn<SettingsStore>()(
   subscribeWithSelector(
     persist(
       immer((set, get) => ({

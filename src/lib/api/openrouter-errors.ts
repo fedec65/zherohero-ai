@@ -347,10 +347,12 @@ export function formatErrorMessage(error: OpenRouterErrorDetails): {
   return result;
 }
 
-export default {
+const OpenRouterErrorUtils = {
   parseOpenRouterError,
   shouldRetry,
   getRetryDelay,
   formatErrorMessage,
   OPENROUTER_ERROR_CODES,
 };
+
+export default OpenRouterErrorUtils;

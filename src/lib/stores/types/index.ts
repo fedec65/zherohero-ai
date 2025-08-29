@@ -47,7 +47,7 @@ export interface Folder extends BaseEntity {
 }
 
 // AI Model types
-export type AIProvider = 'openai' | 'anthropic' | 'gemini' | 'xai' | 'deepseek' | 'openrouter' | 'custom';
+export type AIProvider = 'openai' | 'anthropic' | 'gemini' | 'xai' | 'deepseek' | 'openrouter' | 'custom' | 'tavily';
 
 export interface Model {
   id: string;

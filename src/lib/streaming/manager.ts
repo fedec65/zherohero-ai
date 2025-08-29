@@ -77,6 +77,12 @@ const DEFAULT_PROVIDER_LIMITS: Record<AIProvider, ProviderLimits> = {
     maxQueueSize: 25,
     requestTimeout: 120000,
     rateLimit: { requests: 500, window: 60000 } // 500 per minute - conservative for custom providers
+  },
+  tavily: {
+    maxConcurrentRequests: 10,
+    maxQueueSize: 50,
+    requestTimeout: 90000,
+    rateLimit: { requests: 1000, window: 60000 } // 1000 per minute for search API
   }
 };
 

@@ -9,6 +9,7 @@ import { OpenRouterModelCard } from './openrouter-model-card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Dropdown } from '../ui/dropdown';
+import { ModelGridSkeleton } from '../ui/skeleton';
 import type { Model, CustomModel, OpenRouterModel, AIProvider } from '../../lib/stores/types';
 import { 
   useOptimizedModelGrid, 
@@ -33,6 +34,7 @@ const providerLabels: Record<AIProvider, string> = {
   deepseek: 'DeepSeek',
   openrouter: 'OpenRouter',
   custom: 'Custom Models',
+  tavily: 'Tavily Search',
 };
 
 const sortOptions = [
@@ -232,18 +234,54 @@ export function ModelGrid({ className }: ModelGridProps) {
   if (activeTab === 'openrouter') {
     const openRouterError = testResults['openrouter:error'];
     
-    // Loading state
+    // Professional loading state with skeleton
     if (loading.fetchOpenRouterModels) {
       return (
         <div className={clsx('space-y-6', className)}>
-          <div className="flex flex-col items-center justify-center py-16">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-              Loading OpenRouter Models
-            </h3>
-            <p className="text-gray-600 dark:text-gray-400">
-              Fetching hundreds of AI models from OpenRouter marketplace...
-            </p>
+          {/* Grid skeleton with staggered animation */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <div
+                key={i}
+                className="animate-pulse"
+                style={{ animationDelay: `${i * 0.1}s` }}
+              >
+                <div className="bg-gray-200 dark:bg-gray-700 rounded-xl p-5 space-y-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start gap-3 flex-1">
+                      <div className="w-8 h-8 bg-gray-300 dark:bg-gray-600 rounded-full" />
+                      <div className="flex-1 space-y-2">
+                        <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-3/4" />
+                        <div className="h-3 bg-gray-300 dark:bg-gray-600 rounded w-1/2" />
+                      </div>
+                    </div>
+                    <div className="w-12 h-5 bg-gray-300 dark:bg-gray-600 rounded-full" />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="h-3 bg-gray-300 dark:bg-gray-600 rounded w-full" />
+                    <div className="h-3 bg-gray-300 dark:bg-gray-600 rounded w-2/3" />
+                  </div>
+                  <div className="flex justify-end pt-3 border-t border-gray-300 dark:border-gray-600">
+                    <div className="h-8 w-20 bg-gray-300 dark:bg-gray-600 rounded" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          {/* Professional loading toast */}
+          <div className="fixed top-4 right-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-4 max-w-sm z-50">
+            <div className="flex items-center space-x-3">
+              <div className="animate-spin rounded-full h-6 w-6 border-2 border-blue-600 border-t-transparent"></div>
+              <div>
+                <h4 className="font-medium text-gray-900 dark:text-white text-sm">
+                  Loading OpenRouter Models
+                </h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400">
+                  Discovering hundreds of AI models...
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       );

@@ -236,6 +236,7 @@ export const useSettingsStore = create<SettingsStore>()(
             xai: /^xai-[a-zA-Z0-9\-_]+$/,
             deepseek: /^sk-[a-zA-Z0-9]{32,}$/,
             openrouter: /^sk-or-[a-zA-Z0-9\-_]{43}$/, // OpenRouter API key format
+            tavily: /^tvly-[a-zA-Z0-9]{32,}$/, // Tavily API key format
             custom: /.+/, // Allow any non-empty string for custom models
           };
 

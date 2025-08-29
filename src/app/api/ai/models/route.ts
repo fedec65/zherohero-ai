@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { aiAPI } from '../../../../lib/api';
-import { AIProvider } from '../../../../../lib/stores/types';
+import { AIProvider } from '../../../../lib/stores/types/index';
 
 // Model information from the store (could be imported from model store)
 const MODEL_INFORMATION = {

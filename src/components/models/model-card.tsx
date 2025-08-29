@@ -28,6 +28,7 @@ const providerLogos: Record<AIProvider, string> = {
   deepseek: '/logos/deepseek.svg',
   openrouter: '/logos/openrouter.svg',
   custom: '/logos/custom.svg',
+  tavily: '/logos/tavily.svg',
 };
 
 // Provider colors for fallback
@@ -39,6 +40,7 @@ const providerColors: Record<AIProvider, string> = {
   deepseek: 'bg-purple-500',
   openrouter: 'bg-indigo-500',
   custom: 'bg-gray-500',
+  tavily: 'bg-teal-500',
 };
 
 const ProviderLogo = memo(({ provider }: { provider: AIProvider }) => {
@@ -154,10 +156,11 @@ const ModelCard = memo(({
   );
 
   const cardClassName = useMemo(() => clsx(
-    'bg-white dark:bg-gray-800 border rounded-lg p-4 transition-all duration-200',
-    'hover:shadow-lg hover:shadow-gray-200 dark:hover:shadow-gray-900/20',
+    'bg-white dark:bg-gray-800 border rounded-lg p-5 transition-all duration-300 ease-out group relative overflow-hidden',
+    'hover:shadow-xl hover:shadow-gray-200/50 dark:hover:shadow-gray-900/30',
+    'hover:-translate-y-1 hover:scale-[1.02]',
     selected 
-      ? 'border-blue-500 dark:border-blue-400 ring-1 ring-blue-500 dark:ring-blue-400' 
+      ? 'border-blue-500 dark:border-blue-400 ring-2 ring-blue-500/20 dark:ring-blue-400/20 shadow-lg shadow-blue-100 dark:shadow-blue-900/20' 
       : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600',
     'cursor-pointer'
   ), [selected]);
@@ -167,13 +170,18 @@ const ModelCard = memo(({
       className={cardClassName}
       onClick={handleSelect}
     >
-      <div className="flex items-start justify-between mb-3">
+      {/* Subtle background gradient on hover */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-50/0 to-purple-50/0 group-hover:from-blue-50/30 group-hover:to-purple-50/30 dark:group-hover:from-blue-900/10 dark:group-hover:to-purple-900/10 transition-all duration-300 rounded-lg" />
+      
+      {/* Content wrapper for relative positioning */}
+      <div className="relative z-10">
+      <div className="flex items-start justify-between mb-4">
         <div className="flex items-start gap-3 flex-1 min-w-0">
           <ProviderLogo provider={model.provider} />
           
           <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-2">
-              <h3 className="font-medium text-gray-900 dark:text-white text-sm leading-tight">
+            <div className="flex items-start justify-between gap-3">
+              <h3 className="font-semibold text-gray-900 dark:text-white text-sm leading-tight group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors duration-200">
                 {model.name}
               </h3>
               
@@ -196,13 +204,15 @@ const ModelCard = memo(({
               </div>
             </div>
             
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Context: {contextWindowText}
-            </p>
-            
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              Max output: {maxTokensText}
-            </p>
+            <div className="space-y-1 mt-2">
+              <p className="text-xs text-gray-600 dark:text-gray-400 font-medium">
+                Context: <span className="text-blue-600 dark:text-blue-400">{contextWindowText}</span>
+              </p>
+              
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Max output: <span className="text-gray-700 dark:text-gray-300">{maxTokensText}</span>
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -245,7 +255,7 @@ const ModelCard = memo(({
       )}
 
       {/* Action Buttons */}
-      <div className="flex items-center justify-end gap-2 mt-4">
+      <div className="flex items-center justify-end gap-2 mt-5 pt-3 border-t border-gray-100 dark:border-gray-700">
         {model.provider === 'custom' && (
           <>
             <Button
@@ -272,11 +282,12 @@ const ModelCard = memo(({
           variant="ghost"
           size="sm"
           onClick={handleConfigure}
-          className="text-xs h-8 px-3"
-          leftIcon={<Settings className="h-3 w-3" />}
+          className="text-xs h-8 px-3 font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 group/btn"
+          leftIcon={<Settings className="h-3 w-3 group-hover/btn:rotate-45 transition-transform duration-200" />}
         >
           Configure
         </Button>
+      </div>
       </div>
     </div>
   );

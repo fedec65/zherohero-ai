@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { aiAPI, initializeAllProviders } from '../../../../lib/api';
-import { AIProvider } from '../../../../../lib/stores/types';
+import { AIProvider } from '../../../../lib/stores/types/index';
 import { PerformanceMonitor } from '../../../../lib/performance/monitor';
 import { StreamManager } from '../../../../lib/streaming/manager';
 

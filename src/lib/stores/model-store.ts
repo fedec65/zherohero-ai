@@ -449,6 +449,7 @@ const BUILT_IN_MODELS: Record<AIProvider, Model[]> = {
   ],
   openrouter: [], // OpenRouter models are fetched dynamically
   custom: [],
+  tavily: [], // Tavily models are handled through MCP integration
 };
 
 // Model store state interface

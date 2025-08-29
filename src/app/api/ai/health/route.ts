@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { aiAPI } from '../../../../lib/api';
-import { AIProvider } from '../../../../../lib/stores/types';
+import { AIProvider } from '../../../../lib/stores/types/index';
 
 export async function GET() {
   try {

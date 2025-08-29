@@ -6,14 +6,40 @@ import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import { MCPServer, MCPCapability, AsyncState, Patch } from './types';
+import { MCPServer, MCPCapability, AsyncState, Patch } from './types/index';
 import { createStorage, createPartializer, PersistOptions } from './middleware/persistence';
 import { nanoid } from 'nanoid';
+import { TavilyMCPServer } from '../mcp/servers/tavily';
+import { autoInjectionManager } from '../mcp/auto-injection';
+import { useSettingsStore } from './settings-store';
 
 // Built-in MCP servers (these would be provided by the platform)
 const BUILT_IN_SERVERS: MCPServer[] = [
-  // Currently empty as per the original design
+  {
+    id: 'tavily-search',
+    name: 'Tavily Search',
+    description: 'Real-time web search powered by Tavily API. Provides access to current information, news, and web content to enhance AI responses with up-to-date data.',
+    url: 'https://api.tavily.com/mcp',
+    enabled: false,
+    autoInject: true,
+    capabilities: ['tools', 'resources'],
+    config: {
+      apiKey: '',
+      searchDepth: 'basic',
+      maxResults: 5,
+      includeImages: false,
+      includeAnswer: true,
+    },
+    status: 'disconnected',
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01'),
+  },
 ];
+
+// MCP server instances (not persisted)
+interface MCPServerInstances {
+  tavilyServers: Map<string, TavilyMCPServer>;
+}
 
 // MCP store state interface
 interface MCPState {
@@ -101,6 +127,12 @@ interface MCPActions {
   getServerCapabilities: (serverId: string) => MCPCapability[];
   isServerHealthy: (serverId: string) => boolean;
   
+  // Server instance management
+  initializeTavilyServer: (serverId: string) => Promise<void>;
+  getTavilyServer: (serverId: string) => TavilyMCPServer | null;
+  updateServerInstance: (serverId: string) => Promise<void>;
+  cleanupServerInstances: () => void;
+  
   // Request handling
   executeServerRequest: (serverId: string, request: MCPRequest) => Promise<MCPResponse>;
   broadcastRequest: (request: MCPRequest, capability: MCPCapability) => Promise<MCPResponse[]>;
@@ -146,6 +178,11 @@ const DEFAULT_GLOBAL_SETTINGS: MCPState['globalSettings'] = {
   retryAttempts: 3,
   retryDelay: 1000,
   logLevel: 'info',
+};
+
+// Global server instances (not persisted)
+const serverInstances: MCPServerInstances = {
+  tavilyServers: new Map(),
 };
 
 // Create the MCP store
@@ -290,33 +327,27 @@ export const useMCPStore = create<MCPStore>()(
               throw new Error('Server not found');
             }
 
-            // TODO: Implement actual MCP connection logic
-            // This would establish WebSocket or HTTP connection to the MCP server
-            
-            // Simulate connection
-            await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
-            
-            const success = Math.random() > 0.2; // 80% success rate for demo
-            
-            if (success) {
-              const capabilities: MCPCapability[] = ['tools', 'resources']; // Mock capabilities
+            // Handle Tavily server connection
+            if (serverId === 'tavily-search') {
+              await get().initializeTavilyServer(serverId);
               
-              set((state) => {
-                state.connectionStates[serverId] = {
-                  status: 'connected',
-                  lastConnected: new Date(),
-                  capabilities,
-                };
-              });
+              const tavilyServer = get().getTavilyServer(serverId);
+              if (tavilyServer) {
+                const health = await tavilyServer.healthCheck();
+                
+                set((state) => {
+                  state.connectionStates[serverId] = {
+                    status: 'connected',
+                    lastConnected: new Date(),
+                    capabilities: health.capabilities,
+                  };
+                });
 
-              const state = get();
-              const currentServer = state.builtInServers.find(s => s.id === serverId) || 
-                                   state.customServers.find(s => s.id === serverId);
-              if (currentServer) {
-                get().updateServer(serverId, { ...currentServer, status: 'connected' });
+                get().updateServer(serverId, { ...server, status: 'connected' });
               }
             } else {
-              throw new Error('Connection failed');
+              // Handle other server types (future implementation)
+              throw new Error(`Server type not supported: ${serverId}`);
             }
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -340,8 +371,15 @@ export const useMCPStore = create<MCPStore>()(
 
         disconnectServer: async (serverId: string) => {
           try {
-            // TODO: Implement actual disconnection logic
-            await new Promise(resolve => setTimeout(resolve, 500));
+            // Handle Tavily server disconnection
+            if (serverId === 'tavily-search') {
+              const tavilyServer = serverInstances.tavilyServers.get(serverId);
+              if (tavilyServer) {
+                await tavilyServer.disconnect();
+                serverInstances.tavilyServers.delete(serverId);
+                autoInjectionManager.unregisterServer(serverId);
+              }
+            }
 
             set((state) => {
               state.connectionStates[serverId] = {
@@ -398,19 +436,25 @@ export const useMCPStore = create<MCPStore>()(
           });
 
           try {
-            const startTime = Date.now();
+            let result: { healthy: boolean; latency: number; capabilities: MCPCapability[] };
             
-            // TODO: Implement actual health check
-            await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 1000));
-            
-            const latency = Date.now() - startTime;
-            const healthy = Math.random() > 0.1; // 90% healthy for demo
-            const capabilities: MCPCapability[] = ['tools', 'resources', 'prompts'];
+            // Handle Tavily server health check
+            if (serverId === 'tavily-search') {
+              const tavilyServer = serverInstances.tavilyServers.get(serverId);
+              if (tavilyServer) {
+                result = await tavilyServer.healthCheck();
+              } else {
+                throw new Error('Tavily server not initialized');
+              }
+            } else {
+              // Handle other server types or fallback
+              throw new Error(`Health check not implemented for server: ${serverId}`);
+            }
 
             set((state) => {
               state.loading.healthCheck = false;
               if (state.connectionStates[serverId]) {
-                state.connectionStates[serverId].capabilities = capabilities;
+                state.connectionStates[serverId].capabilities = result.capabilities;
               }
             });
 
@@ -421,16 +465,22 @@ export const useMCPStore = create<MCPStore>()(
               get().updateServer(serverId, { 
                 ...currentServer,
                 lastHealthCheck: new Date(),
-                status: healthy ? 'connected' : 'error'
+                status: result.healthy ? 'connected' : 'error'
               });
             }
 
-            return { healthy, latency, capabilities };
+            return result;
           } catch (error) {
             set((state) => {
               state.loading.healthCheck = false;
             });
-            throw error;
+            
+            // Return failed health check result
+            return {
+              healthy: false,
+              latency: 0,
+              capabilities: [],
+            };
           }
         },
 
@@ -467,6 +517,8 @@ export const useMCPStore = create<MCPStore>()(
                                state.customServers.find(s => s.id === serverId);
           if (currentServer) {
             get().updateServer(serverId, { ...currentServer, config });
+            // Update server instance if it exists
+            get().updateServerInstance(serverId).catch(console.error);
           }
         },
 
@@ -600,6 +652,88 @@ export const useMCPStore = create<MCPStore>()(
         isServerHealthy: (serverId: string) => {
           const connectionState = get().connectionStates[serverId];
           return connectionState?.status === 'connected';
+        },
+
+        // Server instance management
+        initializeTavilyServer: async (serverId: string) => {
+          const servers = [...get().builtInServers, ...get().customServers];
+          const serverConfig = servers.find(s => s.id === serverId);
+          
+          if (!serverConfig) {
+            throw new Error(`Server ${serverId} not found`);
+          }
+
+          // Check if this is a Tavily server
+          if (serverId !== 'tavily-search') {
+            throw new Error(`Server ${serverId} is not a Tavily server`);
+          }
+
+          try {
+            // Get Tavily API key from settings
+            const apiKey = useSettingsStore.getState().getApiKey('tavily');
+            if (!apiKey) {
+              throw new Error('Tavily API key not configured. Please add your Tavily API key in Settings.');
+            }
+
+            // Update server config with API key from settings
+            const configWithApiKey = {
+              ...serverConfig,
+              config: {
+                ...serverConfig.config,
+                apiKey,
+              },
+            };
+
+            // Create Tavily server instance
+            const tavilyServer = new TavilyMCPServer(configWithApiKey);
+            await tavilyServer.initialize();
+            
+            // Store instance
+            serverInstances.tavilyServers.set(serverId, tavilyServer);
+            
+            // Register with auto-injection manager
+            autoInjectionManager.registerServer(serverId, tavilyServer);
+            
+            console.log(`Tavily server ${serverId} initialized successfully`);
+          } catch (error) {
+            console.error(`Failed to initialize Tavily server ${serverId}:`, error);
+            throw error;
+          }
+        },
+
+        getTavilyServer: (serverId: string) => {
+          return serverInstances.tavilyServers.get(serverId) || null;
+        },
+
+        updateServerInstance: async (serverId: string) => {
+          const servers = [...get().builtInServers, ...get().customServers];
+          const serverConfig = servers.find(s => s.id === serverId);
+          
+          if (!serverConfig) {
+            return;
+          }
+
+          // Update Tavily server if it exists
+          const tavilyServer = serverInstances.tavilyServers.get(serverId);
+          if (tavilyServer) {
+            try {
+              await tavilyServer.updateConfig(serverConfig.config);
+            } catch (error) {
+              console.error(`Failed to update Tavily server ${serverId}:`, error);
+            }
+          }
+        },
+
+        cleanupServerInstances: () => {
+          // Disconnect all Tavily servers
+          for (const [serverId, server] of serverInstances.tavilyServers.entries()) {
+            server.disconnect().catch(console.error);
+            autoInjectionManager.unregisterServer(serverId);
+          }
+          serverInstances.tavilyServers.clear();
+          
+          // Cleanup auto-injection manager
+          autoInjectionManager.cleanup();
         },
 
         // Request handling

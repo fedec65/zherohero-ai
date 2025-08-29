@@ -4,18 +4,18 @@ import { clsx } from "clsx";
 import { Search, X } from "lucide-react";
 
 const inputVariants = cva(
-  "flex w-full rounded-md border bg-white px-3 py-2 text-sm ring-offset-white transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-900 dark:ring-offset-gray-950 dark:placeholder:text-gray-400",
+  "flex w-full rounded-lg border bg-white px-3 py-2 text-sm ring-offset-white transition-all duration-200 ease-out file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1 focus-visible:border-blue-500 hover:border-gray-300 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:bg-gray-900 dark:ring-offset-gray-950 dark:placeholder:text-gray-400 dark:hover:border-gray-600 dark:focus-visible:border-blue-400 dark:focus-visible:ring-blue-400 shadow-sm focus-visible:shadow-md",
   {
     variants: {
       variant: {
-        default: "border-gray-200",
-        error: "border-red-500 focus-visible:ring-red-500",
-        success: "border-green-500 focus-visible:ring-green-500",
+        default: "border-gray-200 dark:border-gray-700",
+        error: "border-red-500 focus-visible:ring-red-500 focus-visible:border-red-500 bg-red-50/50 dark:bg-red-900/10 dark:border-red-500",
+        success: "border-green-500 focus-visible:ring-green-500 focus-visible:border-green-500 bg-green-50/50 dark:bg-green-900/10 dark:border-green-500",
       },
       inputSize: {
-        default: "h-10",
-        sm: "h-8 text-xs",
-        lg: "h-12",
+        default: "h-10 px-3",
+        sm: "h-8 text-xs px-2.5",
+        lg: "h-12 px-4 text-base",
       },
     },
     defaultVariants: {
@@ -64,15 +64,15 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label 
             htmlFor={inputId}
-            className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+            className="mb-2 block text-sm font-semibold text-gray-800 dark:text-gray-200"
           >
             {label}
           </label>
         )}
         
-        <div className="relative">
+        <div className="relative group">
           {leftIcon && (
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400 transition-colors duration-200">
               {leftIcon}
             </div>
           )}
@@ -100,13 +100,13 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
                 <button
                   type="button"
                   onClick={onClear}
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 p-1 rounded-full transition-all duration-200 hover:scale-110"
                   aria-label="Clear input"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-3 w-3" />
                 </button>
               ) : rightIcon ? (
-                <div className="text-gray-400">
+                <div className="text-gray-400 dark:text-gray-500 group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400 transition-colors duration-200">
                   {rightIcon}
                 </div>
               ) : null}
@@ -116,10 +116,10 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         
         {(error || helperText) && (
           <p className={clsx(
-            "mt-1 text-xs",
+            "mt-2 text-xs transition-colors duration-200",
             hasError 
-              ? "text-red-600 dark:text-red-400" 
-              : "text-gray-500 dark:text-gray-400"
+              ? "text-red-600 dark:text-red-400 font-medium" 
+              : "text-gray-600 dark:text-gray-400"
           )}>
             {error || helperText}
           </p>

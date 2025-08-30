@@ -141,7 +141,7 @@ export function UserProfileMenu({
       {isOpen && (
         <div
           className={cn(
-            "absolute bottom-full right-0 mb-2 w-56",
+            "absolute bottom-full left-0 mb-2 w-56",
             "bg-white dark:bg-gray-900",
             "border border-gray-200 dark:border-gray-700",
             "rounded-lg shadow-lg",

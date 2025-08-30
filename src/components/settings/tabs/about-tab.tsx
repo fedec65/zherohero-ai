@@ -23,7 +23,7 @@ export function AboutTab() {
     },
     {
       title: "GitHub Repository",
-      href: "https://github.com/minddeck/minddeck-ai",
+      href: "https://github.com/sandsiv/sandsiv-plus",
       icon: ExternalLink,
       description: "Source code and contributions",
     },
@@ -51,12 +51,12 @@ export function AboutTab() {
       {/* Header */}
       <div className="text-center space-y-4">
         <div className="mx-auto w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center">
-          <span className="text-2xl font-bold text-white">M</span>
+          <span className="text-2xl font-bold text-white">S</span>
         </div>
 
         <div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-            MindDeck AI
+            Sandsiv+
           </h2>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
             Advanced AI Chat Interface
@@ -97,13 +97,13 @@ export function AboutTab() {
       {/* Description */}
       <div className="space-y-3">
         <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-          About MindDeck
+          About Sandsiv+
         </h3>
         <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-          MindDeck is a modern, privacy-focused AI chat interface that supports
+          Sandsiv+ is a modern, privacy-focused AI chat interface that supports
           multiple AI providers including OpenAI, Anthropic Claude, Google
           Gemini, xAI, and DeepSeek. Built with performance and user experience
-          in mind, MindDeck offers a seamless way to interact with cutting-edge
+          in mind, Sandsiv+ offers a seamless way to interact with cutting-edge
           AI models while keeping your data secure and private.
         </p>
         <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
@@ -180,7 +180,7 @@ export function AboutTab() {
         </h3>
         <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
           <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-            MindDeck is built with modern web technologies including Next.js,
+            Sandsiv+ is built with modern web technologies including Next.js,
             TypeScript, Tailwind CSS, and integrates with multiple AI providers.
             We thank the open source community for their contributions to the
             tools and libraries that make this project possible.
@@ -245,7 +245,7 @@ export function AboutTab() {
       {/* Copyright */}
       <div className="text-center py-6 border-t border-gray-200 dark:border-gray-700">
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          © {new Date().getFullYear()} MindDeck AI. All rights reserved.
+          © {new Date().getFullYear()} Sandsiv+. All rights reserved.
         </p>
         <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
           This software is provided under the MIT License.

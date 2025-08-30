@@ -138,9 +138,9 @@ export function ChatSidebar({ className }: ChatSidebarProps) {
           <Tooltip content="New Chat">
             <Button
               onClick={handleNewChat}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white whitespace-nowrap min-w-0"
             >
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="h-4 w-4 mr-2 flex-shrink-0" />
               New Chat
             </Button>
           </Tooltip>
@@ -149,9 +149,16 @@ export function ChatSidebar({ className }: ChatSidebarProps) {
         {/* Secondary buttons */}
         <div className="flex items-center gap-2 mt-2">
           <Tooltip content="New Folder">
-            <Button variant="outline" size="sm" className="flex-1">
-              <FolderPlus className="h-4 w-4 mr-1" />
-              Folder
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex-1 group relative overflow-hidden bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 border-gray-200 dark:border-gray-600 hover:from-indigo-50 hover:to-purple-50 dark:hover:from-indigo-900/20 dark:hover:to-purple-900/20 hover:border-indigo-200 dark:hover:border-indigo-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 ease-out font-medium"
+            >
+              <FolderPlus className="h-4 w-4 mr-2 transition-all duration-300 group-hover:scale-110 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 flex-shrink-0" />
+              <span className="transition-colors duration-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+                Folder
+              </span>
+              <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </Button>
           </Tooltip>
           <Tooltip content="Filter & Sort">

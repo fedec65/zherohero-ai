@@ -1,16 +1,16 @@
-"use client";
+'use client'
 
-import React from "react";
-import { useChatStore } from "../../lib/stores/chat-store";
-import { ChatInterface } from "./chat-interface";
-import { ChatHome } from "./chat-home";
+import React from 'react'
+import { useChatStore } from '../../lib/stores/chat-store'
+import { ChatInterface } from './chat-interface'
+import { ChatHome } from './chat-home'
 
 interface ChatContainerProps {
-  className?: string;
+  className?: string
 }
 
 export function ChatContainer({ className }: ChatContainerProps) {
-  const { activeChat, chats } = useChatStore();
+  const { activeChat, chats } = useChatStore()
 
   // If there's an active chat and it exists, show the chat interface
   if (activeChat && chats[activeChat]) {
@@ -18,7 +18,7 @@ export function ChatContainer({ className }: ChatContainerProps) {
       <div className={className}>
         <ChatInterface chatId={activeChat} />
       </div>
-    );
+    )
   }
 
   // Otherwise show the home/welcome screen
@@ -26,5 +26,5 @@ export function ChatContainer({ className }: ChatContainerProps) {
     <div className={className}>
       <ChatHome />
     </div>
-  );
+  )
 }

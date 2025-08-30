@@ -277,22 +277,22 @@ const handleSettingsClick = () => {
 
 ```typescript
 // Setting API keys
-const { setApiKey, validateApiKey, testApiConnection } = useSettingsStore();
+const { setApiKey, validateApiKey, testApiConnection } = useSettingsStore()
 
-await setApiKey("openai", "sk-...");
-const isValid = await validateApiKey("openai", key);
-const connected = await testApiConnection("openai");
+await setApiKey('openai', 'sk-...')
+const isValid = await validateApiKey('openai', key)
+const connected = await testApiConnection('openai')
 ```
 
 ### 3. Settings Export/Import
 
 ```typescript
 // Export settings
-const blob = await exportSettings();
-const url = URL.createObjectURL(blob);
+const blob = await exportSettings()
+const url = URL.createObjectURL(blob)
 
 // Import settings
-await importSettings(file);
+await importSettings(file)
 ```
 
 ## Testing and Validation

@@ -186,26 +186,26 @@ vercel certs ls
 
 ```typescript
 // All API keys are encrypted at rest
-import { APIKeyManager } from "@/lib/security";
+import { APIKeyManager } from '@/lib/security'
 
 // Encrypt before storing
-const encryptedKey = APIKeyManager.encrypt(apiKey);
+const encryptedKey = APIKeyManager.encrypt(apiKey)
 
 // Decrypt when using
-const decryptedKey = APIKeyManager.decrypt(encryptedKey);
+const decryptedKey = APIKeyManager.decrypt(encryptedKey)
 ```
 
 ### 2. Rate Limiting
 
 ```typescript
 // Implemented at API route level
-import { RateLimiter } from "@/lib/security";
+import { RateLimiter } from '@/lib/security'
 
 export async function POST(request: Request) {
-  const clientIP = getClientIP(request);
+  const clientIP = getClientIP(request)
 
   if (RateLimiter.isRateLimited(clientIP)) {
-    return new Response("Rate limit exceeded", { status: 429 });
+    return new Response('Rate limit exceeded', { status: 429 })
   }
 
   // Continue with request processing
@@ -216,9 +216,9 @@ export async function POST(request: Request) {
 
 ```typescript
 // All user inputs are sanitized
-import { InputSanitizer } from "@/lib/security";
+import { InputSanitizer } from '@/lib/security'
 
-const sanitizedMessage = InputSanitizer.sanitizeChatMessage(userMessage);
+const sanitizedMessage = InputSanitizer.sanitizeChatMessage(userMessage)
 ```
 
 ### 4. Content Security Policy
@@ -268,40 +268,40 @@ npm run test:lighthouse
 
 ```typescript
 // Automatic error capture
-import * as Sentry from "@sentry/nextjs";
+import * as Sentry from '@sentry/nextjs'
 
 // Manual error reporting
 Sentry.captureException(error, {
-  tags: { component: "chat", feature: "message-send" },
+  tags: { component: 'chat', feature: 'message-send' },
   user: { id: userId },
   extra: { messageId, modelUsed },
-});
+})
 ```
 
 ### 2. Performance Monitoring
 
 ```typescript
 // Track Core Web Vitals
-import { trackPerformance } from "@/lib/monitoring";
+import { trackPerformance } from '@/lib/monitoring'
 
 // Track custom metrics
-trackPerformance("model_response_time", duration, {
-  model: "gpt-4",
-  provider: "openai",
-});
+trackPerformance('model_response_time', duration, {
+  model: 'gpt-4',
+  provider: 'openai',
+})
 ```
 
 ### 3. User Analytics
 
 ```typescript
 // Track user interactions
-import { trackUserAction } from "@/lib/monitoring";
+import { trackUserAction } from '@/lib/monitoring'
 
-trackUserAction("chat_message_sent", {
+trackUserAction('chat_message_sent', {
   model: selectedModel,
   messageLength: message.length,
   hasAttachments: attachments.length > 0,
-});
+})
 ```
 
 ### 4. Health Monitoring
@@ -379,28 +379,28 @@ vercel rollback dpl_abc123
 ```typescript
 // LocalStorage for user preferences
 const preferences = {
-  theme: "dark",
+  theme: 'dark',
   sidebarWidth: 320,
-  defaultModel: "gpt-4",
+  defaultModel: 'gpt-4',
   apiKeys: encryptedApiKeys,
-};
+}
 
-localStorage.setItem("userPreferences", JSON.stringify(preferences));
+localStorage.setItem('userPreferences', JSON.stringify(preferences))
 ```
 
 ```typescript
 // IndexedDB for chat history
-import { openDB } from "idb";
+import { openDB } from 'idb'
 
-const db = await openDB("MindDeckClone", 1, {
+const db = await openDB('MindDeckClone', 1, {
   upgrade(db) {
-    const chatStore = db.createObjectStore("chats", { keyPath: "id" });
-    chatStore.createIndex("timestamp", "timestamp");
+    const chatStore = db.createObjectStore('chats', { keyPath: 'id' })
+    chatStore.createIndex('timestamp', 'timestamp')
 
-    const messageStore = db.createObjectStore("messages", { keyPath: "id" });
-    messageStore.createIndex("chatId", "chatId");
+    const messageStore = db.createObjectStore('messages', { keyPath: 'id' })
+    messageStore.createIndex('chatId', 'chatId')
   },
-});
+})
 ```
 
 ### 2. Optional Backend Integration
@@ -409,13 +409,13 @@ For enterprise deployments, consider:
 
 ```typescript
 // Redis for session storage
-const redis = new Redis(process.env.REDIS_URL);
+const redis = new Redis(process.env.REDIS_URL)
 
 // PostgreSQL for user data
 const db = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false },
-});
+})
 ```
 
 ### 3. Data Migration Strategy
@@ -426,16 +426,16 @@ const migrations = {
   1: (data) => ({ ...data, version: 1 }),
   2: (data) => ({ ...data, folders: [], version: 2 }),
   3: (data) => ({ ...data, mcpServers: [], version: 3 }),
-};
+}
 
 const migrateData = (data, currentVersion) => {
-  let version = data.version || 0;
+  let version = data.version || 0
   while (version < currentVersion) {
-    version++;
-    data = migrations[version](data);
+    version++
+    data = migrations[version](data)
   }
-  return data;
-};
+  return data
+}
 ```
 
 ## Disaster Recovery
@@ -450,18 +450,18 @@ export const exportUserData = () => {
     preferences: getUserPreferences(),
     models: getModelConfigurations(),
     timestamp: Date.now(),
-  };
+  }
 
   const blob = new Blob([JSON.stringify(data, null, 2)], {
-    type: "application/json",
-  });
+    type: 'application/json',
+  })
 
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `minddeck-backup-${Date.now()}.json`;
-  a.click();
-};
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `minddeck-backup-${Date.now()}.json`
+  a.click()
+}
 ```
 
 ### 2. Recovery Procedures
@@ -469,31 +469,31 @@ export const exportUserData = () => {
 ```typescript
 // Data import/recovery
 export const importUserData = (file: File) => {
-  const reader = new FileReader();
+  const reader = new FileReader()
   reader.onload = (e) => {
     try {
-      const data = JSON.parse(e.target?.result as string);
+      const data = JSON.parse(e.target?.result as string)
 
       // Validate data structure
       if (!validateDataStructure(data)) {
-        throw new Error("Invalid backup file format");
+        throw new Error('Invalid backup file format')
       }
 
       // Migrate if necessary
-      const migratedData = migrateData(data, CURRENT_VERSION);
+      const migratedData = migrateData(data, CURRENT_VERSION)
 
       // Restore data
-      restoreChats(migratedData.chats);
-      restorePreferences(migratedData.preferences);
-      restoreModelConfigurations(migratedData.models);
+      restoreChats(migratedData.chats)
+      restorePreferences(migratedData.preferences)
+      restoreModelConfigurations(migratedData.models)
 
-      showSuccessMessage("Data restored successfully");
+      showSuccessMessage('Data restored successfully')
     } catch (error) {
-      showErrorMessage("Failed to restore data: " + error.message);
+      showErrorMessage('Failed to restore data: ' + error.message)
     }
-  };
-  reader.readAsText(file);
-};
+  }
+  reader.readAsText(file)
+}
 ```
 
 ### 3. Incident Response Plan
@@ -598,26 +598,26 @@ Monitor these metrics:
 ```typescript
 const keyMetrics = {
   availability: {
-    target: "99.9%",
-    current: "99.95%",
-    status: "healthy",
+    target: '99.9%',
+    current: '99.95%',
+    status: 'healthy',
   },
   performance: {
-    p95_response_time: "1.2s",
-    core_web_vitals: "passing",
-    status: "healthy",
+    p95_response_time: '1.2s',
+    core_web_vitals: 'passing',
+    status: 'healthy',
   },
   errors: {
-    error_rate: "0.05%",
+    error_rate: '0.05%',
     critical_errors: 0,
-    status: "healthy",
+    status: 'healthy',
   },
   usage: {
     daily_active_users: 1250,
     api_calls_per_minute: 45,
-    status: "normal",
+    status: 'normal',
   },
-};
+}
 ```
 
 ### 3. Alert Configuration
@@ -724,13 +724,13 @@ vercel rollback
 const exportData = () => {
   const data = {
     timestamp: new Date().toISOString(),
-    chats: localStorage.getItem("chats"),
-    settings: localStorage.getItem("settings"),
-    models: localStorage.getItem("models"),
-  };
+    chats: localStorage.getItem('chats'),
+    settings: localStorage.getItem('settings'),
+    models: localStorage.getItem('models'),
+  }
 
-  console.log("EMERGENCY_BACKUP:", JSON.stringify(data));
-};
+  console.log('EMERGENCY_BACKUP:', JSON.stringify(data))
+}
 ```
 
 ## Production Readiness Checklist

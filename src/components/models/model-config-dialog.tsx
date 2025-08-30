@@ -1,17 +1,17 @@
-"use client";
+'use client'
 
-import { useState, useEffect, useCallback } from "react";
-import { X } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import type { Model, CustomModel, ModelConfig } from "../../lib/stores/types";
+import { useState, useEffect, useCallback } from 'react'
+import { X } from 'lucide-react'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
+import { Button } from '../ui/button'
+import { Input } from '../ui/input'
+import type { Model, CustomModel, ModelConfig } from '../../lib/stores/types'
 
 interface ModelConfigDialogProps {
-  model: Model | CustomModel;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onConfigSave?: (modelId: string, config: ModelConfig) => void;
+  model: Model | CustomModel
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onConfigSave?: (modelId: string, config: ModelConfig) => void
 }
 
 // Default model configuration values
@@ -21,17 +21,17 @@ const DEFAULT_CONFIG: ModelConfig = {
   frequencyPenalty: 0.0,
   presencePenalty: 0.0,
   maxTokens: undefined,
-};
+}
 
 interface SliderControlProps {
-  label: string;
-  value: number | undefined;
-  defaultValue: number;
-  min: number;
-  max: number;
-  step: number;
-  description: string;
-  onChange: (value: number | undefined) => void;
+  label: string
+  value: number | undefined
+  defaultValue: number
+  min: number
+  max: number
+  step: number
+  description: string
+  onChange: (value: number | undefined) => void
 }
 
 function SliderControl({
@@ -44,20 +44,20 @@ function SliderControl({
   description,
   onChange,
 }: SliderControlProps) {
-  const isDefault = value === undefined || value === defaultValue;
-  const displayValue = isDefault ? defaultValue : value;
+  const isDefault = value === undefined || value === defaultValue
+  const displayValue = isDefault ? defaultValue : value
 
   const handleSliderChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const newValue = parseFloat(e.target.value);
-      onChange(newValue === defaultValue ? undefined : newValue);
+      const newValue = parseFloat(e.target.value)
+      onChange(newValue === defaultValue ? undefined : newValue)
     },
-    [defaultValue, onChange],
-  );
+    [defaultValue, onChange]
+  )
 
   const handleReset = useCallback(() => {
-    onChange(undefined);
-  }, [onChange]);
+    onChange(undefined)
+  }, [onChange])
 
   return (
     <div className="space-y-3">
@@ -66,13 +66,13 @@ function SliderControl({
           {label}
         </label>
         {isDefault ? (
-          <span className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded">
+          <span className="rounded bg-gray-100 px-2 py-1 text-xs text-gray-600 dark:bg-gray-700 dark:text-gray-300">
             DEFAULT
           </span>
         ) : (
           <button
             onClick={handleReset}
-            className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+            className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
           >
             Reset
           </button>
@@ -87,9 +87,9 @@ function SliderControl({
           step={step}
           value={displayValue}
           onChange={handleSliderChange}
-          className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
+          className="slider h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 dark:bg-gray-700"
         />
-        <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+        <div className="mt-1 flex justify-between text-xs text-gray-500 dark:text-gray-400">
           <span>{min}</span>
           <span className="font-medium text-gray-700 dark:text-gray-300">
             {displayValue.toFixed(step < 1 ? 1 : 0)}
@@ -100,7 +100,7 @@ function SliderControl({
 
       <p className="text-xs text-gray-500 dark:text-gray-400">{description}</p>
     </div>
-  );
+  )
 }
 
 export function ModelConfigDialog({
@@ -111,47 +111,47 @@ export function ModelConfigDialog({
 }: ModelConfigDialogProps) {
   const [config, setConfig] = useState<ModelConfig>(() => ({
     ...DEFAULT_CONFIG,
-  }));
-  const [hasChanges, setHasChanges] = useState(false);
+  }))
+  const [hasChanges, setHasChanges] = useState(false)
 
   // Reset config when dialog opens
   useEffect(() => {
     if (open) {
-      setConfig({ ...DEFAULT_CONFIG });
-      setHasChanges(false);
+      setConfig({ ...DEFAULT_CONFIG })
+      setHasChanges(false)
     }
-  }, [open]);
+  }, [open])
 
   const handleConfigChange = useCallback(
     (field: keyof ModelConfig, value: number | string | undefined) => {
-      setConfig((prev) => ({ ...prev, [field]: value }));
-      setHasChanges(true);
+      setConfig((prev) => ({ ...prev, [field]: value }))
+      setHasChanges(true)
     },
-    [],
-  );
+    []
+  )
 
   const handleSave = useCallback(() => {
-    onConfigSave?.(model.id, config);
-    setHasChanges(false);
-    onOpenChange(false);
-  }, [config, model.id, onConfigSave, onOpenChange]);
+    onConfigSave?.(model.id, config)
+    setHasChanges(false)
+    onOpenChange(false)
+  }, [config, model.id, onConfigSave, onOpenChange])
 
   const handleReset = useCallback(() => {
-    setConfig({ ...DEFAULT_CONFIG });
-    setHasChanges(false);
-  }, []);
+    setConfig({ ...DEFAULT_CONFIG })
+    setHasChanges(false)
+  }, [])
 
   const handleCancel = useCallback(() => {
-    setConfig({ ...DEFAULT_CONFIG });
-    setHasChanges(false);
-    onOpenChange(false);
-  }, [onOpenChange]);
+    setConfig({ ...DEFAULT_CONFIG })
+    setHasChanges(false)
+    onOpenChange(false)
+  }, [onOpenChange])
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md w-full p-0 bg-white dark:bg-gray-800">
+      <DialogContent className="w-full max-w-md bg-white p-0 dark:bg-gray-800">
         {/* Header */}
-        <div className="relative px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="relative border-b border-gray-200 px-6 py-4 dark:border-gray-700">
           <DialogHeader>
             <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-white">
               {model.name} Settings
@@ -163,14 +163,14 @@ export function ModelConfigDialog({
 
           <button
             onClick={() => onOpenChange(false)}
-            className="absolute right-4 top-4 p-1 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
+            className="absolute right-4 top-4 rounded-sm p-1 opacity-70 transition-opacity hover:opacity-100"
           >
             <X className="h-4 w-4 text-gray-500 dark:text-gray-400" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="px-6 py-4 space-y-6 max-h-[60vh] overflow-y-auto">
+        <div className="max-h-[60vh] space-y-6 overflow-y-auto px-6 py-4">
           {/* Temperature */}
           <SliderControl
             label="Temperature"
@@ -180,7 +180,7 @@ export function ModelConfigDialog({
             max={2}
             step={0.1}
             description="Higher values make output more random, lower values more focused and deterministic"
-            onChange={(value) => handleConfigChange("temperature", value)}
+            onChange={(value) => handleConfigChange('temperature', value)}
           />
 
           {/* Presence Penalty */}
@@ -192,7 +192,7 @@ export function ModelConfigDialog({
             max={2}
             step={0.1}
             description="Penalizes new tokens based on whether they appear in the text so far"
-            onChange={(value) => handleConfigChange("presencePenalty", value)}
+            onChange={(value) => handleConfigChange('presencePenalty', value)}
           />
 
           {/* Frequency Penalty */}
@@ -204,7 +204,7 @@ export function ModelConfigDialog({
             max={2}
             step={0.1}
             description="Penalizes new tokens based on their frequency in the text so far"
-            onChange={(value) => handleConfigChange("frequencyPenalty", value)}
+            onChange={(value) => handleConfigChange('frequencyPenalty', value)}
           />
 
           {/* Top P */}
@@ -216,7 +216,7 @@ export function ModelConfigDialog({
             max={1}
             step={0.05}
             description="Nucleus sampling: model considers tokens with top_p probability mass"
-            onChange={(value) => handleConfigChange("topP", value)}
+            onChange={(value) => handleConfigChange('topP', value)}
           />
 
           {/* Max Tokens */}
@@ -226,13 +226,13 @@ export function ModelConfigDialog({
                 Max Tokens
               </label>
               {config.maxTokens === undefined ? (
-                <span className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded">
+                <span className="rounded bg-gray-100 px-2 py-1 text-xs text-gray-600 dark:bg-gray-700 dark:text-gray-300">
                   DEFAULT
                 </span>
               ) : (
                 <button
-                  onClick={() => handleConfigChange("maxTokens", undefined)}
-                  className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+                  onClick={() => handleConfigChange('maxTokens', undefined)}
+                  className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                 >
                   Reset
                 </button>
@@ -241,11 +241,11 @@ export function ModelConfigDialog({
 
             <Input
               type="number"
-              value={config.maxTokens ?? ""}
+              value={config.maxTokens ?? ''}
               onChange={(e) => {
                 const value =
-                  e.target.value === "" ? undefined : Number(e.target.value);
-                handleConfigChange("maxTokens", value);
+                  e.target.value === '' ? undefined : Number(e.target.value)
+                handleConfigChange('maxTokens', value)
               }}
               placeholder="DEFAULT"
               min={1}
@@ -260,11 +260,11 @@ export function ModelConfigDialog({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between border-t border-gray-200 px-6 py-4 dark:border-gray-700">
           <Button
             variant="ghost"
             onClick={handleReset}
-            className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+            className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
           >
             Reset to Defaults
           </Button>
@@ -273,7 +273,7 @@ export function ModelConfigDialog({
             <Button
               variant="ghost"
               onClick={handleCancel}
-              className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+              className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
             >
               Cancel
             </Button>
@@ -281,7 +281,7 @@ export function ModelConfigDialog({
             <Button
               variant="primary"
               onClick={handleSave}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="bg-blue-600 text-white hover:bg-blue-700"
             >
               Save Settings
             </Button>
@@ -289,5 +289,5 @@ export function ModelConfigDialog({
         </div>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

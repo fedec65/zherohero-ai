@@ -54,8 +54,8 @@ export function ModelCard({ model, onConfigure, onSelect, selected }) {
 const ModelCard = memo(
   ({ model, onConfigure, onSelect, selected }: ModelCardProps) => {
     // Optimized component logic...
-  },
-);
+  }
+)
 ```
 
 **Benefits**:
@@ -70,14 +70,14 @@ const ModelCard = memo(
 // Before: Recalculated on every render
 const sortedModels = [...allModels].sort((a, b) => {
   // Sorting logic...
-});
+})
 
 // After: Memoized computation
 const sortedModels = useMemo(() => {
   return [...allModels].sort((a, b) => {
     // Sorting logic...
-  });
-}, [allModels, sortBy]);
+  })
+}, [allModels, sortBy])
 ```
 
 **Benefits**:
@@ -90,11 +90,10 @@ const sortedModels = useMemo(() => {
 
 ```typescript
 // Before: Full store subscription
-const { models, customModels, activeTab, searchQuery } = useModelStore();
+const { models, customModels, activeTab, searchQuery } = useModelStore()
 
 // After: Shallow selector with useCallback
-const { models, customModels, activeTab, searchQuery } =
-  useOptimizedModelGrid();
+const { models, customModels, activeTab, searchQuery } = useOptimizedModelGrid()
 ```
 
 **Benefits**:
@@ -108,16 +107,16 @@ const { models, customModels, activeTab, searchQuery } =
 ```typescript
 // Before: New function on every render
 const handleModelSelect = (provider, modelId) => {
-  setSelectedModel(provider, modelId);
-};
+  setSelectedModel(provider, modelId)
+}
 
 // After: Memoized callback
 const handleModelSelect = useCallback(
   (provider: AIProvider, modelId: string) => {
-    setSelectedModel(provider, modelId);
+    setSelectedModel(provider, modelId)
   },
-  [setSelectedModel],
-);
+  [setSelectedModel]
+)
 ```
 
 **Benefits**:
@@ -175,11 +174,11 @@ export const useOptimizedModelGrid = () => {
         searchQuery: state.searchQuery,
         selectedProvider: state.selectedProvider,
       }),
-      [],
+      []
     ),
-    shallow,
-  );
-};
+    shallow
+  )
+}
 ```
 
 ### 2. Performance Monitoring HOC
@@ -252,8 +251,8 @@ For very large datasets:
 ```typescript
 // Move filtering to API/server
 const useServerFilteredModels = (query: string) => {
-  return useSWR(`/api/models?filter=${query}`, fetcher);
-};
+  return useSWR(`/api/models?filter=${query}`, fetcher)
+}
 ```
 
 ### 3. Incremental Loading
@@ -261,8 +260,8 @@ const useServerFilteredModels = (query: string) => {
 ```typescript
 // Load models incrementally
 const useInfiniteModels = () => {
-  return useSWRInfinite((index) => `/api/models?page=${index}`, fetcher);
-};
+  return useSWRInfinite((index) => `/api/models?page=${index}`, fetcher)
+}
 ```
 
 ## Testing Strategy
@@ -278,13 +277,13 @@ const useInfiniteModels = () => {
 
 ```typescript
 // Real user monitoring
-import { getCLS, getFID, getFCP, getLCP, getTTFB } from "web-vitals";
+import { getCLS, getFID, getFCP, getLCP, getTTFB } from 'web-vitals'
 
-getCLS(console.log);
-getFID(console.log);
-getFCP(console.log);
-getLCP(console.log);
-getTTFB(console.log);
+getCLS(console.log)
+getFID(console.log)
+getFCP(console.log)
+getLCP(console.log)
+getTTFB(console.log)
 ```
 
 ## Implementation Guidelines

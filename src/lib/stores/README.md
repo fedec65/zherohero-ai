@@ -91,49 +91,49 @@ lib/stores/
 ### Basic Store Access
 
 ```typescript
-import { useChatStore, useModelStore } from "@/lib/stores";
+import { useChatStore, useModelStore } from '@/lib/stores'
 
 // Direct store access
-const createChat = useChatStore((state) => state.createChat);
-const selectedModel = useModelStore((state) => state.selectedModel);
+const createChat = useChatStore((state) => state.createChat)
+const selectedModel = useModelStore((state) => state.selectedModel)
 ```
 
 ### Optimized Hooks
 
 ```typescript
-import { useActiveChat, useSelectedModel } from "@/lib/stores";
+import { useActiveChat, useSelectedModel } from '@/lib/stores'
 
 // Optimized with shallow comparison and memoization
-const { chat, messages, setActiveChat } = useActiveChat();
-const { model, config, setSelectedModel } = useSelectedModel();
+const { chat, messages, setActiveChat } = useActiveChat()
+const { model, config, setSelectedModel } = useSelectedModel()
 ```
 
 ### Complex State Relationships
 
 ```typescript
-import { useChatWithModel } from "@/lib/stores";
+import { useChatWithModel } from '@/lib/stores'
 
 // Combined hook with computed values
 const { chat, messages, model, canSendMessage, tokenCount } =
-  useChatWithModel(chatId);
+  useChatWithModel(chatId)
 ```
 
 ### Store Actions
 
 ```typescript
-import { useChatActions, useModelConfig } from "@/lib/stores";
+import { useChatActions, useModelConfig } from '@/lib/stores'
 
-const { createChat, sendMessage } = useChatActions();
-const { updateConfig } = useModelConfig("openai", "gpt-4");
+const { createChat, sendMessage } = useChatActions()
+const { updateConfig } = useModelConfig('openai', 'gpt-4')
 
 // Async operations with error handling
 const handleSendMessage = async (content: string) => {
   try {
-    await sendMessage(chatId, content);
+    await sendMessage(chatId, content)
   } catch (error) {
     // Error automatically handled by store
   }
-};
+}
 ```
 
 ### Persistence and Migration
@@ -146,15 +146,15 @@ const store = create<StoreState>()(
       /* store implementation */
     }),
     {
-      name: "store-name",
+      name: 'store-name',
       version: 1,
       migrate: createMigration({
-        1: (oldState) => ({ ...oldState, newField: "default" }),
+        1: (oldState) => ({ ...oldState, newField: 'default' }),
       }),
-      partialize: createPartializer(["excludeField"]),
-    },
-  ),
-);
+      partialize: createPartializer(['excludeField']),
+    }
+  )
+)
 ```
 
 ## Development Tools
@@ -163,19 +163,19 @@ const store = create<StoreState>()(
 
 ```typescript
 // Available in development mode
-window.stores.chat.getState();
-window.getGlobalSnapshot();
-window.resetAllStores();
+window.stores.chat.getState()
+window.getGlobalSnapshot()
+window.resetAllStores()
 ```
 
 ### State Inspection
 
 ```typescript
-import { getGlobalSnapshot } from "@/lib/stores";
+import { getGlobalSnapshot } from '@/lib/stores'
 
 // Get complete state snapshot
-const snapshot = getGlobalSnapshot();
-console.log("Current state:", snapshot);
+const snapshot = getGlobalSnapshot()
+console.log('Current state:', snapshot)
 ```
 
 ## Best Practices
@@ -184,10 +184,10 @@ console.log("Current state:", snapshot);
 
 ```typescript
 // ✅ Good: Use specific selectors
-const activeChat = useChatStore((state) => state.activeChat);
+const activeChat = useChatStore((state) => state.activeChat)
 
 // ❌ Bad: Select entire state
-const state = useChatStore();
+const state = useChatStore()
 ```
 
 ### Action Patterns
@@ -195,8 +195,8 @@ const state = useChatStore();
 ```typescript
 // ✅ Good: Use immer for nested updates
 set((state) => {
-  state.chats[chatId].title = newTitle;
-});
+  state.chats[chatId].title = newTitle
+})
 
 // ❌ Bad: Manual immutable updates
 set((state) => ({
@@ -205,7 +205,7 @@ set((state) => ({
     ...state.chats,
     [chatId]: { ...state.chats[chatId], title: newTitle },
   },
-}));
+}))
 ```
 
 ### Error Handling
@@ -214,18 +214,18 @@ set((state) => ({
 // ✅ Good: Consistent error patterns
 try {
   set((state) => {
-    state.loading.action = true;
-  });
-  await performAction();
+    state.loading.action = true
+  })
+  await performAction()
   set((state) => {
-    state.loading.action = false;
-  });
+    state.loading.action = false
+  })
 } catch (error) {
   set((state) => {
-    state.loading.action = false;
-    state.errors.action = error.message;
-  });
-  throw error;
+    state.loading.action = false
+    state.errors.action = error.message
+  })
+  throw error
 }
 ```
 

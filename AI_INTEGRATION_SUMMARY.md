@@ -43,8 +43,8 @@ Successfully implemented functional AI chat integration connecting the existing 
 
 ```typescript
 // Dynamic integration with model and settings stores
-const { useModelStore } = await import("./model-store");
-const { useSettingsStore } = await import("./settings-store");
+const { useModelStore } = await import('./model-store')
+const { useSettingsStore } = await import('./settings-store')
 
 // Real API calls with configuration
 await aiClientAPI.streamChatCompletion({
@@ -54,16 +54,16 @@ await aiClientAPI.streamChatCompletion({
   temperature: modelConfig.temperature,
   maxTokens: modelConfig.maxTokens,
   // ... full model configuration
-});
+})
 ```
 
 #### 2. API Client (`src/lib/api/client.ts`)
 
 ```typescript
 // Secure API key transmission via headers
-const apiKey = settingsState.getApiKey(request.provider);
+const apiKey = settingsState.getApiKey(request.provider)
 if (apiKey) {
-  headers[`x-${request.provider}-key`] = apiKey;
+  headers[`x-${request.provider}-key`] = apiKey
 }
 ```
 
@@ -71,14 +71,12 @@ if (apiKey) {
 
 ```typescript
 // API key validation before sending
-const hasValidApiKey = selectedModel
-  ? hasApiKey(selectedModel.provider)
-  : false;
+const hasValidApiKey = selectedModel ? hasApiKey(selectedModel.provider) : false
 const canSend =
   message.trim().length > 0 &&
   !loading.sendMessage &&
   selectedModel &&
-  hasValidApiKey;
+  hasValidApiKey
 ```
 
 ### Server-Side Changes
@@ -87,12 +85,12 @@ const canSend =
 
 ```typescript
 // Extract API keys from secure headers
-const apiKeys = extractApiKeysFromHeaders(request.headers);
+const apiKeys = extractApiKeysFromHeaders(request.headers)
 
 // Dynamic provider initialization
-const providerApiKey = apiKeys[body.provider];
+const providerApiKey = apiKeys[body.provider]
 if (providerApiKey) {
-  aiAPI.initializeProvider(body.provider, { apiKey: providerApiKey });
+  aiAPI.initializeProvider(body.provider, { apiKey: providerApiKey })
 }
 ```
 

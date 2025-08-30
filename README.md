@@ -264,13 +264,13 @@ zherohero-ai/
 
 ```typescript
 interface ModelConfig {
-  temperature: number; // 0-2, controls creativity
-  maxTokens?: number; // Maximum response length
-  topP: number; // 0-1, nucleus sampling
-  frequencyPenalty: number; // -2 to 2, reduces repetition
-  presencePenalty: number; // -2 to 2, encourages variety
-  systemPrompt?: string; // Custom system instructions
-  stopSequences?: string[]; // Custom stop sequences
+  temperature: number // 0-2, controls creativity
+  maxTokens?: number // Maximum response length
+  topP: number // 0-1, nucleus sampling
+  frequencyPenalty: number // -2 to 2, reduces repetition
+  presencePenalty: number // -2 to 2, encourages variety
+  systemPrompt?: string // Custom system instructions
+  stopSequences?: string[] // Custom stop sequences
 }
 ```
 
@@ -278,10 +278,10 @@ interface ModelConfig {
 
 ```typescript
 interface ThemeSettings {
-  theme: "light" | "dark" | "system";
-  effectiveTheme: "light" | "dark";
-  accentColor: string;
-  fontFamily: string;
+  theme: 'light' | 'dark' | 'system'
+  effectiveTheme: 'light' | 'dark'
+  accentColor: string
+  fontFamily: string
 }
 ```
 
@@ -292,16 +292,16 @@ interface ThemeSettings {
 ### Supported Providers
 
 ```typescript
-type AIProvider = "openai" | "anthropic" | "gemini" | "xai" | "deepseek";
+type AIProvider = 'openai' | 'anthropic' | 'gemini' | 'xai' | 'deepseek'
 
 interface AIProviderConfig {
-  apiKey: string;
-  baseURL: string;
-  defaultModel: string;
+  apiKey: string
+  baseURL: string
+  defaultModel: string
   rateLimits: {
-    requestsPerMinute: number;
-    tokensPerMinute: number;
-  };
+    requestsPerMinute: number
+    tokensPerMinute: number
+  }
 }
 ```
 

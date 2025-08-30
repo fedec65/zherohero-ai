@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
   /* Light theme variables */
@@ -23,7 +23,7 @@
   --toast-border: #e5e7eb;
 }
 
-[data-theme="dark"] {
+[data-theme='dark'] {
   /* Dark theme variables */
   --foreground-rgb: 249, 250, 251; /* gray-50 */
   --background-rgb: 17, 24, 39; /* gray-900 */
@@ -52,14 +52,14 @@ html,
 body {
   height: 100%;
   font-family:
-    "Inter",
+    'Inter',
     -apple-system,
     BlinkMacSystemFont,
-    "Segoe UI",
+    'Segoe UI',
     Roboto,
     sans-serif;
-  font-feature-settings: "cv11", "ss01";
-  font-variation-settings: "opsz" 32;
+  font-feature-settings: 'cv11', 'ss01';
+  font-variation-settings: 'opsz' 32;
   scroll-behavior: smooth;
 }
 
@@ -126,7 +126,7 @@ body {
   @apply outline-none ring-2 ring-blue-500 ring-offset-2 ring-offset-white;
 }
 
-[data-theme="dark"] .focus-visible {
+[data-theme='dark'] .focus-visible {
   @apply ring-offset-gray-900;
 }
 
@@ -153,40 +153,40 @@ body {
 
 /* Message bubble styles */
 .message-bubble {
-  @apply rounded-lg px-4 py-2 max-w-xs sm:max-w-md lg:max-w-lg xl:max-w-xl;
+  @apply max-w-xs rounded-lg px-4 py-2 sm:max-w-md lg:max-w-lg xl:max-w-xl;
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
 
 .message-user {
-  @apply bg-blue-600 text-white ml-auto;
+  @apply ml-auto bg-blue-600 text-white;
 }
 
 .message-assistant {
-  @apply bg-gray-100 text-gray-900 mr-auto;
+  @apply mr-auto bg-gray-100 text-gray-900;
   background: rgb(var(--secondary-rgb));
   color: rgb(var(--foreground-rgb));
 }
 
-[data-theme="dark"] .message-assistant {
+[data-theme='dark'] .message-assistant {
   @apply bg-gray-800 text-white;
 }
 
 /* Code highlighting */
 pre {
-  @apply rounded-md bg-gray-900 p-4 overflow-x-auto;
+  @apply overflow-x-auto rounded-md bg-gray-900 p-4;
 }
 
-[data-theme="dark"] pre {
+[data-theme='dark'] pre {
   @apply bg-gray-950;
 }
 
 code {
-  @apply bg-gray-100 px-1.5 py-0.5 rounded text-sm font-mono;
+  @apply rounded bg-gray-100 px-1.5 py-0.5 font-mono text-sm;
   font-size: 0.875em;
 }
 
-[data-theme="dark"] code {
+[data-theme='dark'] code {
   @apply bg-gray-800;
 }
 
@@ -196,10 +196,10 @@ pre code {
 
 /* Loading states */
 .skeleton {
-  @apply bg-gray-200 animate-pulse rounded;
+  @apply animate-pulse rounded bg-gray-200;
 }
 
-[data-theme="dark"] .skeleton {
+[data-theme='dark'] .skeleton {
   @apply bg-gray-700;
 }
 
@@ -213,7 +213,7 @@ pre code {
 
 /* Model card hover effects */
 .model-card {
-  @apply transition-all duration-200 hover:shadow-lg hover:scale-[1.02];
+  @apply transition-all duration-200 hover:scale-[1.02] hover:shadow-lg;
 }
 
 /* Chat input styles */
@@ -222,25 +222,25 @@ pre code {
   transition: all 0.2s ease-in-out;
 }
 
-[data-theme="dark"] .chat-input {
+[data-theme='dark'] .chat-input {
   @apply border-gray-600 bg-gray-800 text-white placeholder:text-gray-500 focus:border-blue-400 focus:ring-blue-400;
 }
 
 /* Navigation styles */
 .nav-item {
-  @apply relative flex items-center justify-center w-10 h-10 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200;
+  @apply relative flex h-10 w-10 items-center justify-center rounded-lg text-gray-600 transition-all duration-200 hover:bg-gray-100 hover:text-gray-900;
 }
 
-[data-theme="dark"] .nav-item {
-  @apply text-gray-400 hover:text-white hover:bg-gray-800;
+[data-theme='dark'] .nav-item {
+  @apply text-gray-400 hover:bg-gray-800 hover:text-white;
 }
 
 .nav-item.active {
-  @apply text-blue-600 bg-blue-50 shadow-sm;
+  @apply bg-blue-50 text-blue-600 shadow-sm;
 }
 
-[data-theme="dark"] .nav-item.active {
-  @apply text-blue-400 bg-blue-950 shadow-sm;
+[data-theme='dark'] .nav-item.active {
+  @apply bg-blue-950 text-blue-400 shadow-sm;
 }
 
 /* Theme toggle specific styles */
@@ -343,11 +343,11 @@ pre code {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-[data-theme="dark"] .slider::-webkit-slider-thumb {
+[data-theme='dark'] .slider::-webkit-slider-thumb {
   border: 2px solid rgb(31, 41, 55);
 }
 
-[data-theme="dark"] .slider::-moz-range-thumb {
+[data-theme='dark'] .slider::-moz-range-thumb {
   border: 2px solid rgb(31, 41, 55);
 }
 

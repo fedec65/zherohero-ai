@@ -68,4 +68,4 @@ export const THEME_SCRIPT = `
     document.documentElement.classList.add(fallbackTheme);
   }
 })();
-`;
+`

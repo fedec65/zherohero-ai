@@ -59,14 +59,14 @@ The Model Context Protocol (MCP) allows AI models to seamlessly access external 
 
 ```typescript
 interface TavilyConfig {
-  apiKey: string;
-  maxResults: number; // 1-20, default: 10
-  searchDepth: "basic" | "advanced"; // default: 'advanced'
-  includeImages: boolean; // default: false
-  includeAnswer: boolean; // default: true
-  includeRawContent: boolean; // default: false
-  timeout: number; // default: 30000ms
-  cacheTTL: number; // default: 300000ms (5 min)
+  apiKey: string
+  maxResults: number // 1-20, default: 10
+  searchDepth: 'basic' | 'advanced' // default: 'advanced'
+  includeImages: boolean // default: false
+  includeAnswer: boolean // default: true
+  includeRawContent: boolean // default: false
+  timeout: number // default: 30000ms
+  cacheTTL: number // default: 300000ms (5 min)
 }
 ```
 
@@ -108,11 +108,11 @@ When Tavily Search is enabled with auto-injection, it automatically becomes avai
 ```typescript
 // This happens automatically - no code changes needed!
 const response = await openai.createChatCompletion({
-  model: "gpt-4o",
+  model: 'gpt-4o',
   messages: [
-    { role: "user", content: "What are the latest developments in AI?" },
+    { role: 'user', content: 'What are the latest developments in AI?' },
   ],
-});
+})
 // GPT-4 can now automatically search the web for current AI news
 ```
 
@@ -132,52 +132,52 @@ const response = await openai.createChatCompletion({
 import {
   setupTavilySearch,
   testTavilyConnection,
-} from "../lib/examples/tavily-usage";
+} from '../lib/examples/tavily-usage'
 
 // Setup Tavily with API key
-await setupTavilySearch("tvly-your-api-key-here");
+await setupTavilySearch('tvly-your-api-key-here')
 
 // Test connection
-const isConnected = await testTavilyConnection();
-console.log("Tavily connected:", isConnected);
+const isConnected = await testTavilyConnection()
+console.log('Tavily connected:', isConnected)
 ```
 
 ### Chat with Web Search
 
 ```typescript
-import { chatWithWebSearch } from "../lib/examples/tavily-usage";
+import { chatWithWebSearch } from '../lib/examples/tavily-usage'
 
 const response = await chatWithWebSearch(
-  "What are the latest developments in renewable energy technology?",
-);
-console.log(response); // AI response with current web search results
+  'What are the latest developments in renewable energy technology?'
+)
+console.log(response) // AI response with current web search results
 ```
 
 ### Direct Tool Usage
 
 ```typescript
-import { directTavilySearch } from "../lib/examples/tavily-usage";
+import { directTavilySearch } from '../lib/examples/tavily-usage'
 
-const searchResult = await directTavilySearch("latest AI breakthroughs 2024");
-console.log(searchResult.content); // Raw search results
+const searchResult = await directTavilySearch('latest AI breakthroughs 2024')
+console.log(searchResult.content) // Raw search results
 ```
 
 ### Advanced Search Examples
 
 ```typescript
-import { searchExamples } from "../lib/examples/tavily-usage";
+import { searchExamples } from '../lib/examples/tavily-usage'
 
 // Get current news
-const news = await searchExamples.getCurrentNews("artificial intelligence");
+const news = await searchExamples.getCurrentNews('artificial intelligence')
 
 // Research a topic thoroughly
-const research = await searchExamples.researchTopic("quantum computing");
+const research = await searchExamples.researchTopic('quantum computing')
 
 // Analyze specific website
 const analysis = await searchExamples.analyzeWebsite(
-  "https://example.com/article",
-  "What are the main conclusions of this article?",
-);
+  'https://example.com/article',
+  'What are the main conclusions of this article?'
+)
 ```
 
 ## Health Monitoring
@@ -194,26 +194,26 @@ The system continuously monitors Tavily server health:
 ### Performance Metrics
 
 ```typescript
-import { monitorMCPHealth } from "../lib/examples/tavily-usage";
+import { monitorMCPHealth } from '../lib/examples/tavily-usage'
 
-const health = await monitorMCPHealth();
+const health = await monitorMCPHealth()
 console.log({
   tavilyHealthy: health.tavilyHealthy,
   autoInjectionActive: health.autoInjectionActive,
   functionCallStats: health.stats,
-});
+})
 ```
 
 ### Usage Statistics
 
 ```typescript
 // Get function call statistics
-const stats = autoInjectionManager.getFunctionCallStats();
+const stats = autoInjectionManager.getFunctionCallStats()
 console.log({
   totalCalls: stats.totalFunctionCalls,
   successRate: 1 - stats.errorRate,
   popularFunctions: stats.functionCounts,
-});
+})
 ```
 
 ## Error Handling
@@ -262,19 +262,19 @@ The system provides multiple fallback mechanisms:
 
 ```typescript
 // Test individual components
-import { TavilySearchClient } from "../services/tavily-search";
-const client = new TavilySearchClient({ apiKey: "test-key" });
-const result = await client.testConnection();
+import { TavilySearchClient } from '../services/tavily-search'
+const client = new TavilySearchClient({ apiKey: 'test-key' })
+const result = await client.testConnection()
 
 // Test MCP server
-import { TavilyMCPServer } from "../servers/tavily";
-const server = new TavilyMCPServer(serverConfig);
-await server.initialize();
-const health = await server.healthCheck();
+import { TavilyMCPServer } from '../servers/tavily'
+const server = new TavilyMCPServer(serverConfig)
+await server.initialize()
+const health = await server.healthCheck()
 
 // Test auto-injection
-import { autoInjectionManager } from "../mcp/auto-injection";
-const stats = autoInjectionManager.getFunctionCallStats();
+import { autoInjectionManager } from '../mcp/auto-injection'
+const stats = autoInjectionManager.getFunctionCallStats()
 ```
 
 ### Performance Optimization
@@ -314,7 +314,7 @@ const stats = autoInjectionManager.getFunctionCallStats();
 
 ```typescript
 // In browser console
-localStorage.setItem("mcp-debug", "true");
+localStorage.setItem('mcp-debug', 'true')
 // Reload page to see detailed MCP logs
 ```
 

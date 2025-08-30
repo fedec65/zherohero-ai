@@ -1,17 +1,17 @@
 // Jest setup for DOM testing
-import "@testing-library/jest-dom";
+import '@testing-library/jest-dom'
 
 // Add AI SDK shims for Node.js environment
-import "openai/shims/node";
-import "@anthropic-ai/sdk/shims/node";
+import 'openai/shims/node'
+import '@anthropic-ai/sdk/shims/node'
 
 // Mock Next.js router
-jest.mock("next/router", () => ({
+jest.mock('next/router', () => ({
   useRouter: () => ({
-    route: "/",
-    pathname: "/",
+    route: '/',
+    pathname: '/',
     query: {},
-    asPath: "/",
+    asPath: '/',
     push: jest.fn(),
     replace: jest.fn(),
     reload: jest.fn(),
@@ -25,10 +25,10 @@ jest.mock("next/router", () => ({
       emit: jest.fn(),
     },
   }),
-}));
+}))
 
 // Mock Next.js navigation (App Router)
-jest.mock("next/navigation", () => ({
+jest.mock('next/navigation', () => ({
   useRouter: () => ({
     push: jest.fn(),
     replace: jest.fn(),
@@ -37,14 +37,14 @@ jest.mock("next/navigation", () => ({
     forward: jest.fn(),
     refresh: jest.fn(),
   }),
-  usePathname: () => "/",
+  usePathname: () => '/',
   useSearchParams: () => ({
     get: jest.fn(),
   }),
-}));
+}))
 
 // Mock window.matchMedia
-Object.defineProperty(window, "matchMedia", {
+Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: jest.fn().mockImplementation((query) => ({
     matches: false,
@@ -56,45 +56,45 @@ Object.defineProperty(window, "matchMedia", {
     removeEventListener: jest.fn(),
     dispatchEvent: jest.fn(),
   })),
-});
+})
 
 // Mock ResizeObserver
 global.ResizeObserver = jest.fn().mockImplementation(() => ({
   observe: jest.fn(),
   unobserve: jest.fn(),
   disconnect: jest.fn(),
-}));
+}))
 
 // Mock IntersectionObserver
 global.IntersectionObserver = jest.fn().mockImplementation(() => ({
   observe: jest.fn(),
   unobserve: jest.fn(),
   disconnect: jest.fn(),
-}));
+}))
 
 // Mock fetch
-global.fetch = jest.fn();
+global.fetch = jest.fn()
 
 // Mock environment variables
-process.env.NODE_ENV = "test";
-process.env.NEXT_PUBLIC_VERCEL_URL = "http://localhost:3000";
+process.env.NODE_ENV = 'test'
+process.env.NEXT_PUBLIC_VERCEL_URL = 'http://localhost:3000'
 
 // Suppress console.error for expected errors in tests
-const originalError = console.error;
+const originalError = console.error
 console.error = (...args) => {
   if (
-    args[0]?.includes?.("Warning: ReactDOM.render is no longer supported") ||
-    args[0]?.includes?.("Warning: validateDOMNesting")
+    args[0]?.includes?.('Warning: ReactDOM.render is no longer supported') ||
+    args[0]?.includes?.('Warning: validateDOMNesting')
   ) {
-    return;
+    return
   }
-  originalError.call(console, ...args);
-};
+  originalError.call(console, ...args)
+}
 
 // Clean up after each test
 afterEach(() => {
-  jest.clearAllMocks();
+  jest.clearAllMocks()
   if (global.fetch && global.fetch.mockClear) {
-    global.fetch.mockClear();
+    global.fetch.mockClear()
   }
-});
+})

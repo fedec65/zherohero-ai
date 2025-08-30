@@ -2,14 +2,14 @@
  * Custom hooks for optimized store access and common patterns
  */
 
-import { useCallback, useMemo, useState, useEffect } from "react";
-import { shallow } from "zustand/shallow";
-import { useChatStore } from "../chat-store";
-import { useModelStore } from "../model-store";
-import { useSettingsStore } from "../settings-store";
-import { useMCPStore } from "../mcp-store";
-import { useUIStore } from "../ui-store";
-import { Chat, Message, Model, MCPServer, AIProvider } from "../types";
+import { useCallback, useMemo, useState, useEffect } from 'react'
+import { shallow } from 'zustand/shallow'
+import { useChatStore } from '../chat-store'
+import { useModelStore } from '../model-store'
+import { useSettingsStore } from '../settings-store'
+import { useMCPStore } from '../mcp-store'
+import { useUIStore } from '../ui-store'
+import { Chat, Message, Model, MCPServer, AIProvider } from '../types'
 
 // Chat-related hooks
 export const useActiveChat = () => {
@@ -23,27 +23,27 @@ export const useActiveChat = () => {
           : [],
         setActiveChat: state.setActiveChat,
       }),
-      [],
+      []
     ),
-    shallow,
-  );
-};
+    shallow
+  )
+}
 
 export const useChat = (chatId: string | null) => {
   return useChatStore(
     useCallback(
       (state) => {
-        if (!chatId) return { chat: null, messages: [] };
+        if (!chatId) return { chat: null, messages: [] }
         return {
           chat: state.chats[chatId] || null,
           messages: state.messages[chatId] || [],
-        };
+        }
       },
-      [chatId],
+      [chatId]
     ),
-    shallow,
-  );
-};
+    shallow
+  )
+}
 
 export const useChatList = () => {
   return useChatStore(
@@ -52,16 +52,16 @@ export const useChatList = () => {
         chats: Object.values(state.chats).sort(
           (a, b) =>
             (b.lastMessageAt?.getTime() || 0) -
-            (a.lastMessageAt?.getTime() || 0),
+            (a.lastMessageAt?.getTime() || 0)
         ),
         searchQuery: state.searchQuery,
         setSearchQuery: state.setSearchQuery,
       }),
-      [],
+      []
     ),
-    shallow,
-  );
-};
+    shallow
+  )
+}
 
 export const useChatActions = () => {
   return useChatStore(
@@ -74,11 +74,11 @@ export const useChatActions = () => {
         editMessage: state.editMessage,
         deleteMessage: state.deleteMessage,
       }),
-      [],
+      []
     ),
-    shallow,
-  );
-};
+    shallow
+  )
+}
 
 export const useStreamingMessage = () => {
   return useChatStore(
@@ -90,53 +90,53 @@ export const useStreamingMessage = () => {
         finishStreamingMessage: state.finishStreamingMessage,
         cancelStreaming: state.cancelStreaming,
       }),
-      [],
+      []
     ),
-    shallow,
-  );
-};
+    shallow
+  )
+}
 
 // Model-related hooks
 export const useSelectedModel = () => {
   return useModelStore(
     useCallback((state) => {
-      const { selectedModel } = state;
-      if (!selectedModel) return { model: null, config: null };
+      const { selectedModel } = state
+      if (!selectedModel) return { model: null, config: null }
 
       const model = state.getModel(
         selectedModel.provider,
-        selectedModel.modelId,
-      );
+        selectedModel.modelId
+      )
       const config = state.getModelConfig(
         selectedModel.provider,
-        selectedModel.modelId,
-      );
+        selectedModel.modelId
+      )
 
       return {
         selectedModel,
         model,
         config,
         setSelectedModel: state.setSelectedModel,
-      };
+      }
     }, []),
-    shallow,
-  );
-};
+    shallow
+  )
+}
 
-export const useModelsByProvider = (provider: AIProvider | "all" = "all") => {
+export const useModelsByProvider = (provider: AIProvider | 'all' = 'all') => {
   return useModelStore(
     useCallback(
       (state) => {
-        if (provider === "all") {
-          return state.getFilteredModels();
+        if (provider === 'all') {
+          return state.getFilteredModels()
         }
-        return { [provider]: state.getProviderModels(provider) };
+        return { [provider]: state.getProviderModels(provider) }
       },
-      [provider],
+      [provider]
     ),
-    shallow,
-  );
-};
+    shallow
+  )
+}
 
 export const useModelConfig = (provider: AIProvider, modelId: string) => {
   return useModelStore(
@@ -144,15 +144,15 @@ export const useModelConfig = (provider: AIProvider, modelId: string) => {
       (state) => ({
         config: state.getModelConfig(provider, modelId),
         updateConfig: (
-          updates: Parameters<typeof state.updateModelConfig>[2],
+          updates: Parameters<typeof state.updateModelConfig>[2]
         ) => state.updateModelConfig(provider, modelId, updates),
         resetConfig: () => state.resetModelConfig(provider, modelId),
       }),
-      [provider, modelId],
+      [provider, modelId]
     ),
-    shallow,
-  );
-};
+    shallow
+  )
+}
 
 export const useModelSearch = () => {
   return useModelStore(
@@ -165,11 +165,11 @@ export const useModelSearch = () => {
         setSelectedProvider: state.setSelectedProvider,
         searchModels: state.searchModels,
       }),
-      [],
+      []
     ),
-    shallow,
-  );
-};
+    shallow
+  )
+}
 
 // Performance optimized hooks for models grid
 export const useOptimizedModelGrid = () => {
@@ -182,11 +182,11 @@ export const useOptimizedModelGrid = () => {
         searchQuery: state.searchQuery,
         selectedProvider: state.selectedProvider,
       }),
-      [],
+      []
     ),
-    shallow,
-  );
-};
+    shallow
+  )
+}
 
 export const useModelGridActions = () => {
   return useModelStore(
@@ -198,11 +198,11 @@ export const useModelGridActions = () => {
         getFilteredModels: state.getFilteredModels,
         getAvailableProviders: state.getAvailableProviders,
       }),
-      [],
+      []
     ),
-    shallow,
-  );
-};
+    shallow
+  )
+}
 
 export const useModelSelection = () => {
   return useModelStore(
@@ -211,11 +211,11 @@ export const useModelSelection = () => {
         selectedModel: state.selectedModel,
         setSelectedModel: state.setSelectedModel,
       }),
-      [],
+      []
     ),
-    shallow,
-  );
-};
+    shallow
+  )
+}
 
 export const useModelTestResults = () => {
   return useModelStore(
@@ -226,16 +226,16 @@ export const useModelTestResults = () => {
         getModelKey: state.getModelKey,
         formatContextWindow: state.formatContextWindow,
       }),
-      [],
+      []
     ),
-    shallow,
-  );
-};
+    shallow
+  )
+}
 
 export const useModelTest = (provider: AIProvider, modelId: string) => {
   const modelKey = useModelStore((state) =>
-    state.getModelKey(provider, modelId),
-  );
+    state.getModelKey(provider, modelId)
+  )
   return useModelStore(
     useCallback(
       (state) => ({
@@ -243,11 +243,11 @@ export const useModelTest = (provider: AIProvider, modelId: string) => {
         isLoading: state.loading.testModel,
         testModel: state.testModel,
       }),
-      [modelKey],
+      [modelKey]
     ),
-    shallow,
-  );
-};
+    shallow
+  )
+}
 
 // Settings-related hooks
 export const useTheme = () => {
@@ -259,11 +259,11 @@ export const useTheme = () => {
         setTheme: state.setTheme,
         toggleTheme: state.toggleTheme,
       }),
-      [],
+      []
     ),
-    shallow,
-  );
-};
+    shallow
+  )
+}
 
 export const useApiKeys = () => {
   return useSettingsStore(
@@ -275,11 +275,11 @@ export const useApiKeys = () => {
         hasApiKey: state.hasApiKey,
         validateApiKey: state.validateApiKey,
       }),
-      [],
+      []
     ),
-    shallow,
-  );
-};
+    shallow
+  )
+}
 
 export const useUIPreferences = () => {
   return useSettingsStore(
@@ -294,29 +294,29 @@ export const useUIPreferences = () => {
         setShowTokenCount: state.setShowTokenCount,
         setAutoSave: state.setAutoSave,
       }),
-      [],
+      []
     ),
-    shallow,
-  );
-};
+    shallow
+  )
+}
 
 // MCP-related hooks
 export const useMCPServers = () => {
   return useMCPStore(
     useCallback((state) => {
-      const filtered = state.getFilteredServers();
+      const filtered = state.getFilteredServers()
       return {
         servers:
-          state.selectedTab === "builtin" ? filtered.builtin : filtered.custom,
+          state.selectedTab === 'builtin' ? filtered.builtin : filtered.custom,
         selectedTab: state.selectedTab,
         searchQuery: state.searchQuery,
         setSelectedTab: state.setSelectedTab,
         setSearchQuery: state.setSearchQuery,
-      };
+      }
     }, []),
-    shallow,
-  );
-};
+    shallow
+  )
+}
 
 export const useEnabledMCPServers = () => {
   return useMCPStore(
@@ -326,11 +326,11 @@ export const useEnabledMCPServers = () => {
         autoInjectServers: state.getAutoInjectServers(),
         globalSettings: state.globalSettings,
       }),
-      [],
+      []
     ),
-    shallow,
-  );
-};
+    shallow
+  )
+}
 
 export const useMCPServerActions = () => {
   return useMCPStore(
@@ -344,11 +344,11 @@ export const useMCPServerActions = () => {
         testConnection: state.testConnection,
         toggleServerEnabled: state.toggleServerEnabled,
       }),
-      [],
+      []
     ),
-    shallow,
-  );
-};
+    shallow
+  )
+}
 
 // UI-related hooks
 export const useSidebars = () => {
@@ -366,11 +366,11 @@ export const useSidebars = () => {
         toggleSidebar: state.toggleSidebar,
         toggleChatSidebar: state.toggleChatSidebar,
       }),
-      [],
+      []
     ),
-    shallow,
-  );
-};
+    shallow
+  )
+}
 
 export const useModals = () => {
   return useUIStore(
@@ -384,11 +384,11 @@ export const useModals = () => {
         isModalOpen: state.isModalOpen,
         getActiveModal: state.getActiveModal,
       }),
-      [],
+      []
     ),
-    shallow,
-  );
-};
+    shallow
+  )
+}
 
 export const useNotifications = () => {
   return useUIStore(
@@ -399,11 +399,11 @@ export const useNotifications = () => {
         removeNotification: state.removeNotification,
         clearNotifications: state.clearNotifications,
       }),
-      [],
+      []
     ),
-    shallow,
-  );
-};
+    shallow
+  )
+}
 
 export const useToasts = () => {
   return useUIStore(
@@ -414,11 +414,11 @@ export const useToasts = () => {
         hideToast: state.hideToast,
         clearToasts: state.clearToasts,
       }),
-      [],
+      []
     ),
-    shallow,
-  );
-};
+    shallow
+  )
+}
 
 export const useLoading = (key?: string) => {
   return useUIStore(
@@ -428,20 +428,20 @@ export const useLoading = (key?: string) => {
           return {
             loading: state.loading[key] || false,
             setLoading: (loading: boolean) => state.setLoading(key, loading),
-          };
+          }
         }
         return {
           loading: state.loading,
           isLoading: state.isLoading,
           setLoading: state.setLoading,
           clearLoading: state.clearLoading,
-        };
+        }
       },
-      [key],
+      [key]
     ),
-    shallow,
-  );
-};
+    shallow
+  )
+}
 
 export const useErrors = (key?: string) => {
   return useUIStore(
@@ -452,7 +452,7 @@ export const useErrors = (key?: string) => {
             error: state.errors[key] || null,
             setError: (error: string | null) => state.setError(key, error),
             clearError: () => state.clearError(key),
-          };
+          }
         }
         return {
           errors: state.errors,
@@ -460,13 +460,13 @@ export const useErrors = (key?: string) => {
           setError: state.setError,
           clearError: state.clearError,
           clearAllErrors: state.clearAllErrors,
-        };
+        }
       },
-      [key],
+      [key]
     ),
-    shallow,
-  );
-};
+    shallow
+  )
+}
 
 export const useCommandPalette = () => {
   return useUIStore(
@@ -481,16 +481,16 @@ export const useCommandPalette = () => {
         registerCommand: state.registerCommand,
         unregisterCommand: state.unregisterCommand,
       }),
-      [],
+      []
     ),
-    shallow,
-  );
-};
+    shallow
+  )
+}
 
 // Combined hooks for complex operations
 export const useChatWithModel = (chatId: string | null) => {
-  const { chat, messages } = useChat(chatId);
-  const { selectedModel, model } = useSelectedModel();
+  const { chat, messages } = useChat(chatId)
+  const { selectedModel, model } = useSelectedModel()
 
   return useMemo(
     () => ({
@@ -502,16 +502,16 @@ export const useChatWithModel = (chatId: string | null) => {
       canSendMessage: chat && model && selectedModel,
       tokenCount: messages.reduce((sum, msg) => sum + (msg.tokens || 0), 0),
     }),
-    [chat, messages, selectedModel, model],
-  );
-};
+    [chat, messages, selectedModel, model]
+  )
+}
 
 export const useModelWithConfig = (provider: AIProvider, modelId: string) => {
-  const model = useModelStore((state) => state.getModel(provider, modelId));
+  const model = useModelStore((state) => state.getModel(provider, modelId))
   const { config, updateConfig, resetConfig } = useModelConfig(
     provider,
-    modelId,
-  );
+    modelId
+  )
 
   return useMemo(
     () => ({
@@ -523,41 +523,41 @@ export const useModelWithConfig = (provider: AIProvider, modelId: string) => {
       isConfigured: config && Object.keys(config).length > 0,
       hasValidConfig: model && config,
     }),
-    [model, config, updateConfig, resetConfig],
-  );
-};
+    [model, config, updateConfig, resetConfig]
+  )
+}
 
 // Performance optimization hooks
 export const useDebounced = <T>(value: T, delay: number): T => {
-  const [debouncedValue, setDebouncedValue] = useState(value);
+  const [debouncedValue, setDebouncedValue] = useState(value)
 
   useEffect(() => {
     const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
+      setDebouncedValue(value)
+    }, delay)
 
     return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
+      clearTimeout(handler)
+    }
+  }, [value, delay])
 
-  return debouncedValue;
-};
+  return debouncedValue
+}
 
 export const useThrottled = <T extends unknown[]>(
   callback: (...args: T) => void,
-  delay: number,
+  delay: number
 ) => {
-  const throttledFn = useUIStore((state) => state.throttle(callback, delay));
-  return useCallback(throttledFn, [throttledFn]);
-};
+  const throttledFn = useUIStore((state) => state.throttle(callback, delay))
+  return useCallback(throttledFn, [throttledFn])
+}
 
 // Cross-store hooks for complex state relationships
 export const useGlobalState = () => {
-  const { activeChat } = useActiveChat();
-  const { selectedModel } = useSelectedModel();
-  const { theme } = useTheme();
-  const { enabledServers } = useEnabledMCPServers();
+  const { activeChat } = useActiveChat()
+  const { selectedModel } = useSelectedModel()
+  const { theme } = useTheme()
+  const { enabledServers } = useEnabledMCPServers()
 
   return useMemo(
     () => ({
@@ -569,6 +569,6 @@ export const useGlobalState = () => {
       isReady: selectedModel !== null,
       mcpEnabled: enabledServers.length > 0,
     }),
-    [activeChat, selectedModel, theme, enabledServers],
-  );
-};
+    [activeChat, selectedModel, theme, enabledServers]
+  )
+}

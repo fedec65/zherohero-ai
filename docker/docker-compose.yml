@@ -1,4 +1,4 @@
-version: "3.8"
+version: '3.8'
 
 services:
   # Main application
@@ -8,7 +8,7 @@ services:
       dockerfile: docker/Dockerfile
     container_name: minddeck-clone
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - NODE_ENV=production
       - NEXT_PUBLIC_APP_URL=http://localhost:3000
@@ -25,7 +25,7 @@ services:
     depends_on:
       - redis
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/api/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -33,10 +33,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "2.0"
+          cpus: '2.0'
           memory: 1G
         reservations:
-          cpus: "0.5"
+          cpus: '0.5'
           memory: 512M
 
   # Redis for caching and session storage (optional)
@@ -44,7 +44,7 @@ services:
     image: redis:7-alpine
     container_name: minddeck-redis
     ports:
-      - "6379:6379"
+      - '6379:6379'
     command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-defaultpassword}
     networks:
       - minddeck-network
@@ -52,14 +52,14 @@ services:
       - redis-data:/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 30s
       timeout: 10s
       retries: 3
     deploy:
       resources:
         limits:
-          cpus: "0.5"
+          cpus: '0.5'
           memory: 256M
 
   # PostgreSQL database (optional)
@@ -67,7 +67,7 @@ services:
     image: postgres:15-alpine
     container_name: minddeck-postgres
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
       POSTGRES_DB: minddeck
       POSTGRES_USER: ${POSTGRES_USER:-minddeck}
@@ -79,14 +79,14 @@ services:
       - ../docker/init.sql:/docker-entrypoint-initdb.d/init.sql
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-minddeck}"]
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-minddeck}']
       interval: 30s
       timeout: 10s
       retries: 3
     deploy:
       resources:
         limits:
-          cpus: "1.0"
+          cpus: '1.0'
           memory: 512M
 
   # Nginx reverse proxy (optional)
@@ -94,8 +94,8 @@ services:
     image: nginx:alpine
     container_name: minddeck-nginx
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
     volumes:
       - ../docker/nginx.conf:/etc/nginx/nginx.conf:ro
       - nginx-logs:/var/log/nginx
@@ -106,7 +106,7 @@ services:
       - minddeck-clone
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "nginx", "-t"]
+      test: ['CMD', 'nginx', '-t']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -116,18 +116,18 @@ services:
     image: prom/prometheus:latest
     container_name: minddeck-prometheus
     ports:
-      - "9090:9090"
+      - '9090:9090'
     volumes:
       - ../docker/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus-data:/prometheus
     networks:
       - minddeck-network
     command:
-      - "--config.file=/etc/prometheus/prometheus.yml"
-      - "--storage.tsdb.path=/prometheus"
-      - "--web.console.libraries=/etc/prometheus/console_libraries"
-      - "--web.console.templates=/etc/prometheus/consoles"
-      - "--web.enable-lifecycle"
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
     restart: unless-stopped
 
   # Grafana for metrics visualization (optional)
@@ -135,7 +135,7 @@ services:
     image: grafana/grafana:latest
     container_name: minddeck-grafana
     ports:
-      - "3001:3000"
+      - '3001:3000'
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
     volumes:

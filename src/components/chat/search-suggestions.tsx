@@ -1,18 +1,18 @@
-"use client";
+'use client'
 
-import React from "react";
-import { Clock, Search, TrendingUp, X, ArrowUpRight } from "lucide-react";
-import { Button } from "../ui/button";
-import { cn } from "../../lib/utils";
-import { SearchHistory } from "../../lib/stores/types";
+import React from 'react'
+import { Clock, Search, TrendingUp, X, ArrowUpRight } from 'lucide-react'
+import { Button } from '../ui/button'
+import { cn } from '../../lib/utils'
+import { SearchHistory } from '../../lib/stores/types'
 
 interface SearchSuggestionsProps {
-  suggestions: string[];
-  searchHistory: SearchHistory[];
-  query: string;
-  onSelectSuggestion: (suggestion: string) => void;
-  onClearHistory?: () => void;
-  className?: string;
+  suggestions: string[]
+  searchHistory: SearchHistory[]
+  query: string
+  onSelectSuggestion: (suggestion: string) => void
+  onClearHistory?: () => void
+  className?: string
 }
 
 export function SearchSuggestions({
@@ -24,31 +24,31 @@ export function SearchSuggestions({
   className,
 }: SearchSuggestionsProps) {
   if (!query && searchHistory.length === 0 && suggestions.length === 0) {
-    return null;
+    return null
   }
 
   const filteredHistory = searchHistory
     .filter((h) =>
-      query ? h.query.toLowerCase().includes(query.toLowerCase()) : true,
+      query ? h.query.toLowerCase().includes(query.toLowerCase()) : true
     )
-    .slice(0, 5);
+    .slice(0, 5)
 
   const filteredSuggestions = suggestions
     .filter((s) =>
-      query ? s.toLowerCase().includes(query.toLowerCase()) : true,
+      query ? s.toLowerCase().includes(query.toLowerCase()) : true
     )
-    .slice(0, 5);
+    .slice(0, 5)
 
   if (filteredHistory.length === 0 && filteredSuggestions.length === 0) {
-    return null;
+    return null
   }
 
   return (
     <div
       className={cn(
-        "bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700",
-        "rounded-lg shadow-lg py-2 max-h-80 overflow-y-auto",
-        className,
+        'border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900',
+        'max-h-80 overflow-y-auto rounded-lg py-2 shadow-lg',
+        className
       )}
     >
       {/* Recent searches */}
@@ -57,7 +57,7 @@ export function SearchSuggestions({
           <div className="flex items-center justify-between px-3 py-2">
             <div className="flex items-center space-x-2">
               <Clock className="h-4 w-4 text-gray-400" />
-              <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+              <span className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
                 Recent
               </span>
             </div>
@@ -79,7 +79,7 @@ export function SearchSuggestions({
                 key={item.id}
                 text={item.query}
                 icon={<Clock className="h-3 w-3" />}
-                meta={`${item.resultsCount} result${item.resultsCount !== 1 ? "s" : ""}`}
+                meta={`${item.resultsCount} result${item.resultsCount !== 1 ? 's' : ''}`}
                 query={query}
                 onClick={() => onSelectSuggestion(item.query)}
               />
@@ -90,7 +90,7 @@ export function SearchSuggestions({
 
       {/* Divider */}
       {filteredHistory.length > 0 && filteredSuggestions.length > 0 && (
-        <div className="border-t border-gray-100 dark:border-gray-800 my-2" />
+        <div className="my-2 border-t border-gray-100 dark:border-gray-800" />
       )}
 
       {/* Suggestions */}
@@ -98,7 +98,7 @@ export function SearchSuggestions({
         <div className="px-1">
           <div className="flex items-center space-x-2 px-3 py-2">
             <TrendingUp className="h-4 w-4 text-gray-400" />
-            <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+            <span className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
               Suggestions
             </span>
           </div>
@@ -120,7 +120,7 @@ export function SearchSuggestions({
       {/* Search all option */}
       {query && (
         <>
-          <div className="border-t border-gray-100 dark:border-gray-800 my-2" />
+          <div className="my-2 border-t border-gray-100 dark:border-gray-800" />
           <div className="px-1">
             <SuggestionItem
               text={`Search for "${query}"`}
@@ -133,16 +133,16 @@ export function SearchSuggestions({
         </>
       )}
     </div>
-  );
+  )
 }
 
 interface SuggestionItemProps {
-  text: string;
-  icon: React.ReactNode;
-  meta?: string;
-  query: string;
-  onClick: () => void;
-  primary?: boolean;
+  text: string
+  icon: React.ReactNode
+  meta?: string
+  query: string
+  onClick: () => void
+  primary?: boolean
 }
 
 function SuggestionItem({
@@ -157,26 +157,26 @@ function SuggestionItem({
     <div
       onClick={onClick}
       className={cn(
-        "flex items-center space-x-3 px-3 py-2 mx-1 rounded-md cursor-pointer transition-colors",
-        "hover:bg-gray-50 dark:hover:bg-gray-800",
+        'mx-1 flex cursor-pointer items-center space-x-3 rounded-md px-3 py-2 transition-colors',
+        'hover:bg-gray-50 dark:hover:bg-gray-800',
         primary &&
-          "bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30",
+          'bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/30'
       )}
     >
       <div
         className={cn(
-          "flex-shrink-0 text-gray-400",
-          primary && "text-blue-500 dark:text-blue-400",
+          'flex-shrink-0 text-gray-400',
+          primary && 'text-blue-500 dark:text-blue-400'
         )}
       >
         {icon}
       </div>
 
-      <div className="flex-1 min-w-0">
+      <div className="min-w-0 flex-1">
         <div
           className={cn(
-            "text-sm text-gray-900 dark:text-white truncate",
-            primary && "font-medium text-blue-900 dark:text-blue-100",
+            'truncate text-sm text-gray-900 dark:text-white',
+            primary && 'font-medium text-blue-900 dark:text-blue-100'
           )}
         >
           <HighlightedText text={text} query={query} />
@@ -186,19 +186,19 @@ function SuggestionItem({
         )}
       </div>
     </div>
-  );
+  )
 }
 
 interface HighlightedTextProps {
-  text: string;
-  query: string;
+  text: string
+  query: string
 }
 
 function HighlightedText({ text, query }: HighlightedTextProps) {
-  if (!query) return <>{text}</>;
+  if (!query) return <>{text}</>
 
-  const regex = new RegExp(`(${query})`, "gi");
-  const parts = text.split(regex);
+  const regex = new RegExp(`(${query})`, 'gi')
+  const parts = text.split(regex)
 
   return (
     <>
@@ -207,12 +207,12 @@ function HighlightedText({ text, query }: HighlightedTextProps) {
           key={index}
           className={cn(
             regex.test(part) &&
-              "bg-yellow-200 dark:bg-yellow-900 rounded px-0.5",
+              'rounded bg-yellow-200 px-0.5 dark:bg-yellow-900'
           )}
         >
           {part}
         </span>
       ))}
     </>
-  );
+  )
 }

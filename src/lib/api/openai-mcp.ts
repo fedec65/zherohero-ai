@@ -5,21 +5,21 @@
  * capabilities (like Tavily Search) into OpenAI API calls.
  */
 
-import { OpenAIClient } from "./openai";
+import { OpenAIClient } from './openai'
 import {
   ChatCompletionParams,
   ChatCompletionResponse,
   StreamingResponse,
   APIMessage,
   APIError,
-} from "./types";
+} from './types'
 import {
   autoInjectionManager,
   AutoInjectionContext,
   EnhancedAPIMessage,
-} from "../mcp/auto-injection";
-import { useMCPStore } from "../stores/mcp-store";
-import { nanoid } from "nanoid";
+} from '../mcp/auto-injection'
+import { useMCPStore } from '../stores/mcp-store'
+import { nanoid } from 'nanoid'
 
 /**
  * Enhanced OpenAI client that automatically injects MCP tools
@@ -29,19 +29,19 @@ export class OpenAIMCPClient extends OpenAIClient {
    * Create chat completion with MCP auto-injection
    */
   async createChatCompletion(
-    params: ChatCompletionParams,
+    params: ChatCompletionParams
   ): Promise<ChatCompletionResponse> {
     try {
       // Check if auto-injection is available and enabled
-      const mcpStore = useMCPStore.getState();
-      const autoInjectServers = mcpStore.getAutoInjectServers();
+      const mcpStore = useMCPStore.getState()
+      const autoInjectServers = mcpStore.getAutoInjectServers()
 
       if (
         autoInjectServers.length === 0 ||
         !mcpStore.globalSettings.autoInjectEnabled
       ) {
         // No MCP servers available or auto-injection disabled, use base implementation
-        return await super.createChatCompletion(params);
+        return await super.createChatCompletion(params)
       }
 
       // Create context for this request
@@ -49,28 +49,28 @@ export class OpenAIMCPClient extends OpenAIClient {
         chatId: nanoid(), // This would come from the chat context in real usage
         messageId: nanoid(),
         requestId: nanoid(),
-      };
+      }
 
       // Inject MCP tools into the request
       const enhancedParams = await autoInjectionManager.injectTools(
         params,
         autoInjectServers,
-        context,
-      );
+        context
+      )
 
       // Make the API call with enhanced parameters
-      const response = await super.createChatCompletion(enhancedParams);
+      const response = await super.createChatCompletion(enhancedParams)
 
       // Process any tool calls in the response
       if (this.responseHasToolCalls(response)) {
-        return await this.handleToolCallsInResponse(response, context);
+        return await this.handleToolCallsInResponse(response, context)
       }
 
-      return response;
+      return response
     } catch (error) {
-      console.error("Error in OpenAI MCP chat completion:", error);
+      console.error('Error in OpenAI MCP chat completion:', error)
       // Fallback to base implementation if MCP processing fails
-      return await super.createChatCompletion(params);
+      return await super.createChatCompletion(params)
     }
   }
 
@@ -78,20 +78,20 @@ export class OpenAIMCPClient extends OpenAIClient {
    * Stream chat completion with MCP auto-injection
    */
   async *streamChatCompletion(
-    params: ChatCompletionParams,
+    params: ChatCompletionParams
   ): AsyncGenerator<StreamingResponse, void, unknown> {
     try {
       // Check if auto-injection is available and enabled
-      const mcpStore = useMCPStore.getState();
-      const autoInjectServers = mcpStore.getAutoInjectServers();
+      const mcpStore = useMCPStore.getState()
+      const autoInjectServers = mcpStore.getAutoInjectServers()
 
       if (
         autoInjectServers.length === 0 ||
         !mcpStore.globalSettings.autoInjectEnabled
       ) {
         // No MCP servers available, use base implementation
-        yield* super.streamChatCompletion(params);
-        return;
+        yield* super.streamChatCompletion(params)
+        return
       }
 
       // Create context for this request
@@ -99,41 +99,41 @@ export class OpenAIMCPClient extends OpenAIClient {
         chatId: nanoid(), // This would come from the chat context in real usage
         messageId: nanoid(),
         requestId: nanoid(),
-      };
+      }
 
       // Inject MCP tools into the request
       const enhancedParams = await autoInjectionManager.injectTools(
         params,
         autoInjectServers,
-        context,
-      );
+        context
+      )
 
       // Stream with enhanced parameters
-      let completeResponse = "";
-      let toolCalls: any[] = [];
-      let currentToolCall: any = null;
+      let completeResponse = ''
+      let toolCalls: any[] = []
+      let currentToolCall: any = null
 
       for await (const chunk of super.streamChatCompletion(enhancedParams)) {
         // Check for tool calls in streaming response
         if ((chunk.choices?.[0]?.delta as any)?.tool_calls) {
-          const deltaToolCalls = (chunk.choices[0].delta as any).tool_calls;
+          const deltaToolCalls = (chunk.choices[0].delta as any).tool_calls
 
           for (const deltaToolCall of deltaToolCalls) {
             if (deltaToolCall.index !== undefined) {
               if (deltaToolCall.index >= toolCalls.length) {
                 toolCalls.push({
                   id: deltaToolCall.id,
-                  type: "function",
-                  function: { name: "", arguments: "" },
-                });
+                  type: 'function',
+                  function: { name: '', arguments: '' },
+                })
               }
 
-              const toolCall = toolCalls[deltaToolCall.index];
+              const toolCall = toolCalls[deltaToolCall.index]
               if (deltaToolCall.function?.name) {
-                toolCall.function.name = deltaToolCall.function.name;
+                toolCall.function.name = deltaToolCall.function.name
               }
               if (deltaToolCall.function?.arguments) {
-                toolCall.function.arguments += deltaToolCall.function.arguments;
+                toolCall.function.arguments += deltaToolCall.function.arguments
               }
             }
           }
@@ -141,27 +141,27 @@ export class OpenAIMCPClient extends OpenAIClient {
 
         // Accumulate content for potential tool call processing
         if (chunk.choices?.[0]?.delta?.content) {
-          completeResponse += chunk.choices[0].delta.content;
+          completeResponse += chunk.choices[0].delta.content
         }
 
-        yield chunk;
+        yield chunk
 
         // If streaming is finished and we have tool calls, process them
         if (
-          (chunk.choices?.[0]?.finishReason as any) === "tool_calls" &&
+          (chunk.choices?.[0]?.finishReason as any) === 'tool_calls' &&
           toolCalls.length > 0
         ) {
           yield* this.handleToolCallsInStream(
             toolCalls,
             context,
-            enhancedParams,
-          );
+            enhancedParams
+          )
         }
       }
     } catch (error) {
-      console.error("Error in OpenAI MCP streaming completion:", error);
+      console.error('Error in OpenAI MCP streaming completion:', error)
       // Fallback to base implementation if MCP processing fails
-      yield* super.streamChatCompletion(params);
+      yield* super.streamChatCompletion(params)
     }
   }
 
@@ -171,10 +171,10 @@ export class OpenAIMCPClient extends OpenAIClient {
   private responseHasToolCalls(response: ChatCompletionResponse): boolean {
     return (
       response.choices?.[0]?.message &&
-      "tool_calls" in response.choices[0].message &&
+      'tool_calls' in response.choices[0].message &&
       Array.isArray((response.choices[0].message as any).tool_calls) &&
       (response.choices[0].message as any).tool_calls.length > 0
-    );
+    )
   }
 
   /**
@@ -182,42 +182,42 @@ export class OpenAIMCPClient extends OpenAIClient {
    */
   private async handleToolCallsInResponse(
     response: ChatCompletionResponse,
-    context: AutoInjectionContext,
+    context: AutoInjectionContext
   ): Promise<ChatCompletionResponse> {
-    const toolCalls = (response.choices[0].message as any).tool_calls;
+    const toolCalls = (response.choices[0].message as any).tool_calls
 
     if (!toolCalls || toolCalls.length === 0) {
-      return response;
+      return response
     }
 
     try {
       // Process tool calls
       const toolResults = await autoInjectionManager.processFunctionCalls(
         toolCalls,
-        context,
-      );
+        context
+      )
 
       // Create follow-up messages with tool results
       const messagesWithResults: any[] = [
         ...this.getOriginalMessages(response),
         {
-          role: "assistant",
-          content: response.choices[0].message.content || "",
+          role: 'assistant',
+          content: response.choices[0].message.content || '',
           tool_calls: toolCalls,
         },
         ...toolResults,
-      ];
+      ]
 
       // Make follow-up request with tool results
       const followUpParams: ChatCompletionParams = {
         model: response.model,
         messages: messagesWithResults,
-      };
+      }
 
       // Call without MCP injection to avoid infinite recursion
-      return await super.createChatCompletion(followUpParams);
+      return await super.createChatCompletion(followUpParams)
     } catch (error) {
-      console.error("Error processing tool calls:", error);
+      console.error('Error processing tool calls:', error)
 
       // Return original response with error message appended
       return {
@@ -226,14 +226,14 @@ export class OpenAIMCPClient extends OpenAIClient {
           {
             ...response.choices[0],
             message: {
-              role: "assistant",
+              role: 'assistant',
               content:
-                (response.choices[0].message.content || "") +
-                `\n\n*Error processing tool calls: ${error instanceof Error ? error.message : "Unknown error"}*`,
+                (response.choices[0].message.content || '') +
+                `\n\n*Error processing tool calls: ${error instanceof Error ? error.message : 'Unknown error'}*`,
             },
           },
         ],
-      };
+      }
     }
   }
 
@@ -243,53 +243,53 @@ export class OpenAIMCPClient extends OpenAIClient {
   private async *handleToolCallsInStream(
     toolCalls: any[],
     context: AutoInjectionContext,
-    originalParams: ChatCompletionParams,
+    originalParams: ChatCompletionParams
   ): AsyncGenerator<StreamingResponse, void, unknown> {
     try {
       // Process tool calls
       const toolResults = await autoInjectionManager.processFunctionCalls(
         toolCalls,
-        context,
-      );
+        context
+      )
 
       // Create messages with tool results for follow-up
       const messagesWithResults: any[] = [
         ...originalParams.messages,
         {
-          role: "assistant",
-          content: "", // Content was already streamed
+          role: 'assistant',
+          content: '', // Content was already streamed
           tool_calls: toolCalls,
         },
         ...toolResults,
-      ];
+      ]
 
       // Stream follow-up response with tool results
       const followUpParams: ChatCompletionParams = {
         ...originalParams,
         messages: messagesWithResults,
-      };
+      }
 
       // Stream follow-up without MCP injection to avoid recursion
-      yield* super.streamChatCompletion(followUpParams);
+      yield* super.streamChatCompletion(followUpParams)
     } catch (error) {
-      console.error("Error processing tool calls in stream:", error);
+      console.error('Error processing tool calls in stream:', error)
 
       // Yield error message
       yield {
         id: nanoid(),
-        object: "chat.completion.chunk",
+        object: 'chat.completion.chunk',
         created: Math.floor(Date.now() / 1000),
         model: originalParams.model,
         choices: [
           {
             index: 0,
             delta: {
-              content: `\n\n*Error processing tool calls: ${error instanceof Error ? error.message : "Unknown error"}*`,
+              content: `\n\n*Error processing tool calls: ${error instanceof Error ? error.message : 'Unknown error'}*`,
             },
             finishReason: null,
           },
         ],
-      } as StreamingResponse;
+      } as StreamingResponse
     }
   }
 
@@ -300,88 +300,88 @@ export class OpenAIMCPClient extends OpenAIClient {
     // This would need to be passed from the original request
     // For now, return empty array - in real implementation,
     // we'd store the original messages in the context
-    return [];
+    return []
   }
 
   /**
    * Get MCP integration statistics
    */
   getMCPStats(): {
-    autoInjectionEnabled: boolean;
-    availableServers: number;
-    connectedServers: number;
-    functionCallHistory: any;
+    autoInjectionEnabled: boolean
+    availableServers: number
+    connectedServers: number
+    functionCallHistory: any
   } {
-    const mcpStore = useMCPStore.getState();
-    const autoInjectServers = mcpStore.getAutoInjectServers();
+    const mcpStore = useMCPStore.getState()
+    const autoInjectServers = mcpStore.getAutoInjectServers()
     const connectedServers = autoInjectServers.filter((server) =>
-      mcpStore.isServerHealthy(server.id),
-    );
+      mcpStore.isServerHealthy(server.id)
+    )
 
     return {
       autoInjectionEnabled: mcpStore.globalSettings.autoInjectEnabled,
       availableServers: autoInjectServers.length,
       connectedServers: connectedServers.length,
       functionCallHistory: autoInjectionManager.getFunctionCallStats(),
-    };
+    }
   }
 
   /**
    * Test MCP integration
    */
   async testMCPIntegration(): Promise<{
-    success: boolean;
-    serversHealthy: Record<string, boolean>;
-    error?: string;
+    success: boolean
+    serversHealthy: Record<string, boolean>
+    error?: string
   }> {
     try {
-      const mcpStore = useMCPStore.getState();
-      const autoInjectServers = mcpStore.getAutoInjectServers();
+      const mcpStore = useMCPStore.getState()
+      const autoInjectServers = mcpStore.getAutoInjectServers()
 
       if (autoInjectServers.length === 0) {
         return {
           success: false,
           serversHealthy: {},
-          error: "No MCP servers configured for auto-injection",
-        };
+          error: 'No MCP servers configured for auto-injection',
+        }
       }
 
       // Test health of all auto-inject servers
-      const healthResults = await autoInjectionManager.healthCheckAllServers();
-      const serversHealthy: Record<string, boolean> = {};
-      let allHealthy = true;
+      const healthResults = await autoInjectionManager.healthCheckAllServers()
+      const serversHealthy: Record<string, boolean> = {}
+      let allHealthy = true
 
       for (const [serverId, result] of healthResults.entries()) {
-        serversHealthy[serverId] = result.healthy;
+        serversHealthy[serverId] = result.healthy
         if (!result.healthy) {
-          allHealthy = false;
+          allHealthy = false
         }
       }
 
       return {
         success: allHealthy,
         serversHealthy,
-        error: allHealthy ? undefined : "One or more MCP servers are unhealthy",
-      };
+        error: allHealthy ? undefined : 'One or more MCP servers are unhealthy',
+      }
     } catch (error) {
       return {
         success: false,
         serversHealthy: {},
-        error: error instanceof Error ? error.message : "Unknown error",
-      };
+        error: error instanceof Error ? error.message : 'Unknown error',
+      }
     }
   }
 }
 
 // Export convenience function to create enhanced OpenAI client
 export function createOpenAIMCPClient(config: {
-  apiKey: string;
-  baseURL?: string;
+  apiKey: string
+  baseURL?: string
 }): OpenAIMCPClient {
-  return new OpenAIMCPClient(config);
+  return new OpenAIMCPClient(config)
 }
 
 // Type guard for checking if a client supports MCP
 export function isOpenAIMCPClient(client: any): client is OpenAIMCPClient {
-  return client instanceof OpenAIMCPClient;
+  return client instanceof OpenAIMCPClient
 }

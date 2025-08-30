@@ -47,7 +47,7 @@ import {
   ModelCard,
   Badge,
   Tooltip,
-} from "@/components/ui";
+} from '@/components/ui'
 
 function MyComponent() {
   return (
@@ -60,15 +60,15 @@ function MyComponent() {
 
       <ModelCard
         model={{
-          name: "GPT-4",
-          provider: "OpenAI",
-          contextWindow: "128K tokens",
+          name: 'GPT-4',
+          provider: 'OpenAI',
+          contextWindow: '128K tokens',
           isNew: true,
         }}
-        onConfigure={() => console.log("Configure")}
+        onConfigure={() => console.log('Configure')}
       />
     </div>
-  );
+  )
 }
 ```
 
@@ -338,16 +338,16 @@ Use className prop for custom styling:
 Extend component variants using class-variance-authority:
 
 ```tsx
-import { buttonVariants } from "@/components/ui";
-import { cva } from "class-variance-authority";
+import { buttonVariants } from '@/components/ui'
+import { cva } from 'class-variance-authority'
 
 const customButtonVariants = cva(buttonVariants(), {
   variants: {
     customVariant: {
-      rainbow: "bg-gradient-to-r from-red-500 via-yellow-500 to-blue-500",
+      rainbow: 'bg-gradient-to-r from-red-500 via-yellow-500 to-blue-500',
     },
   },
-});
+})
 ```
 
 ## ♿ Accessibility
@@ -365,19 +365,19 @@ All components follow WCAG guidelines:
 Full type safety with comprehensive interfaces:
 
 ```tsx
-import type { ButtonProps, InputProps, ModelCardProps } from "@/components/ui";
+import type { ButtonProps, InputProps, ModelCardProps } from '@/components/ui'
 
 // All props are fully typed
 const MyButton: React.FC<ButtonProps> = (props) => {
-  return <Button {...props} />;
-};
+  return <Button {...props} />
+}
 
 // Model data is strongly typed
 interface Model {
-  name: string;
-  provider: string;
-  contextWindow: string;
-  isNew?: boolean;
+  name: string
+  provider: string
+  contextWindow: string
+  isNew?: boolean
 }
 ```
 

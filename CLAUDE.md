@@ -233,18 +233,18 @@ Responsive grid (1/2/3/4 columns based on screen size):
 
 ```typescript
 interface ChatStore {
-  chats: Chat[];
-  activeChat: string | null;
-  messages: Record<string, Message[]>;
-  isLoading: boolean;
-  searchQuery: string;
+  chats: Chat[]
+  activeChat: string | null
+  messages: Record<string, Message[]>
+  isLoading: boolean
+  searchQuery: string
 
   // Actions
-  createChat: () => void;
-  deleteChat: (id: string) => void;
-  setActiveChat: (id: string) => void;
-  sendMessage: (content: string) => void;
-  updateMessage: (id: string, content: string) => void;
+  createChat: () => void
+  deleteChat: (id: string) => void
+  setActiveChat: (id: string) => void
+  sendMessage: (content: string) => void
+  updateMessage: (id: string, content: string) => void
 }
 ```
 
@@ -252,13 +252,13 @@ interface ChatStore {
 
 ```typescript
 interface ModelStore {
-  models: Record<Provider, Model[]>;
-  selectedModel: string;
-  modelConfigs: Record<string, ModelConfig>;
+  models: Record<Provider, Model[]>
+  selectedModel: string
+  modelConfigs: Record<string, ModelConfig>
 
   // Actions
-  setSelectedModel: (model: string) => void;
-  updateModelConfig: (model: string, config: ModelConfig) => void;
+  setSelectedModel: (model: string) => void
+  updateModelConfig: (model: string, config: ModelConfig) => void
 }
 ```
 
@@ -266,14 +266,14 @@ interface ModelStore {
 
 ```typescript
 interface SettingsStore {
-  theme: "light" | "dark" | "system";
-  sidebarWidth: number;
-  mcpServers: MCPServer[];
+  theme: 'light' | 'dark' | 'system'
+  sidebarWidth: number
+  mcpServers: MCPServer[]
 
   // Actions
-  setTheme: (theme: Theme) => void;
-  setSidebarWidth: (width: number) => void;
-  addMCPServer: (server: MCPServer) => void;
+  setTheme: (theme: Theme) => void
+  setSidebarWidth: (width: number) => void
+  addMCPServer: (server: MCPServer) => void
 }
 ```
 
@@ -284,31 +284,31 @@ interface SettingsStore {
 ```javascript
 // tailwind.config.js
 module.exports = {
-  content: ["./src/**/*.{js,ts,jsx,tsx}"],
-  darkMode: "class",
+  content: ['./src/**/*.{js,ts,jsx,tsx}'],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
         gray: {
-          50: "#f9fafb",
-          100: "#f3f4f6",
+          50: '#f9fafb',
+          100: '#f3f4f6',
           // ... complete gray scale
         },
         blue: {
-          50: "#eff6ff",
-          600: "#2563eb",
-          700: "#1d4ed8",
+          50: '#eff6ff',
+          600: '#2563eb',
+          700: '#1d4ed8',
           // ... complete blue scale
         },
       },
       width: {
-        16: "4rem",
-        320: "20rem",
+        16: '4rem',
+        320: '20rem',
       },
     },
   },
   plugins: [],
-};
+}
 ```
 
 ### 5.2 Key Styling Patterns
@@ -423,8 +423,8 @@ export function ModelCard({ model }: ModelCardProps) {
 
 ```typescript
 export class OpenAIClient {
-  private apiKey: string;
-  private baseURL = "https://api.openai.com/v1";
+  private apiKey: string
+  private baseURL = 'https://api.openai.com/v1'
 
   async createChatCompletion(params: ChatCompletionParams) {
     // Implementation
@@ -442,15 +442,15 @@ export class OpenAIClient {
 
 ```typescript
 interface MCPServer {
-  id: string;
-  name: string;
-  url: string;
-  enabled: boolean;
-  capabilities: string[];
+  id: string
+  name: string
+  url: string
+  enabled: boolean
+  capabilities: string[]
 }
 
 export class MCPManager {
-  private servers: Map<string, MCPServer> = new Map();
+  private servers: Map<string, MCPServer> = new Map()
 
   async addServer(server: MCPServer) {
     // Implementation

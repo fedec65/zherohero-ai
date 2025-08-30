@@ -1,59 +1,59 @@
-"use client";
+'use client'
 
-import React, { Component, ErrorInfo, ReactNode } from "react";
+import React, { Component, ErrorInfo, ReactNode } from 'react'
 
 interface Props {
-  children: ReactNode;
-  fallback?: ReactNode;
-  onError?: (error: Error, errorInfo: ErrorInfo) => void;
+  children: ReactNode
+  fallback?: ReactNode
+  onError?: (error: Error, errorInfo: ErrorInfo) => void
 }
 
 interface State {
-  hasError: boolean;
-  error?: Error;
+  hasError: boolean
+  error?: Error
 }
 
 export class ErrorBoundary extends Component<Props, State> {
   public state: State = {
     hasError: false,
-  };
+  }
 
   public static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error };
+    return { hasError: true, error }
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("ErrorBoundary caught an error:", error, errorInfo);
-    this.props.onError?.(error, errorInfo);
+    console.error('ErrorBoundary caught an error:', error, errorInfo)
+    this.props.onError?.(error, errorInfo)
   }
 
   public render() {
     if (this.state.hasError) {
       return (
         this.props.fallback || (
-          <div className="flex items-center justify-center min-h-[200px] p-4">
+          <div className="flex min-h-[200px] items-center justify-center p-4">
             <div className="text-center">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              <h2 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">
                 Something went wrong
               </h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                {this.state.error?.message || "An unexpected error occurred"}
+              <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+                {this.state.error?.message || 'An unexpected error occurred'}
               </p>
               <button
                 onClick={() =>
                   this.setState({ hasError: false, error: undefined })
                 }
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                className="rounded-md bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
               >
                 Try again
               </button>
             </div>
           </div>
         )
-      );
+      )
     }
 
-    return this.props.children;
+    return this.props.children
   }
 }
 
@@ -61,32 +61,32 @@ export class ErrorBoundary extends Component<Props, State> {
 export class APIErrorBoundary extends Component<Props, State> {
   public state: State = {
     hasError: false,
-  };
+  }
 
   public static getDerivedStateFromError(error: Error): State {
     // Only catch API-related errors
     if (
-      error.message.includes("API") ||
-      error.message.includes("fetch") ||
-      error.message.includes("network")
+      error.message.includes('API') ||
+      error.message.includes('fetch') ||
+      error.message.includes('network')
     ) {
-      return { hasError: true, error };
+      return { hasError: true, error }
     }
-    throw error; // Re-throw if not an API error
+    throw error // Re-throw if not an API error
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("APIErrorBoundary caught an error:", error, errorInfo);
-    this.props.onError?.(error, errorInfo);
+    console.error('APIErrorBoundary caught an error:', error, errorInfo)
+    this.props.onError?.(error, errorInfo)
   }
 
   public render() {
     if (this.state.hasError) {
       return (
         this.props.fallback || (
-          <div className="flex items-center justify-center min-h-[200px] p-4">
+          <div className="flex min-h-[200px] items-center justify-center p-4">
             <div className="text-center">
-              <div className="w-12 h-12 mx-auto mb-4 text-red-500">
+              <div className="mx-auto mb-4 h-12 w-12 text-red-500">
                 <svg
                   fill="none"
                   viewBox="0 0 24 24"
@@ -100,28 +100,28 @@ export class APIErrorBoundary extends Component<Props, State> {
                   />
                 </svg>
               </div>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              <h2 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">
                 Connection Error
               </h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
                 Unable to connect to AI services. Please check your internet
                 connection and try again.
               </p>
               <button
                 onClick={() => {
-                  this.setState({ hasError: false, error: undefined });
-                  window.location.reload();
+                  this.setState({ hasError: false, error: undefined })
+                  window.location.reload()
                 }}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                className="rounded-md bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
               >
                 Reload Page
               </button>
             </div>
           </div>
         )
-      );
+      )
     }
 
-    return this.props.children;
+    return this.props.children
   }
 }

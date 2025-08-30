@@ -33,20 +33,20 @@ A comprehensive search and filtering system for the MindDeck chat interface, pro
 ```typescript
 class SearchEngine {
   // Singleton pattern for efficient indexing
-  static getInstance(): SearchEngine;
+  static getInstance(): SearchEngine
 
   // Build search index for fast lookups
   buildIndex(
     chats: Record<string, Chat>,
-    messages: Record<string, Message[]>,
-  ): void;
+    messages: Record<string, Message[]>
+  ): void
 
   // Perform search with multiple algorithms
   search(
     options: SearchOptions,
     chats: Record<string, Chat>,
-    messages: Record<string, Message[]>,
-  ): SearchResult[];
+    messages: Record<string, Message[]>
+  ): SearchResult[]
 }
 ```
 
@@ -69,13 +69,13 @@ Enhanced `ChatStore` with search state:
 
 ```typescript
 interface SearchState {
-  query: string;
-  results: SearchResult[];
-  isSearching: boolean;
-  searchHistory: SearchHistory[];
-  filters: FilterOptions;
-  suggestions: string[];
-  selectedResultId?: string;
+  query: string
+  results: SearchResult[]
+  isSearching: boolean
+  searchHistory: SearchHistory[]
+  filters: FilterOptions
+  suggestions: string[]
+  selectedResultId?: string
 }
 ```
 
@@ -124,12 +124,12 @@ Main search interface with:
 
 ```typescript
 interface SearchOptions {
-  query: string;
-  type?: "chat" | "message" | "all";
-  exact?: boolean; // Exact phrase matching
-  regex?: boolean; // Regular expression search
-  caseSensitive?: boolean; // Case-sensitive matching
-  limit?: number; // Maximum results
+  query: string
+  type?: 'chat' | 'message' | 'all'
+  exact?: boolean // Exact phrase matching
+  regex?: boolean // Regular expression search
+  caseSensitive?: boolean // Case-sensitive matching
+  limit?: number // Maximum results
 }
 ```
 
@@ -137,14 +137,14 @@ interface SearchOptions {
 
 ```typescript
 interface FilterOptions {
-  providers?: AIProvider[]; // Filter by AI model provider
-  dateRange?: { start: Date; end: Date }; // Date range filtering
-  starred?: boolean; // Show only starred chats
-  folders?: string[]; // Filter by folder
-  chatType?: "all" | "regular" | "incognito"; // Chat type filter
-  hasMessages?: boolean; // Show only chats with messages
-  sortBy?: "date" | "title" | "messageCount" | "relevance";
-  sortOrder?: "asc" | "desc";
+  providers?: AIProvider[] // Filter by AI model provider
+  dateRange?: { start: Date; end: Date } // Date range filtering
+  starred?: boolean // Show only starred chats
+  folders?: string[] // Filter by folder
+  chatType?: 'all' | 'regular' | 'incognito' // Chat type filter
+  hasMessages?: boolean // Show only chats with messages
+  sortBy?: 'date' | 'title' | 'messageCount' | 'relevance'
+  sortOrder?: 'asc' | 'desc'
 }
 ```
 
@@ -152,14 +152,14 @@ interface FilterOptions {
 
 ```typescript
 interface SearchResult {
-  type: "chat" | "message" | "model";
-  id: string;
-  title: string;
-  snippet?: string; // Excerpt with context
-  relevance: number; // Relevance score 0-100
-  chatId?: string; // For message results
-  messageIndex?: number; // Position in chat
-  highlights?: string[]; // Terms to highlight
+  type: 'chat' | 'message' | 'model'
+  id: string
+  title: string
+  snippet?: string // Excerpt with context
+  relevance: number // Relevance score 0-100
+  chatId?: string // For message results
+  messageIndex?: number // Position in chat
+  highlights?: string[] // Terms to highlight
 }
 ```
 
@@ -169,20 +169,20 @@ interface SearchResult {
 
 ```typescript
 const results = await performSearch({
-  query: "JavaScript array methods",
-  type: "all",
+  query: 'JavaScript array methods',
+  type: 'all',
   limit: 20,
-});
+})
 ```
 
 ### Advanced Regex Search
 
 ```typescript
 const results = await performSearch({
-  query: "function\\s+\\w+\\(.*\\)",
+  query: 'function\\s+\\w+\\(.*\\)',
   regex: true,
   caseSensitive: true,
-});
+})
 ```
 
 ### Filtered Search
@@ -192,17 +192,17 @@ const results = await performSearch({
 setSearchFilters({
   starred: true,
   dateRange: { start: lastWeek, end: today },
-  chatType: "regular",
-});
+  chatType: 'regular',
+})
 
 // Perform search with filters applied
-const filteredChats = getFilteredChats();
+const filteredChats = getFilteredChats()
 ```
 
 ### Search with Suggestions
 
 ```typescript
-const suggestions = getSearchSuggestions("java");
+const suggestions = getSearchSuggestions('java')
 // Returns: ["JavaScript", "Java Spring Boot", "JavaScript array methods"]
 ```
 

@@ -1,6 +1,6 @@
-"use client";
+'use client'
 
-import React from "react";
+import React from 'react'
 import {
   MessageCircle,
   FileText,
@@ -8,18 +8,18 @@ import {
   Star,
   ArrowRight,
   Search,
-} from "lucide-react";
-import { Button } from "../ui/button";
-import { cn } from "../../lib/utils";
-import { SearchResult } from "../../lib/stores/types";
+} from 'lucide-react'
+import { Button } from '../ui/button'
+import { cn } from '../../lib/utils'
+import { SearchResult } from '../../lib/stores/types'
 
 interface SearchResultsProps {
-  results: SearchResult[];
-  isSearching: boolean;
-  query: string;
-  onSelectResult: (resultId: string) => void;
-  onClearSearch: () => void;
-  className?: string;
+  results: SearchResult[]
+  isSearching: boolean
+  query: string
+  onSelectResult: (resultId: string) => void
+  onClearSearch: () => void
+  className?: string
 }
 
 export function SearchResults({
@@ -32,27 +32,27 @@ export function SearchResults({
 }: SearchResultsProps) {
   if (isSearching) {
     return (
-      <div className={cn("p-4", className)}>
+      <div className={cn('p-4', className)}>
         <div className="flex items-center justify-center space-x-2">
-          <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-500 border-t-transparent" />
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
           <span className="text-sm text-gray-500 dark:text-gray-400">
             Searching...
           </span>
         </div>
       </div>
-    );
+    )
   }
 
   if (!query) {
-    return null;
+    return null
   }
 
   if (results.length === 0) {
     return (
-      <div className={cn("p-4 text-center", className)}>
+      <div className={cn('p-4 text-center', className)}>
         <div className="space-y-3">
           <div className="text-gray-500 dark:text-gray-400">
-            <FileText className="h-8 w-8 mx-auto mb-2 opacity-50" />
+            <FileText className="mx-auto mb-2 h-8 w-8 opacity-50" />
             <p className="text-sm font-medium">No results found</p>
             <p className="text-xs">
               Try different keywords or check your filters
@@ -68,15 +68,15 @@ export function SearchResults({
           </Button>
         </div>
       </div>
-    );
+    )
   }
 
   return (
-    <div className={cn("p-2", className)}>
+    <div className={cn('p-2', className)}>
       {/* Search results header */}
-      <div className="flex items-center justify-between px-2 py-1 mb-2">
-        <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-          {results.length} result{results.length !== 1 ? "s" : ""}
+      <div className="mb-2 flex items-center justify-between px-2 py-1">
+        <span className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+          {results.length} result{results.length !== 1 ? 's' : ''}
         </span>
         <Button
           variant="ghost"
@@ -89,7 +89,7 @@ export function SearchResults({
       </div>
 
       {/* Results list */}
-      <div className="space-y-1 max-h-96 overflow-y-auto">
+      <div className="max-h-96 space-y-1 overflow-y-auto">
         {results.map((result) => (
           <SearchResultItem
             key={result.id}
@@ -100,56 +100,56 @@ export function SearchResults({
         ))}
       </div>
     </div>
-  );
+  )
 }
 
 interface SearchResultItemProps {
-  result: SearchResult;
-  query: string;
-  onSelect: () => void;
+  result: SearchResult
+  query: string
+  onSelect: () => void
 }
 
 function SearchResultItem({ result, query, onSelect }: SearchResultItemProps) {
   const getResultIcon = () => {
     switch (result.type) {
-      case "chat":
-        return <MessageCircle className="h-4 w-4" />;
-      case "message":
-        return <FileText className="h-4 w-4" />;
+      case 'chat':
+        return <MessageCircle className="h-4 w-4" />
+      case 'message':
+        return <FileText className="h-4 w-4" />
       default:
-        return <FileText className="h-4 w-4" />;
+        return <FileText className="h-4 w-4" />
     }
-  };
+  }
 
   const formatDate = (date: Date | string) => {
-    const d = typeof date === "string" ? new Date(date) : date;
-    return d.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
+    const d = typeof date === 'string' ? new Date(date) : date
+    return d.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
       year:
-        d.getFullYear() !== new Date().getFullYear() ? "numeric" : undefined,
-    });
-  };
+        d.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined,
+    })
+  }
 
   return (
     <div
       onClick={onSelect}
       className={cn(
-        "group relative p-3 rounded-lg cursor-pointer transition-all",
-        "hover:bg-white dark:hover:bg-gray-800",
-        "border border-transparent hover:border-gray-200 dark:hover:border-gray-700",
-        "hover:shadow-sm",
+        'group relative cursor-pointer rounded-lg p-3 transition-all',
+        'hover:bg-white dark:hover:bg-gray-800',
+        'border border-transparent hover:border-gray-200 dark:hover:border-gray-700',
+        'hover:shadow-sm'
       )}
     >
       <div className="flex items-start space-x-3">
         {/* Result type icon */}
-        <div className="flex-shrink-0 mt-0.5">
+        <div className="mt-0.5 flex-shrink-0">
           <div
             className={cn(
-              "p-1.5 rounded-md",
-              result.type === "chat"
-                ? "bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
-                : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400",
+              'rounded-md p-1.5',
+              result.type === 'chat'
+                ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'
+                : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
             )}
           >
             {getResultIcon()}
@@ -157,11 +157,11 @@ function SearchResultItem({ result, query, onSelect }: SearchResultItemProps) {
         </div>
 
         {/* Content */}
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between">
-            <div className="flex-1 min-w-0">
+            <div className="min-w-0 flex-1">
               {/* Title with highlights */}
-              <h4 className="font-medium text-sm text-gray-900 dark:text-white truncate">
+              <h4 className="truncate text-sm font-medium text-gray-900 dark:text-white">
                 <HighlightedText
                   text={result.title}
                   highlights={result.highlights || [query]}
@@ -169,19 +169,19 @@ function SearchResultItem({ result, query, onSelect }: SearchResultItemProps) {
               </h4>
 
               {/* Result type and context */}
-              <div className="flex items-center space-x-2 mt-1">
+              <div className="mt-1 flex items-center space-x-2">
                 <span
                   className={cn(
-                    "text-xs px-1.5 py-0.5 rounded font-medium",
-                    result.type === "chat"
-                      ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
-                      : "bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400",
+                    'rounded px-1.5 py-0.5 text-xs font-medium',
+                    result.type === 'chat'
+                      ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300'
+                      : 'bg-gray-50 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
                   )}
                 >
-                  {result.type === "chat" ? "Chat" : "Message"}
+                  {result.type === 'chat' ? 'Chat' : 'Message'}
                 </span>
 
-                {result.type === "message" && (
+                {result.type === 'message' && (
                   <span className="text-xs text-gray-500 dark:text-gray-400">
                     in {result.title}
                   </span>
@@ -190,7 +190,7 @@ function SearchResultItem({ result, query, onSelect }: SearchResultItemProps) {
 
               {/* Snippet for message results */}
               {result.snippet && (
-                <p className="text-xs text-gray-600 dark:text-gray-400 mt-2 line-clamp-2">
+                <p className="mt-2 line-clamp-2 text-xs text-gray-600 dark:text-gray-400">
                   <HighlightedText
                     text={result.snippet}
                     highlights={result.highlights || [query]}
@@ -200,48 +200,48 @@ function SearchResultItem({ result, query, onSelect }: SearchResultItemProps) {
             </div>
 
             {/* Relevance and actions */}
-            <div className="flex items-center space-x-2 ml-2">
+            <div className="ml-2 flex items-center space-x-2">
               <div className="flex items-center space-x-1">
                 <div
                   className={cn(
-                    "h-1.5 w-8 rounded-full",
+                    'h-1.5 w-8 rounded-full',
                     result.relevance >= 80
-                      ? "bg-green-400"
+                      ? 'bg-green-400'
                       : result.relevance >= 60
-                        ? "bg-yellow-400"
-                        : "bg-gray-300 dark:bg-gray-600",
+                        ? 'bg-yellow-400'
+                        : 'bg-gray-300 dark:bg-gray-600'
                   )}
                 />
-                <span className="text-xs text-gray-400 tabular-nums">
+                <span className="text-xs tabular-nums text-gray-400">
                   {result.relevance}%
                 </span>
               </div>
 
-              <ArrowRight className="h-3 w-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <ArrowRight className="h-3 w-3 text-gray-400 opacity-0 transition-opacity group-hover:opacity-100" />
             </div>
           </div>
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 interface HighlightedTextProps {
-  text: string;
-  highlights: string[];
+  text: string
+  highlights: string[]
 }
 
 function HighlightedText({ text, highlights }: HighlightedTextProps) {
-  if (!highlights.length) return <>{text}</>;
+  if (!highlights.length) return <>{text}</>
 
-  let highlightedText = text;
+  let highlightedText = text
   highlights.forEach((highlight) => {
-    const regex = new RegExp(`(${highlight})`, "gi");
+    const regex = new RegExp(`(${highlight})`, 'gi')
     highlightedText = highlightedText.replace(
       regex,
-      '<mark class="bg-yellow-200 dark:bg-yellow-900 text-inherit rounded px-0.5">$1</mark>',
-    );
-  });
+      '<mark class="bg-yellow-200 dark:bg-yellow-900 text-inherit rounded px-0.5">$1</mark>'
+    )
+  })
 
-  return <span dangerouslySetInnerHTML={{ __html: highlightedText }} />;
+  return <span dangerouslySetInnerHTML={{ __html: highlightedText }} />
 }

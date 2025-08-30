@@ -1,23 +1,23 @@
-"use client";
+'use client'
 
-import React, { useRef, useState } from "react";
+import React, { useRef, useState } from 'react'
 import {
   Download,
   Upload,
   FileText,
   AlertTriangle,
   CheckCircle,
-} from "lucide-react";
-import { cn } from "../../../lib/utils";
-import { useSettingsStore } from "../../../lib/stores/settings-store";
-import { useChatStore } from "../../../lib/stores/chat-store";
+} from 'lucide-react'
+import { cn } from '../../../lib/utils'
+import { useSettingsStore } from '../../../lib/stores/settings-store'
+import { useChatStore } from '../../../lib/stores/chat-store'
 
-type ExportType = "settings" | "chats" | "all";
+type ExportType = 'settings' | 'chats' | 'all'
 type ImportResult = {
-  success: boolean;
-  message: string;
-  details?: string[];
-};
+  success: boolean
+  message: string
+  details?: string[]
+}
 
 export function ImportExportTab() {
   const {
@@ -25,175 +25,175 @@ export function ImportExportTab() {
     importSettings,
     exportingSettings,
     importingSettings,
-  } = useSettingsStore();
+  } = useSettingsStore()
 
-  const { chats, exportChats, importChats } = useChatStore();
+  const { chats, exportChats, importChats } = useChatStore()
 
   // Get all chat data in the format needed for export
   const getAllChatData = () => {
-    const chatList = Object.values(chats || {});
-    return chatList;
-  };
+    const chatList = Object.values(chats || {})
+    return chatList
+  }
 
-  const [exportType, setExportType] = useState<ExportType>("settings");
-  const [importResult, setImportResult] = useState<ImportResult | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [exportType, setExportType] = useState<ExportType>('settings')
+  const [importResult, setImportResult] = useState<ImportResult | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleExport = async () => {
     try {
-      let blob: Blob;
-      let filename: string;
+      let blob: Blob
+      let filename: string
 
       switch (exportType) {
-        case "settings": {
-          blob = await exportSettings();
-          filename = `minddeck-settings-${new Date().toISOString().split("T")[0]}.json`;
-          break;
+        case 'settings': {
+          blob = await exportSettings()
+          filename = `minddeck-settings-${new Date().toISOString().split('T')[0]}.json`
+          break
         }
-        case "chats": {
-          const chatData = getAllChatData();
+        case 'chats': {
+          const chatData = getAllChatData()
           blob = new Blob([JSON.stringify(chatData, null, 2)], {
-            type: "application/json",
-          });
-          filename = `minddeck-chats-${new Date().toISOString().split("T")[0]}.json`;
-          break;
+            type: 'application/json',
+          })
+          filename = `minddeck-chats-${new Date().toISOString().split('T')[0]}.json`
+          break
         }
-        case "all": {
+        case 'all': {
           const [settingsBlob, chatData] = await Promise.all([
             exportSettings(),
             Promise.resolve(getAllChatData()),
-          ]);
+          ])
 
-          const settingsText = await settingsBlob.text();
-          const settings = JSON.parse(settingsText);
+          const settingsText = await settingsBlob.text()
+          const settings = JSON.parse(settingsText)
 
           const exportData = {
-            version: "1.0",
+            version: '1.0',
             exportedAt: new Date().toISOString(),
             settings,
             chats: chatData,
-          };
+          }
 
           blob = new Blob([JSON.stringify(exportData, null, 2)], {
-            type: "application/json",
-          });
-          filename = `minddeck-complete-backup-${new Date().toISOString().split("T")[0]}.json`;
-          break;
+            type: 'application/json',
+          })
+          filename = `minddeck-complete-backup-${new Date().toISOString().split('T')[0]}.json`
+          break
         }
         default:
-          throw new Error("Invalid export type");
+          throw new Error('Invalid export type')
       }
 
       // Create download link
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = filename
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
 
       setImportResult({
         success: true,
-        message: `Successfully exported ${exportType === "all" ? "complete backup" : exportType}`,
-      });
+        message: `Successfully exported ${exportType === 'all' ? 'complete backup' : exportType}`,
+      })
     } catch (error) {
-      console.error("Export error:", error);
+      console.error('Export error:', error)
       setImportResult({
         success: false,
-        message: "Export failed",
-        details: [error instanceof Error ? error.message : "Unknown error"],
-      });
+        message: 'Export failed',
+        details: [error instanceof Error ? error.message : 'Unknown error'],
+      })
     }
-  };
+  }
 
   const handleImport = async (file: File) => {
     try {
-      const text = await file.text();
-      const data = JSON.parse(text);
+      const text = await file.text()
+      const data = JSON.parse(text)
 
       // Determine import type based on file structure
       if (data.version && data.settings && data.chats) {
         // Complete backup file
         await importSettings(
           new Blob([JSON.stringify(data.settings)], {
-            type: "application/json",
-          }) as File,
-        );
+            type: 'application/json',
+          }) as File
+        )
 
         // For chats, we'll simulate the import since the actual method expects a File
         // TODO: This would need to be implemented properly with actual chat import logic
 
         setImportResult({
           success: true,
-          message: "Successfully imported complete backup",
-          details: ["Settings restored", "Chat history restored"],
-        });
+          message: 'Successfully imported complete backup',
+          details: ['Settings restored', 'Chat history restored'],
+        })
       } else if (data.theme || data.apiKeys || data.sidebarWidth) {
         // Settings file
-        const blob = new Blob([text], { type: "application/json" });
-        await importSettings(blob as File);
+        const blob = new Blob([text], { type: 'application/json' })
+        await importSettings(blob as File)
 
         setImportResult({
           success: true,
-          message: "Successfully imported settings",
-        });
+          message: 'Successfully imported settings',
+        })
       } else if (Array.isArray(data) || data.chats) {
         // Chat export file
-        const chatData = Array.isArray(data) ? data : data.chats;
+        const chatData = Array.isArray(data) ? data : data.chats
 
         // For now, just show success without actually importing
         // TODO: Implement proper chat import logic
         setImportResult({
           success: true,
-          message: "Chat import format detected",
+          message: 'Chat import format detected',
           details: [
             `Found ${chatData.length} chat(s) to import`,
-            "Chat import functionality coming soon",
+            'Chat import functionality coming soon',
           ],
-        });
+        })
       } else {
-        throw new Error("Unrecognized file format");
+        throw new Error('Unrecognized file format')
       }
     } catch (error) {
-      console.error("Import error:", error);
+      console.error('Import error:', error)
       setImportResult({
         success: false,
-        message: "Import failed",
+        message: 'Import failed',
         details: [
-          error instanceof Error ? error.message : "Invalid file format",
+          error instanceof Error ? error.message : 'Invalid file format',
         ],
-      });
+      })
     }
-  };
+  }
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+    const file = event.target.files?.[0]
     if (file) {
-      handleImport(file);
+      handleImport(file)
     }
     // Reset file input
     if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+      fileInputRef.current.value = ''
     }
-  };
+  }
 
   const triggerFileSelect = () => {
-    fileInputRef.current?.click();
-  };
+    fileInputRef.current?.click()
+  }
 
-  const chatArray = Object.values(chats || {});
-  const chatCount = chatArray.length;
+  const chatArray = Object.values(chats || {})
+  const chatCount = chatArray.length
   const totalMessages = chatArray.reduce(
     (sum, chat) => sum + (chat.messageCount || 0),
-    0,
-  );
+    0
+  )
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+        <h2 className="mb-2 text-lg font-medium text-gray-900 dark:text-white">
           Import/Export
         </h2>
         <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -202,10 +202,10 @@ export function ImportExportTab() {
       </div>
 
       {/* Data Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+            <div className="rounded-lg bg-blue-100 p-2 dark:bg-blue-900/30">
               <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
@@ -219,9 +219,9 @@ export function ImportExportTab() {
           </div>
         </div>
 
-        <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+        <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+            <div className="rounded-lg bg-green-100 p-2 dark:bg-green-900/30">
               <Download className="h-5 w-5 text-green-600 dark:text-green-400" />
             </div>
             <div>
@@ -249,9 +249,9 @@ export function ImportExportTab() {
               id="export-settings"
               name="exportType"
               value="settings"
-              checked={exportType === "settings"}
+              checked={exportType === 'settings'}
               onChange={(e) => setExportType(e.target.value as ExportType)}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600"
+              className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600"
             />
             <label
               htmlFor="export-settings"
@@ -267,9 +267,9 @@ export function ImportExportTab() {
               id="export-chats"
               name="exportType"
               value="chats"
-              checked={exportType === "chats"}
+              checked={exportType === 'chats'}
               onChange={(e) => setExportType(e.target.value as ExportType)}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600"
+              className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600"
             />
             <label
               htmlFor="export-chats"
@@ -285,9 +285,9 @@ export function ImportExportTab() {
               id="export-all"
               name="exportType"
               value="all"
-              checked={exportType === "all"}
+              checked={exportType === 'all'}
               onChange={(e) => setExportType(e.target.value as ExportType)}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600"
+              className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600"
             />
             <label
               htmlFor="export-all"
@@ -302,31 +302,31 @@ export function ImportExportTab() {
           onClick={handleExport}
           disabled={exportingSettings}
           className={cn(
-            "px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700",
-            "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
-            "disabled:opacity-50 disabled:cursor-not-allowed",
-            "transition-colors flex items-center gap-2",
+            'rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700',
+            'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
+            'disabled:cursor-not-allowed disabled:opacity-50',
+            'flex items-center gap-2 transition-colors'
           )}
         >
           <Download className="h-4 w-4" />
-          {exportingSettings ? "Exporting..." : "Export Data"}
+          {exportingSettings ? 'Exporting...' : 'Export Data'}
         </button>
       </div>
 
       {/* Import Section */}
-      <div className="space-y-4 border-t border-gray-200 dark:border-gray-700 pt-6">
+      <div className="space-y-4 border-t border-gray-200 pt-6 dark:border-gray-700">
         <h3 className="text-base font-medium text-gray-900 dark:text-white">
           Import Data
         </h3>
 
         <div className="space-y-4">
-          <div className="flex items-start gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
-            <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5" />
+          <div className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-900/20">
+            <AlertTriangle className="mt-0.5 h-5 w-5 text-amber-600 dark:text-amber-400" />
             <div>
               <h4 className="text-sm font-medium text-amber-800 dark:text-amber-200">
                 Import Warning
               </h4>
-              <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
+              <p className="mt-1 text-sm text-amber-700 dark:text-amber-300">
                 Importing will overwrite your current data. Make sure to export
                 your current data first as a backup.
               </p>
@@ -337,15 +337,15 @@ export function ImportExportTab() {
             onClick={triggerFileSelect}
             disabled={importingSettings}
             className={cn(
-              "px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg",
-              "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700",
-              "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
-              "disabled:opacity-50 disabled:cursor-not-allowed",
-              "transition-colors flex items-center gap-2",
+              'rounded-lg border border-gray-300 px-4 py-2 dark:border-gray-600',
+              'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700',
+              'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
+              'disabled:cursor-not-allowed disabled:opacity-50',
+              'flex items-center gap-2 transition-colors'
             )}
           >
             <Upload className="h-4 w-4" />
-            {importingSettings ? "Importing..." : "Select File to Import"}
+            {importingSettings ? 'Importing...' : 'Select File to Import'}
           </button>
 
           <input
@@ -366,24 +366,24 @@ export function ImportExportTab() {
       {importResult && (
         <div
           className={cn(
-            "p-4 rounded-lg border flex items-start gap-3",
+            'flex items-start gap-3 rounded-lg border p-4',
             importResult.success
-              ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
-              : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800",
+              ? 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20'
+              : 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20'
           )}
         >
           {importResult.success ? (
-            <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5" />
+            <CheckCircle className="mt-0.5 h-5 w-5 text-green-600 dark:text-green-400" />
           ) : (
-            <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5" />
+            <AlertTriangle className="mt-0.5 h-5 w-5 text-red-600 dark:text-red-400" />
           )}
           <div className="flex-1">
             <h4
               className={cn(
-                "text-sm font-medium",
+                'text-sm font-medium',
                 importResult.success
-                  ? "text-green-800 dark:text-green-200"
-                  : "text-red-800 dark:text-red-200",
+                  ? 'text-green-800 dark:text-green-200'
+                  : 'text-red-800 dark:text-red-200'
               )}
             >
               {importResult.message}
@@ -391,15 +391,15 @@ export function ImportExportTab() {
             {importResult.details && (
               <ul
                 className={cn(
-                  "text-sm mt-1 space-y-1",
+                  'mt-1 space-y-1 text-sm',
                   importResult.success
-                    ? "text-green-700 dark:text-green-300"
-                    : "text-red-700 dark:text-red-300",
+                    ? 'text-green-700 dark:text-green-300'
+                    : 'text-red-700 dark:text-red-300'
                 )}
               >
                 {importResult.details.map((detail, index) => (
                   <li key={index} className="flex items-center gap-1">
-                    <span className="w-1 h-1 bg-current rounded-full" />
+                    <span className="h-1 w-1 rounded-full bg-current" />
                     {detail}
                   </li>
                 ))}
@@ -409,10 +409,10 @@ export function ImportExportTab() {
           <button
             onClick={() => setImportResult(null)}
             className={cn(
-              "text-sm underline",
+              'text-sm underline',
               importResult.success
-                ? "text-green-800 dark:text-green-200 hover:text-green-900 dark:hover:text-green-100"
-                : "text-red-800 dark:text-red-200 hover:text-red-900 dark:hover:text-red-100",
+                ? 'text-green-800 hover:text-green-900 dark:text-green-200 dark:hover:text-green-100'
+                : 'text-red-800 hover:text-red-900 dark:text-red-200 dark:hover:text-red-100'
             )}
           >
             Dismiss
@@ -421,8 +421,8 @@ export function ImportExportTab() {
       )}
 
       {/* Data Privacy Notice */}
-      <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-        <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
+      <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
+        <h4 className="mb-1 text-sm font-medium text-blue-900 dark:text-blue-100">
           Privacy & Security
         </h4>
         <p className="text-sm text-blue-800 dark:text-blue-200">
@@ -433,5 +433,5 @@ export function ImportExportTab() {
         </p>
       </div>
     </div>
-  );
+  )
 }

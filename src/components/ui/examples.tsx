@@ -4,7 +4,7 @@
  * This file demonstrates how to use all the UI components in the MindDeck clone.
  * Remove this file before production or use it for development testing.
  */
-import React from "react";
+import React from 'react'
 import {
   Button,
   Input,
@@ -33,7 +33,7 @@ import {
   ModelBadge,
   ContextBadge,
   NotificationBadge,
-} from "./index";
+} from './index'
 import {
   Search,
   Settings,
@@ -42,17 +42,17 @@ import {
   Send,
   Bell,
   User,
-} from "lucide-react";
+} from 'lucide-react'
 
 export function UIComponentExamples() {
-  const [inputValue, setInputValue] = React.useState("");
-  const [dialogOpen, setDialogOpen] = React.useState(false);
-  const [chatMessage, setChatMessage] = React.useState("");
+  const [inputValue, setInputValue] = React.useState('')
+  const [dialogOpen, setDialogOpen] = React.useState(false)
+  const [chatMessage, setChatMessage] = React.useState('')
 
   return (
-    <div className="max-w-6xl mx-auto p-8 space-y-12">
+    <div className="mx-auto max-w-6xl space-y-12 p-8">
       <div className="text-center">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+        <h1 className="mb-2 text-3xl font-bold text-gray-900 dark:text-gray-100">
           ZheroHero UI Components
         </h1>
         <p className="text-gray-600 dark:text-gray-400">
@@ -105,7 +105,7 @@ export function UIComponentExamples() {
           Inputs
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <Input
             label="Standard Input"
             placeholder="Enter text here..."
@@ -122,7 +122,7 @@ export function UIComponentExamples() {
 
           <SearchInput
             placeholder="Search conversations..."
-            onSearch={(value) => console.log("Searching:", value)}
+            onSearch={(value) => console.log('Searching:', value)}
           />
 
           <Input
@@ -130,7 +130,7 @@ export function UIComponentExamples() {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             clearable
-            onClear={() => setInputValue("")}
+            onClear={() => setInputValue('')}
             placeholder="Clearable input"
           />
         </div>
@@ -152,8 +152,8 @@ export function UIComponentExamples() {
             value={chatMessage}
             onChange={(e) => setChatMessage(e.target.value)}
             onSend={(message) => {
-              console.log("Sending:", message);
-              setChatMessage("");
+              console.log('Sending:', message)
+              setChatMessage('')
             }}
             sendButton={
               <Button size="iconSm" variant="icon">
@@ -173,7 +173,7 @@ export function UIComponentExamples() {
           Cards
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           <Card>
             <CardHeader>
               <CardTitle>Simple Card</CardTitle>
@@ -195,17 +195,17 @@ export function UIComponentExamples() {
 
           <ModelCard
             model={{
-              name: "GPT-4 Turbo",
-              provider: "OpenAI",
-              contextWindow: "128K tokens",
+              name: 'GPT-4 Turbo',
+              provider: 'OpenAI',
+              contextWindow: '128K tokens',
               isNew: true,
               description:
-                "Most capable GPT-4 model with improved instruction following",
+                'Most capable GPT-4 model with improved instruction following',
             }}
-            onConfigure={() => console.log("Configure GPT-4")}
+            onConfigure={() => console.log('Configure GPT-4')}
             badge={<ContextBadge tokens="128K" showLabel={false} />}
             providerLogo={
-              <div className="w-6 h-6 bg-black rounded text-white flex items-center justify-center text-xs font-bold">
+              <div className="flex h-6 w-6 items-center justify-center rounded bg-black text-xs font-bold text-white">
                 AI
               </div>
             }
@@ -374,7 +374,7 @@ export function UIComponentExamples() {
           Component Integration
         </h2>
 
-        <Card variant="elevated" className="max-w-md mx-auto">
+        <Card variant="elevated" className="mx-auto max-w-md">
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Chat Interface</CardTitle>
@@ -399,7 +399,7 @@ export function UIComponentExamples() {
                 <ModelBadge type="new" />
               </div>
 
-              <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg text-sm">
+              <div className="rounded-lg bg-gray-50 p-3 text-sm dark:bg-gray-800">
                 Hello! How can I assist you today?
               </div>
             </div>
@@ -421,12 +421,12 @@ export function UIComponentExamples() {
               Connected
             </Badge>
             <Button variant="ghost" size="sm">
-              <Settings className="h-3 w-3 mr-1" />
+              <Settings className="mr-1 h-3 w-3" />
               Settings
             </Button>
           </CardFooter>
         </Card>
       </section>
     </div>
-  );
+  )
 }

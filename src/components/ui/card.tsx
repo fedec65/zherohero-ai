@@ -1,62 +1,62 @@
-import * as React from "react";
-import { cva, type VariantProps } from "class-variance-authority";
-import { clsx } from "clsx";
+import * as React from 'react'
+import { cva, type VariantProps } from 'class-variance-authority'
+import { clsx } from 'clsx'
 
 const cardVariants = cva(
-  "rounded-lg border bg-white text-gray-950 shadow transition-colors dark:border-gray-700 dark:bg-gray-900 dark:text-gray-50",
+  'rounded-lg border bg-white text-gray-950 shadow transition-colors dark:border-gray-700 dark:bg-gray-900 dark:text-gray-50',
   {
     variants: {
       variant: {
-        default: "border-gray-200",
-        outline: "border-gray-200 dark:border-gray-700",
-        ghost: "border-transparent shadow-none",
-        elevated: "border-gray-200 shadow-lg",
+        default: 'border-gray-200',
+        outline: 'border-gray-200 dark:border-gray-700',
+        ghost: 'border-transparent shadow-none',
+        elevated: 'border-gray-200 shadow-lg',
       },
       size: {
-        sm: "p-3",
-        default: "p-4",
-        lg: "p-6",
-        xl: "p-8",
+        sm: 'p-3',
+        default: 'p-4',
+        lg: 'p-6',
+        xl: 'p-8',
       },
       interactive: {
-        true: "cursor-pointer hover:shadow-md transition-shadow",
-        false: "",
+        true: 'cursor-pointer hover:shadow-md transition-shadow',
+        false: '',
       },
     },
     defaultVariants: {
-      variant: "default",
-      size: "default",
+      variant: 'default',
+      size: 'default',
       interactive: false,
     },
-  },
-);
+  }
+)
 
 export interface CardProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof cardVariants> {
-  asChild?: boolean;
+  asChild?: boolean
 }
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
   (
     { className, variant, size, interactive, asChild = false, ...props },
-    ref,
+    ref
   ) => {
-    const Comp = asChild ? "div" : "div";
+    const Comp = asChild ? 'div' : 'div'
 
     return (
       <Comp
         ref={ref}
         className={clsx(
-          cardVariants({ variant, size, interactive, className }),
+          cardVariants({ variant, size, interactive, className })
         )}
         {...props}
       />
-    );
-  },
-);
+    )
+  }
+)
 
-Card.displayName = "Card";
+Card.displayName = 'Card'
 
 // Card Header Component
 export interface CardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {}
@@ -65,34 +65,34 @@ const CardHeader = React.forwardRef<HTMLDivElement, CardHeaderProps>(
   ({ className, ...props }, ref) => (
     <div
       ref={ref}
-      className={clsx("flex flex-col space-y-1.5", className)}
+      className={clsx('flex flex-col space-y-1.5', className)}
       {...props}
     />
-  ),
-);
+  )
+)
 
-CardHeader.displayName = "CardHeader";
+CardHeader.displayName = 'CardHeader'
 
 // Card Title Component
 export interface CardTitleProps
   extends React.HTMLAttributes<HTMLHeadingElement> {
-  as?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
+  as?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
 }
 
 const CardTitle = React.forwardRef<HTMLHeadingElement, CardTitleProps>(
-  ({ className, as: Comp = "h3", ...props }, ref) => (
+  ({ className, as: Comp = 'h3', ...props }, ref) => (
     <Comp
       ref={ref}
       className={clsx(
-        "font-semibold leading-none tracking-tight text-gray-900 dark:text-gray-100",
-        className,
+        'font-semibold leading-none tracking-tight text-gray-900 dark:text-gray-100',
+        className
       )}
       {...props}
     />
-  ),
-);
+  )
+)
 
-CardTitle.displayName = "CardTitle";
+CardTitle.displayName = 'CardTitle'
 
 // Card Description Component
 export interface CardDescriptionProps
@@ -104,12 +104,12 @@ const CardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={clsx("text-sm text-gray-500 dark:text-gray-400", className)}
+    className={clsx('text-sm text-gray-500 dark:text-gray-400', className)}
     {...props}
   />
-));
+))
 
-CardDescription.displayName = "CardDescription";
+CardDescription.displayName = 'CardDescription'
 
 // Card Content Component
 export interface CardContentProps
@@ -117,11 +117,11 @@ export interface CardContentProps
 
 const CardContent = React.forwardRef<HTMLDivElement, CardContentProps>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={clsx("pt-0", className)} {...props} />
-  ),
-);
+    <div ref={ref} className={clsx('pt-0', className)} {...props} />
+  )
+)
 
-CardContent.displayName = "CardContent";
+CardContent.displayName = 'CardContent'
 
 // Card Footer Component
 export interface CardFooterProps extends React.HTMLAttributes<HTMLDivElement> {}
@@ -130,27 +130,27 @@ const CardFooter = React.forwardRef<HTMLDivElement, CardFooterProps>(
   ({ className, ...props }, ref) => (
     <div
       ref={ref}
-      className={clsx("flex items-center pt-0", className)}
+      className={clsx('flex items-center pt-0', className)}
       {...props}
     />
-  ),
-);
+  )
+)
 
-CardFooter.displayName = "CardFooter";
+CardFooter.displayName = 'CardFooter'
 
 // Model Card - specialized for AI model cards
-export interface ModelCardProps extends Omit<CardProps, "variant"> {
+export interface ModelCardProps extends Omit<CardProps, 'variant'> {
   model: {
-    name: string;
-    provider: string;
-    contextWindow: string;
-    isNew?: boolean;
-    description?: string;
-  };
-  onConfigure?: () => void;
-  configureButtonText?: string;
-  providerLogo?: React.ReactNode;
-  badge?: React.ReactNode;
+    name: string
+    provider: string
+    contextWindow: string
+    isNew?: boolean
+    description?: string
+  }
+  onConfigure?: () => void
+  configureButtonText?: string
+  providerLogo?: React.ReactNode
+  badge?: React.ReactNode
 }
 
 const ModelCard = React.forwardRef<HTMLDivElement, ModelCardProps>(
@@ -158,43 +158,43 @@ const ModelCard = React.forwardRef<HTMLDivElement, ModelCardProps>(
     {
       model,
       onConfigure,
-      configureButtonText = "Configure",
+      configureButtonText = 'Configure',
       providerLogo,
       badge,
       className,
       children,
       ...props
     },
-    ref,
+    ref
   ) => (
     <Card
       ref={ref}
       variant="outline"
       size="default"
       interactive={!!onConfigure}
-      className={clsx("hover:shadow-lg transition-all duration-200", className)}
+      className={clsx('transition-all duration-200 hover:shadow-lg', className)}
       {...props}
     >
       <CardHeader>
         <div className="flex items-start justify-between">
-          <div className="flex-1 min-w-0">
-            <CardTitle className="text-sm font-medium truncate">
+          <div className="min-w-0 flex-1">
+            <CardTitle className="truncate text-sm font-medium">
               {model.name}
             </CardTitle>
-            <CardDescription className="text-xs mt-1">
+            <CardDescription className="mt-1 text-xs">
               {model.contextWindow}
             </CardDescription>
           </div>
 
-          <div className="flex items-center gap-2 ml-2">
+          <div className="ml-2 flex items-center gap-2">
             {badge}
             {model.isNew && (
-              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+              <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-200">
                 New
               </span>
             )}
             {providerLogo && (
-              <div className="w-6 h-6 flex-shrink-0">{providerLogo}</div>
+              <div className="h-6 w-6 flex-shrink-0">{providerLogo}</div>
             )}
           </div>
         </div>
@@ -203,7 +203,7 @@ const ModelCard = React.forwardRef<HTMLDivElement, ModelCardProps>(
       {(model.description || children) && (
         <CardContent>
           {model.description && (
-            <p className="text-xs text-gray-600 dark:text-gray-300 line-clamp-2">
+            <p className="line-clamp-2 text-xs text-gray-600 dark:text-gray-300">
               {model.description}
             </p>
           )}
@@ -215,10 +215,10 @@ const ModelCard = React.forwardRef<HTMLDivElement, ModelCardProps>(
         <CardFooter className="justify-end">
           <button
             onClick={onConfigure}
-            className="text-xs px-3 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center gap-1.5"
+            className="flex items-center gap-1.5 rounded-md bg-blue-600 px-3 py-1.5 text-xs text-white transition-colors hover:bg-blue-700"
           >
             <svg
-              className="w-3 h-3"
+              className="h-3 w-3"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -242,10 +242,10 @@ const ModelCard = React.forwardRef<HTMLDivElement, ModelCardProps>(
         </CardFooter>
       )}
     </Card>
-  ),
-);
+  )
+)
 
-ModelCard.displayName = "ModelCard";
+ModelCard.displayName = 'ModelCard'
 
 export {
   Card,
@@ -256,4 +256,4 @@ export {
   CardContent,
   ModelCard,
   cardVariants,
-};
+}

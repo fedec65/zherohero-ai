@@ -1,25 +1,25 @@
-"use client";
+'use client'
 
-import React, { useEffect } from "react";
-import { ChatSidebar } from "../../components/layout/chat-sidebar";
-import { useChatStore } from "../../lib/stores/chat-store";
-import { loadSearchDemoData } from "../../components/chat/search-demo-data";
+import React, { useEffect } from 'react'
+import { ChatSidebar } from '../../components/layout/chat-sidebar'
+import { useChatStore } from '../../lib/stores/chat-store'
+import { loadSearchDemoData } from '../../components/chat/search-demo-data'
 
 export default function SearchDemoPage() {
-  const { chats } = useChatStore();
+  const { chats } = useChatStore()
 
   // Load demo data on component mount
   useEffect(() => {
     if (Object.keys(chats).length === 0) {
-      loadSearchDemoData(useChatStore);
+      loadSearchDemoData(useChatStore)
     }
-  }, [chats]);
+  }, [chats])
 
   return (
-    <div className="h-screen flex bg-gray-100 dark:bg-gray-950">
+    <div className="flex h-screen bg-gray-100 dark:bg-gray-950">
       {/* Sidebar Navigation */}
-      <div className="w-16 bg-gray-50 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700">
-        <div className="h-full flex flex-col items-center justify-center">
+      <div className="w-16 border-r border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-900">
+        <div className="flex h-full flex-col items-center justify-center">
           <div className="text-sm font-medium text-gray-600 dark:text-gray-400">
             Search Demo
           </div>
@@ -30,8 +30,8 @@ export default function SearchDemoPage() {
       <ChatSidebar className="w-80" />
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col items-center justify-center">
-        <div className="max-w-2xl mx-auto text-center space-y-6">
+      <div className="flex flex-1 flex-col items-center justify-center">
+        <div className="mx-auto max-w-2xl space-y-6 text-center">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             Enhanced Search Demo
           </h1>
@@ -41,12 +41,12 @@ export default function SearchDemoPage() {
             sidebar.
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+          <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+              <h3 className="mb-3 text-lg font-semibold text-gray-900 dark:text-white">
                 🔍 Search Features
               </h3>
-              <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-2">
+              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                 <li>• Full-text search across chats and messages</li>
                 <li>• Search suggestions and history</li>
                 <li>• Regex and exact match options</li>
@@ -55,11 +55,11 @@ export default function SearchDemoPage() {
               </ul>
             </div>
 
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+            <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+              <h3 className="mb-3 text-lg font-semibold text-gray-900 dark:text-white">
                 🎛️ Filter Options
               </h3>
-              <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-2">
+              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                 <li>• Filter by starred chats</li>
                 <li>• Incognito chat filtering</li>
                 <li>• Date range selection</li>
@@ -69,24 +69,24 @@ export default function SearchDemoPage() {
             </div>
           </div>
 
-          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
-            <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
+          <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
+            <h4 className="mb-2 font-semibold text-blue-900 dark:text-blue-100">
               Try These Sample Searches:
             </h4>
             <div className="flex flex-wrap gap-2 text-sm">
-              <code className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
+              <code className="rounded bg-blue-100 px-2 py-1 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200">
                 JavaScript
               </code>
-              <code className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
+              <code className="rounded bg-blue-100 px-2 py-1 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200">
                 Python
               </code>
-              <code className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
+              <code className="rounded bg-blue-100 px-2 py-1 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200">
                 array methods
               </code>
-              <code className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
+              <code className="rounded bg-blue-100 px-2 py-1 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200">
                 machine learning
               </code>
-              <code className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
+              <code className="rounded bg-blue-100 px-2 py-1 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200">
                 API design
               </code>
             </div>
@@ -94,5 +94,5 @@ export default function SearchDemoPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

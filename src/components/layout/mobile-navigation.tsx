@@ -1,16 +1,16 @@
-"use client";
+'use client'
 
-import React from "react";
-import { X } from "lucide-react";
-import { Button } from "../ui/button";
-import { SidebarNavigation } from "./sidebar-navigation";
-import { ChatSidebar } from "./chat-sidebar";
-import { cn } from "../../lib/utils";
+import React from 'react'
+import { X } from 'lucide-react'
+import { Button } from '../ui/button'
+import { SidebarNavigation } from './sidebar-navigation'
+import { ChatSidebar } from './chat-sidebar'
+import { cn } from '../../lib/utils'
 
 interface MobileNavigationProps {
-  isOpen: boolean;
-  onClose: () => void;
-  showChatSidebar?: boolean;
+  isOpen: boolean
+  onClose: () => void
+  showChatSidebar?: boolean
 }
 
 export function MobileNavigation({
@@ -23,7 +23,7 @@ export function MobileNavigation({
       {/* Backdrop */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
           onClick={onClose}
           aria-hidden="true"
         />
@@ -32,8 +32,8 @@ export function MobileNavigation({
       {/* Mobile sidebar */}
       <div
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex transform transition-transform duration-300 ease-in-out lg:hidden",
-          isOpen ? "translate-x-0" : "-translate-x-full",
+          'fixed inset-y-0 left-0 z-50 flex transform transition-transform duration-300 ease-in-out lg:hidden',
+          isOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
         {/* Navigation sidebar */}
@@ -44,10 +44,10 @@ export function MobileNavigation({
         {/* Chat sidebar */}
         {showChatSidebar && (
           <div
-            className="bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700"
-            style={{ width: "320px" }}
+            className="border-r border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"
+            style={{ width: '320px' }}
           >
-            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+            <div className="flex items-center justify-between border-b border-gray-200 p-4 dark:border-gray-700">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                 Chats
               </h2>
@@ -69,5 +69,5 @@ export function MobileNavigation({
         )}
       </div>
     </>
-  );
+  )
 }

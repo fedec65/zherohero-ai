@@ -149,9 +149,9 @@ export function ChatSidebar({ className }: ChatSidebarProps) {
         {/* Secondary buttons */}
         <div className="flex items-center gap-2 mt-2">
           <Tooltip content="New Folder">
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               className="flex-1 group relative overflow-hidden bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 border-gray-200 dark:border-gray-600 hover:from-indigo-50 hover:to-purple-50 dark:hover:from-indigo-900/20 dark:hover:to-purple-900/20 hover:border-indigo-200 dark:hover:border-indigo-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 ease-out font-medium"
             >
               <FolderPlus className="h-4 w-4 mr-2 transition-all duration-300 group-hover:scale-110 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 flex-shrink-0" />

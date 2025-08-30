@@ -41,7 +41,7 @@ test.describe("MCP Servers Page", () => {
 
   test("should switch to custom servers tab", async ({ page }) => {
     // Click on Custom Servers tab
-    await page.click("button", { hasText: "Custom Servers" });
+    await page.getByRole('button', { name: 'Custom Servers' }).click();
     
     // Wait for tab content to change
     await page.waitForTimeout(500);

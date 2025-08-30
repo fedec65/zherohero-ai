@@ -51,7 +51,7 @@ test.describe("Models Page", () => {
 
   test("should switch between model tabs", async ({ page }) => {
     // Click on Custom Models tab
-    await page.click("button", { hasText: "Custom Models" });
+    await page.getByRole('button', { name: 'Custom Models' }).click();
     
     // Wait for tab content to change
     await page.waitForTimeout(500);

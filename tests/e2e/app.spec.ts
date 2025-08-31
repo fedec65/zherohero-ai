@@ -1,8 +1,9 @@
-import { test, expect } from '@playwright/test'
+import { test, expect, helpers } from './setup'
 
 test.describe('ZheroHero AI Chat Interface', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/')
+    await helpers.setupTestEnvironment(page)
+    await helpers.clearStorage(page)
   })
 
   test('should load the homepage', async ({ page }) => {

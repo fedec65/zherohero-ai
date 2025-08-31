@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { useChatStore } from '../../lib/stores/chat-store'
 import { Chat } from '../../lib/stores/types'
 import {
@@ -20,13 +20,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu'
+import { useMounted } from '../../lib/hooks/use-mounted'
+import { ErrorBoundary } from '../ui/error-boundary'
 
 interface ChatItemProps {
   chat: Chat
   level?: number
 }
 
-export function ChatItem({ chat, level = 0 }: ChatItemProps) {
+function ChatItemInner({ chat, level = 0 }: ChatItemProps) {
+  const mounted = useMounted()
+  const [showMenu, setShowMenu] = useState(false)
+  const [isUpdating, setIsUpdating] = useState(false)
+  const actionInProgressRef = useRef(false)
+
+  const chatStore = useChatStore()
   const {
     activeChat,
     setActiveChat,
@@ -35,42 +43,79 @@ export function ChatItem({ chat, level = 0 }: ChatItemProps) {
     deleteChat,
     openMoveDialog,
     openRenameDialog,
-  } = useChatStore()
+  } = chatStore
 
-  const [showMenu, setShowMenu] = useState(false)
+  // Prevent multiple rapid actions
+  const performAction = useCallback(async (action: () => Promise<void> | void) => {
+    if (actionInProgressRef.current || !mounted) return
+    
+    actionInProgressRef.current = true
+    setIsUpdating(true)
+    
+    try {
+      await action()
+    } catch (error) {
+      console.warn('Chat item action failed:', error)
+    } finally {
+      actionInProgressRef.current = false
+      setIsUpdating(false)
+      setShowMenu(false)
+    }
+  }, [mounted])
 
-  const handleChatClick = () => {
-    setActiveChat(chat.id)
-  }
+  const handleChatClick = useCallback(() => {
+    if (!mounted || isUpdating) return
+    try {
+      setActiveChat(chat.id)
+    } catch (error) {
+      console.warn('Failed to set active chat:', error)
+    }
+  }, [mounted, isUpdating, setActiveChat, chat.id])
 
-  const handlePinToggle = (e: React.MouseEvent) => {
+  const handlePinToggle = useCallback((e: React.MouseEvent) => {
     e.stopPropagation()
-    pinChat(chat.id)
-    setShowMenu(false)
-  }
+    performAction(() => pinChat(chat.id))
+  }, [performAction, pinChat, chat.id])
 
-  const handleRename = (e: React.MouseEvent) => {
+  const handleRename = useCallback((e: React.MouseEvent) => {
     e.stopPropagation()
-    openRenameDialog('chat', chat.id, chat.title)
-    setShowMenu(false)
-  }
+    performAction(() => openRenameDialog('chat', chat.id, chat.title))
+  }, [performAction, openRenameDialog, chat.id, chat.title])
 
-  const handleDuplicate = async (e: React.MouseEvent) => {
+  const handleDuplicate = useCallback((e: React.MouseEvent) => {
     e.stopPropagation()
-    await duplicateChat(chat.id)
-    setShowMenu(false)
-  }
+    performAction(async () => {
+      await duplicateChat(chat.id)
+    })
+  }, [performAction, duplicateChat, chat.id])
 
-  const handleMove = (e: React.MouseEvent) => {
+  const handleMove = useCallback((e: React.MouseEvent) => {
     e.stopPropagation()
-    openMoveDialog(chat.id)
-    setShowMenu(false)
-  }
+    performAction(() => openMoveDialog(chat.id))
+  }, [performAction, openMoveDialog, chat.id])
 
-  const handleDelete = async (e: React.MouseEvent) => {
+  const handleDelete = useCallback((e: React.MouseEvent) => {
     e.stopPropagation()
-    await deleteChat(chat.id)
-    setShowMenu(false)
+    performAction(() => deleteChat(chat.id))
+  }, [performAction, deleteChat, chat.id])
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      actionInProgressRef.current = false
+    }
+  }, [])
+
+  // Show loading skeleton during hydration
+  if (!mounted) {
+    return (
+      <div className="group relative">
+        <div className="flex w-full items-center gap-2 rounded-lg px-3 py-2">
+          <div className="h-4 w-4 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+          <div className="h-4 flex-1 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -82,8 +127,10 @@ export function ChatItem({ chat, level = 0 }: ChatItemProps) {
           level > 0 && 'ml-6',
           activeChat === chat.id
             ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300'
-            : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
+            : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800',
+          isUpdating && 'opacity-50 pointer-events-none'
         )}
+        disabled={isUpdating}
       >
         <MessageSquare className="h-4 w-4 flex-shrink-0" />
         <span className="flex-1 truncate text-left">{chat.title}</span>
@@ -145,5 +192,30 @@ export function ChatItem({ chat, level = 0 }: ChatItemProps) {
         </DropdownMenu>
       </button>
     </div>
+  )
+}
+
+export function ChatItem({ chat, level = 0 }: ChatItemProps) {
+  return (
+    <ErrorBoundary
+      fallback={({ retry }) => (
+        <div className="group relative">
+          <div className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm">
+            <MessageSquare className="h-4 w-4 flex-shrink-0 text-gray-400" />
+            <span className="flex-1 truncate text-left text-gray-400">
+              Failed to load chat
+            </span>
+            <button
+              onClick={retry}
+              className="text-xs text-blue-600 hover:text-blue-700"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      )}
+    >
+      <ChatItemInner chat={chat} level={level} />
+    </ErrorBoundary>
   )
 }

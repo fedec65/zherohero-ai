@@ -24,7 +24,7 @@ import {
 } from './types'
 import {
   createStorage,
-  createPartializer,
+  createAutoPartializer,
   PersistOptions,
 } from './middleware/persistence'
 import { SearchEngine, applyFilters, debounce } from '../utils/search'
@@ -1134,7 +1134,7 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
         name: 'minddeck-chat-store',
         storage: createStorage('indexedDB'),
         version: 1,
-        partialize: createPartializer(['loading', 'streamingMessage']),
+        partialize: createAutoPartializer(['loading', 'streamingMessage']),
         onRehydrateStorage: () => (state) => {
           // Reset transient state after rehydration
           if (state) {
@@ -1144,6 +1144,11 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
               createChat: false,
             }
             state.streamingMessage = null
+            
+            // Rebuild chat hierarchy if needed
+            if (state.buildChatHierarchy) {
+              state.buildChatHierarchy()
+            }
           }
         },
       } as any

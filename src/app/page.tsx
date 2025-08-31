@@ -1,6 +1,17 @@
 import { Metadata } from 'next'
+import dynamic from 'next/dynamic'
 import { ChatLayout } from '../components/layout'
-import { ChatContainer } from '../components/chat/chat-container'
+import { LoadingSkeletons } from '../components/ui/lazy-wrapper'
+import { PerformanceProvider } from '../components/performance/performance-provider'
+
+// Lazy load the ChatContainer to reduce initial bundle size
+const ChatContainer = dynamic(
+  () => import('../components/chat/chat-container').then(mod => ({ default: mod.ChatContainer })),
+  {
+    loading: () => <LoadingSkeletons.Chat />,
+    ssr: false, // Disable SSR for chat container to prevent hydration issues
+  }
+)
 
 export const metadata: Metadata = {
   title: 'Home - ZheroHero AI',
@@ -9,8 +20,10 @@ export const metadata: Metadata = {
 
 export default function HomePage() {
   return (
-    <ChatLayout>
-      <ChatContainer className="h-full" />
-    </ChatLayout>
+    <PerformanceProvider>
+      <ChatLayout>
+        <ChatContainer className="h-full" />
+      </ChatLayout>
+    </PerformanceProvider>
   )
 }

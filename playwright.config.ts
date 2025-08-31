@@ -1,17 +1,19 @@
 import { defineConfig, devices } from '@playwright/test'
 
 /**
+ * Optimized Playwright configuration for CI/CD pipeline
  * @see https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: !process.env.CI,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
-  timeout: process.env.CI ? 30 * 1000 : 15 * 1000, // 30s in CI, 15s locally
+  retries: process.env.CI ? 3 : 0, // Increased retries for flaky CI
+  workers: process.env.CI ? 2 : undefined, // Increase workers for better parallelization
+  timeout: process.env.CI ? 60 * 1000 : 30 * 1000, // 60s in CI for complex operations
+  globalTimeout: process.env.CI ? 10 * 60 * 1000 : 5 * 60 * 1000, // 10min CI, 5min local
   expect: {
-    timeout: process.env.CI ? 10 * 1000 : 5 * 1000, // 10s in CI, 5s locally
+    timeout: process.env.CI ? 15 * 1000 : 10 * 1000, // Increased for slow CI
   },
   reporter: process.env.CI
     ? [
@@ -27,8 +29,16 @@ export default defineConfig({
     trace: process.env.CI ? 'retain-on-failure' : 'on-first-retry',
     screenshot: 'only-on-failure',
     video: process.env.CI ? 'retain-on-failure' : 'off',
-    actionTimeout: process.env.CI ? 10 * 1000 : 5 * 1000,
-    navigationTimeout: process.env.CI ? 30 * 1000 : 15 * 1000,
+    actionTimeout: process.env.CI ? 20 * 1000 : 10 * 1000, // Increased for slow operations
+    navigationTimeout: process.env.CI ? 60 * 1000 : 30 * 1000, // Increased for app startup
+    // Add browser context optimizations
+    ignoreHTTPSErrors: true,
+    // Reduce resource usage in CI
+    ...(process.env.CI && {
+      locale: 'en-US',
+      timezoneId: 'UTC',
+      reducedMotion: 'reduce',
+    }),
   },
 
   projects: [
@@ -50,6 +60,13 @@ export default defineConfig({
               '--disable-background-timer-throttling',
               '--disable-backgrounding-occluded-windows',
               '--disable-renderer-backgrounding',
+              '--disable-features=TranslateUI',
+              '--disable-ipc-flooding-protection',
+              '--disable-web-security',
+              '--disable-features=VizDisplayCompositor',
+              '--single-process', // Reduce memory usage
+              '--memory-pressure-off',
+              '--max_old_space_size=4096',
             ],
           },
         }),

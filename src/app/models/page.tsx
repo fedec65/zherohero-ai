@@ -1,18 +1,47 @@
 'use client'
 
-import { Metadata } from 'next'
 import { useState } from 'react'
+import dynamic from 'next/dynamic'
 import { ModelsLayout } from '../../components/layout'
-import { ModelTabs, ModelGrid } from '../../components/models'
-import { PerformanceReport } from '../../components/dev/performance-report'
+import { LoadingSkeletons } from '../../components/ui/lazy-wrapper'
+import { PerformanceProvider } from '../../components/performance/performance-provider'
 import { Button } from '../../components/ui/button'
 import { Activity } from 'lucide-react'
+import { useRenderPerformance } from '../../lib/performance/monitoring'
+
+// Lazy load components to reduce initial bundle size
+const ModelTabs = dynamic(
+  () => import('../../components/models').then(mod => ({ default: mod.ModelTabs })),
+  {
+    loading: () => <div className="h-10 w-full animate-pulse rounded bg-gray-200 dark:bg-gray-700" />,
+    ssr: false,
+  }
+)
+
+const ModelGrid = dynamic(
+  () => import('../../components/models').then(mod => ({ default: mod.ModelGrid })),
+  {
+    loading: () => <LoadingSkeletons.Card count={6} />,
+    ssr: false,
+  }
+)
+
+const PerformanceReport = dynamic(
+  () => import('../../components/dev/performance-report').then(mod => ({ default: mod.PerformanceReport })),
+  {
+    loading: () => <div>Loading performance report...</div>,
+    ssr: false,
+  }
+)
 
 export default function ModelsPage() {
   const [showPerformanceReport, setShowPerformanceReport] = useState(false)
+  const getPerformanceStats = useRenderPerformance('ModelsPage')
+  
   return (
-    <ModelsLayout>
-      <div className="flex h-full flex-col">
+    <PerformanceProvider>
+      <ModelsLayout>
+        <div className="flex h-full flex-col">
         {/* Header */}
         <div className="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
           <div className="flex items-center justify-between">
@@ -55,7 +84,8 @@ export default function ModelsPage() {
           show={showPerformanceReport}
           onClose={() => setShowPerformanceReport(false)}
         />
-      </div>
-    </ModelsLayout>
+        </div>
+      </ModelsLayout>
+    </PerformanceProvider>
   )
 }

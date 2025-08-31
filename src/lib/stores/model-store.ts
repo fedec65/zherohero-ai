@@ -17,7 +17,7 @@ import {
 } from './types'
 import {
   createStorage,
-  createPartializer,
+  createAutoPartializer,
   PersistOptions,
 } from './middleware/persistence'
 import { nanoid } from 'nanoid'
@@ -1429,7 +1429,24 @@ export const useModelStore = createWithEqualityFn<ModelStore>()(
         name: 'minddeck-model-store',
         storage: createStorage('localStorage'),
         version: 1,
-        partialize: createPartializer(['loading', 'testResults']),
+        partialize: createAutoPartializer(['loading', 'testResults']),
+        onRehydrateStorage: () => (state) => {
+          // Reset transient state after rehydration
+          if (state) {
+            state.loading = {
+              fetchModels: false,
+              fetchOpenRouterModels: false,
+              testModel: false,
+              addCustomModel: false,
+            }
+            state.testResults = {}
+            
+            // Clear any OpenRouter error states
+            if (state.testResults && state.testResults['openrouter:error']) {
+              delete state.testResults['openrouter:error']
+            }
+          }
+        },
       } as any
     )
   )

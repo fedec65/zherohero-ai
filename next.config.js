@@ -1,193 +1,169 @@
 /** @type {import('next').NextConfig} */
-let withBundleAnalyzer
-try {
-  withBundleAnalyzer = require('@next/bundle-analyzer')({
-    enabled:
-      process.env.ANALYZE === 'true' && process.env.NODE_ENV === 'development',
-    openAnalyzer: false,
-  })
-} catch (error) {
-  // Bundle analyzer not available during Vercel build
-  withBundleAnalyzer = (config) => config
-}
-
 const nextConfig = {
-  // Enable experimental features for better performance
-  experimental: {
-    serverComponentsExternalPackages: [
-      '@vercel/analytics',
-      '@vercel/speed-insights',
-    ],
-    optimizePackageImports: ['lucide-react', 'framer-motion'],
-  },
-
-  // Compiler options
-  compiler: {
-    removeConsole:
-      process.env.NODE_ENV === 'production'
-        ? {
-            exclude: ['error', 'warn'],
-          }
-        : false,
-  },
-
   // Performance optimizations
-  poweredByHeader: false,
-  compress: true,
+  experimental: {
+    optimizeCss: true,
+    webpackBuildWorker: true,
+    parallelServerBuildTraces: true,
+    parallelServerCompiles: true,
+  },
 
+  // Compiler optimizations
+  compiler: {
+    // Remove console logs in production
+    removeConsole: process.env.NODE_ENV === 'production',
+    
+    // React optimizations
+    reactRemoveProperties: process.env.NODE_ENV === 'production',
+    
+    // Styled components support (if needed)
+    styledComponents: false,
+  },
+
+  // Build optimizations
+  swcMinify: true,
+  
   // Image optimization
   images: {
     formats: ['image/avif', 'image/webp'],
-    minimumCacheTTL: 31536000,
+    minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 
-  // Bundle analysis and optimization
-  webpack: (
-    config,
-    { buildId, dev, isServer, defaultLoaders, nextRuntime, webpack }
-  ) => {
-    // Skip complex webpack modifications during Vercel build
-    if (process.env.VERCEL_ENV) {
-      return config
-    }
-
-    // Bundle analyzer in development only
-    if (dev && !isServer && process.env.NODE_ENV === 'development') {
-      try {
-        const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
-        if (process.env.ANALYZE === 'true') {
-          config.plugins.push(
-            new BundleAnalyzerPlugin({
-              analyzerMode: 'static',
-              openAnalyzer: false,
-            })
-          )
-        }
-      } catch (error) {
-        console.warn('Bundle analyzer not available:', error.message)
-      }
-    }
-
-    // Optimize chunks and reduce bundle size
-    if (!dev) {
-      config.optimization.splitChunks = {
-        chunks: 'all',
-        minSize: 20000,
-        minRemainingSize: 0,
-        minChunks: 1,
-        maxAsyncRequests: 30,
-        maxInitialRequests: 30,
-        enforceSizeThreshold: 50000,
-        cacheGroups: {
-          ...config.optimization.splitChunks.cacheGroups,
-          ai: {
-            name: 'ai-providers',
-            chunks: 'all',
-            test: /[\\/]node_modules[\\/](openai|@anthropic-ai|@google\/generative-ai)[\\/]/,
-            priority: 40,
-            enforce: true,
-          },
-          ui: {
-            name: 'ui-components',
-            chunks: 'all',
-            test: /[\\/]node_modules[\\/](@headlessui|framer-motion|lucide-react)[\\/]/,
-            priority: 30,
-            enforce: true,
-          },
-          sentry: {
-            name: 'sentry',
-            chunks: 'all',
-            test: /[\\/]node_modules[\\/](@sentry)[\\/]/,
-            priority: 20,
-            enforce: true,
-          },
-        },
-      }
-
-      // Tree shaking optimizations
-      config.optimization.usedExports = true
-      config.optimization.sideEffects = false
-    }
-
-    // Reduce memory usage during build
-    if (!dev && isServer) {
-      config.optimization.minimize = true
-      config.optimization.concatenateModules = true
-    }
-
-    return config
-  },
-
-  // Environment variables validation
-  env: {
-    CUSTOM_KEY: process.env.CUSTOM_KEY,
-  },
-
-  // Content Security Policy
+  // Headers for performance
   async headers() {
-    const contentSecurityPolicy = `
-      default-src 'self';
-      script-src 'self' 'unsafe-eval' 'unsafe-inline' https://vercel.live https://va.vercel-scripts.com;
-      style-src 'self' 'unsafe-inline';
-      img-src 'self' blob: data: https:;
-      font-src 'self';
-      connect-src 'self' 
-        https://api.openai.com
-        https://api.anthropic.com
-        https://generativelanguage.googleapis.com
-        https://api.x.ai
-        https://api.deepseek.com
-        https://vercel.live
-        https://vitals.vercel-insights.com;
-      media-src 'self';
-      object-src 'none';
-      base-uri 'self';
-      form-action 'self';
-      frame-ancestors 'none';
-      upgrade-insecure-requests;
-    `
-      .replace(/\s{2,}/g, ' ')
-      .trim()
-
     return [
       {
-        source: '/:path*',
+        source: '/(.*)',
         headers: [
           {
-            key: 'Content-Security-Policy',
-            value: contentSecurityPolicy,
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
           },
           {
-            key: 'Strict-Transport-Security',
-            value: 'max-age=31536000; includeSubDomains; preload',
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+        ],
+      },
+      {
+        source: '/fonts/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        source: '/_next/static/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
           },
         ],
       },
     ]
   },
 
-  // Redirects for SEO and UX
-  async redirects() {
-    return [
-      {
-        source: '/chat',
-        destination: '/',
-        permanent: false,
-      },
-    ]
+  // Webpack optimizations
+  webpack: (config, { dev, isServer }) => {
+    // Only in production
+    if (!dev) {
+      // Bundle analyzer (uncomment to analyze bundle size)
+      // config.plugins.push(
+      //   new (require('webpack-bundle-analyzer').BundleAnalyzerPlugin)({
+      //     analyzerMode: 'static',
+      //     openAnalyzer: false,
+      //   })
+      // )
+
+      // Optimize chunks
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          chunks: 'all',
+          minSize: 20000,
+          minRemainingSize: 0,
+          minChunks: 1,
+          maxAsyncRequests: 30,
+          maxInitialRequests: 30,
+          enforceSizeThreshold: 50000,
+          cacheGroups: {
+            default: {
+              minChunks: 2,
+              priority: -20,
+              reuseExistingChunk: true,
+            },
+            vendor: {
+              test: /[\\/]node_modules[\\/]/,
+              name: 'vendors',
+              priority: -10,
+              chunks: 'all',
+            },
+            react: {
+              test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
+              name: 'react',
+              priority: 10,
+              chunks: 'all',
+            },
+            lucide: {
+              test: /[\\/]node_modules[\\/]lucide-react[\\/]/,
+              name: 'lucide',
+              priority: 5,
+              chunks: 'all',
+            },
+          },
+        },
+      }
+    }
+
+    // Tree shaking optimizations
+    config.optimization.usedExports = true
+    config.optimization.providedExports = true
+    
+    // Module resolution improvements
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': require('path').resolve(__dirname, 'src'),
+    }
+
+    return config
   },
 
-  // API route optimization
+  // Environment variables
+  env: {
+    CUSTOM_KEY: process.env.NODE_ENV,
+  },
+
+  // Production source maps (disable for faster builds)
+  productionBrowserSourceMaps: false,
+
+  // Disable x-powered-by header
+  poweredByHeader: false,
+
+  // Strict mode for React
+  reactStrictMode: true,
+
+  // Redirect configuration
+  async redirects() {
+    return []
+  },
+
+  // Rewrite configuration
   async rewrites() {
-    return [
-      {
-        source: '/api/v1/:path*',
-        destination: '/api/:path*',
-      },
-    ]
+    return []
   },
 }
 
-module.exports = withBundleAnalyzer(nextConfig)
+module.exports = nextConfig

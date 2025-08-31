@@ -122,28 +122,33 @@ class IndexedDBStorage implements StateStorage {
 
 // Storage factory
 export function createStorage(type: StorageConfig['storage']): StateStorage {
+  let baseStorage: StateStorage
+  
   switch (type) {
     case 'localStorage':
-      return {
+      baseStorage = {
         getItem: (name) => localStorage.getItem(name),
         setItem: (name, value) => localStorage.setItem(name, value),
         removeItem: (name) => localStorage.removeItem(name),
       }
+      break
 
     case 'sessionStorage':
-      return {
+      baseStorage = {
         getItem: (name) => sessionStorage.getItem(name),
         setItem: (name, value) => sessionStorage.setItem(name, value),
         removeItem: (name) => sessionStorage.removeItem(name),
       }
+      break
 
     case 'indexedDB':
-      return new IndexedDBStorage()
+      baseStorage = new IndexedDBStorage()
+      break
 
     case 'memory':
     default:
       const memoryStorage = new Map<string, string>()
-      return {
+      baseStorage = {
         getItem: (name) => memoryStorage.get(name) ?? null,
         setItem: (name, value) => {
           memoryStorage.set(name, value)
@@ -152,7 +157,11 @@ export function createStorage(type: StorageConfig['storage']): StateStorage {
           memoryStorage.delete(name)
         },
       }
+      break
   }
+
+  // Wrap with safe storage to handle serialization errors gracefully
+  return createSafeStorage(baseStorage)
 }
 
 // Enhanced persistence options
@@ -226,6 +235,87 @@ export function createPartializer<T>(
   }
 }
 
+// Auto-partializer that excludes all functions and specified additional keys
+export function createAutoPartializer<T>(
+  additionalExcludes: (keyof T)[] = []
+): (state: T) => Partial<T> {
+  return (state: T) => {
+    const result: Partial<T> = {}
+
+    for (const [key, value] of Object.entries(state) as [
+      keyof T,
+      T[keyof T],
+    ][]) {
+      // Skip functions (including async functions)
+      if (typeof value === 'function') {
+        continue
+      }
+      
+      // Skip symbols
+      if (typeof value === 'symbol') {
+        continue
+      }
+      
+      // Skip undefined values
+      if (value === undefined) {
+        continue
+      }
+      
+      // Skip additional excluded keys
+      if (additionalExcludes.includes(key)) {
+        continue
+      }
+      
+      // Only include serializable values
+      try {
+        // Test if the value can be JSON serialized and preserve Date objects properly
+        const serialized = JSON.stringify(value)
+        if (serialized === undefined) {
+          continue
+        }
+        
+        // Additional check for complex objects that might contain non-serializable nested values
+        if (typeof value === 'object' && value !== null && !Array.isArray(value) && !(value instanceof Date)) {
+          // For plain objects, recursively check serialization
+          JSON.parse(serialized)
+        }
+        
+        result[key] = value
+      } catch (error) {
+        // Skip values that can't be serialized
+        console.warn(`Skipping non-serializable property: ${String(key)}`, error)
+      }
+    }
+
+    return result
+  }
+}
+
+// Safe partializer that only includes explicitly allowed keys
+export function createInclusivePartializer<T extends object>(
+  includeKeys: (keyof T)[]
+): (state: T) => Partial<T> {
+  return (state: T) => {
+    const result: Partial<T> = {}
+
+    for (const key of includeKeys) {
+      if (key in state) {
+        const value = state[key]
+        
+        // Double-check that the value is serializable
+        try {
+          JSON.stringify(value)
+          result[key] = value
+        } catch (error) {
+          console.warn(`Skipping non-serializable included property: ${String(key)}`, error)
+        }
+      }
+    }
+
+    return result
+  }
+}
+
 // Debounced storage to prevent excessive writes
 export function createDebouncedStorage(
   storage: StateStorage,
@@ -248,6 +338,43 @@ export function createDebouncedStorage(
       }, delay)
 
       timeouts.set(name, timeout)
+    },
+  }
+}
+
+// Safe storage wrapper that catches and handles serialization errors
+export function createSafeStorage(storage: StateStorage): StateStorage {
+  return {
+    getItem: async (name: string) => {
+      try {
+        return await storage.getItem(name)
+      } catch (error) {
+        console.warn(`Failed to get item '${name}' from storage:`, error)
+        return null
+      }
+    },
+    
+    setItem: async (name: string, value: string) => {
+      try {
+        // Validate that the value can be parsed as JSON
+        JSON.parse(value)
+        await storage.setItem(name, value)
+      } catch (error) {
+        console.error(`Failed to set item '${name}' to storage:`, error)
+        if (error instanceof Error && error.message.includes('could not be cloned')) {
+          console.error('This is likely due to non-serializable data (functions, symbols, etc.) in the state')
+          console.error('Check your store\'s partialize configuration to exclude non-serializable properties')
+        }
+        throw error
+      }
+    },
+    
+    removeItem: async (name: string) => {
+      try {
+        await storage.removeItem(name)
+      } catch (error) {
+        console.warn(`Failed to remove item '${name}' from storage:`, error)
+      }
     },
   }
 }

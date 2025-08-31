@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { Search, Plus, FolderPlus, Filter, Star } from 'lucide-react'
 import { Button } from '../ui/button'
 import { EnhancedSearch } from '../chat/enhanced-search'
@@ -12,12 +12,20 @@ import { useChatStore } from '../../lib/stores/chat-store'
 import { useSettingsStore } from '../../lib/stores/settings-store'
 import { cn } from '../../lib/utils'
 import { Tooltip } from '../ui/tooltip'
+import { useMounted } from '../../lib/hooks/use-mounted'
+import { ErrorBoundary } from '../ui/error-boundary'
 
 interface ChatSidebarProps {
   className?: string
 }
 
-export function ChatSidebar({ className }: ChatSidebarProps) {
+function ChatSidebarInner({ className }: ChatSidebarProps) {
+  const mounted = useMounted()
+  const [isStoreReady, setIsStoreReady] = useState(false)
+  
+  const chatStore = useChatStore()
+  const settingsStore = useSettingsStore()
+  
   const {
     chats,
     createChat,
@@ -30,19 +38,49 @@ export function ChatSidebar({ className }: ChatSidebarProps) {
     openCreateFolderDialog,
     getChatHierarchy,
     buildChatHierarchy,
-  } = useChatStore()
+  } = chatStore
 
-  const { settings, setSidebarWidth } = useSettingsStore()
+  const { settings, setSidebarWidth } = settingsStore
   const [isResizing, setIsResizing] = useState(false)
   const sidebarRef = useRef<HTMLDivElement>(null)
-  const [currentWidth, setCurrentWidth] = useState(settings.sidebarWidth)
+  const [currentWidth, setCurrentWidth] = useState(() => {
+    // Initialize with safe default during SSR
+    return 320
+  })
+
+  // Initialize store readiness and width after mount
+  useEffect(() => {
+    if (mounted) {
+      setIsStoreReady(true)
+      setCurrentWidth(settings.sidebarWidth || 320)
+    }
+  }, [mounted, settings.sidebarWidth])
+
+  // Memoized hierarchy builder to prevent unnecessary re-renders
+  const buildHierarchySafe = useCallback(() => {
+    if (!mounted || !isStoreReady) return
+    
+    try {
+      buildChatHierarchy()
+    } catch (error) {
+      console.warn('Failed to build chat hierarchy:', error)
+    }
+  }, [mounted, isStoreReady, buildChatHierarchy])
 
   // Build hierarchy on mount and when chats change
   useEffect(() => {
-    buildChatHierarchy()
-  }, [chats, buildChatHierarchy])
+    buildHierarchySafe()
+  }, [buildHierarchySafe, chats])
 
-  const chatHierarchy = getChatHierarchy()
+  // Get hierarchy with error handling
+  const chatHierarchy = mounted && isStoreReady ? (() => {
+    try {
+      return getChatHierarchy()
+    } catch (error) {
+      console.warn('Failed to get chat hierarchy:', error)
+      return null
+    }
+  })() : null
 
   // Handle sidebar resizing
   useEffect(() => {
@@ -79,12 +117,52 @@ export function ChatSidebar({ className }: ChatSidebarProps) {
     setIsResizing(true)
   }
 
-  const handleNewChat = () => {
-    createChat()
-  }
+  const handleNewChat = useCallback(() => {
+    if (!mounted || !isStoreReady) return
+    try {
+      createChat()
+    } catch (error) {
+      console.warn('Failed to create chat:', error)
+    }
+  }, [mounted, isStoreReady, createChat])
 
-  const handleNewFolder = () => {
-    openCreateFolderDialog()
+  const handleNewFolder = useCallback(() => {
+    if (!mounted || !isStoreReady) return
+    try {
+      openCreateFolderDialog()
+    } catch (error) {
+      console.warn('Failed to open create folder dialog:', error)
+    }
+  }, [mounted, isStoreReady, openCreateFolderDialog])
+
+  // Show loading skeleton during hydration
+  if (!mounted || !isStoreReady) {
+    return (
+      <div
+        className={cn(
+          'relative flex h-full flex-col border-r border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-900',
+          className
+        )}
+        style={{ width: `320px` }}
+      >
+        <div className="border-b border-gray-200 p-4 dark:border-gray-700">
+          <div className="mb-3">
+            <div className="h-9 w-full animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+          </div>
+          <div className="h-9 w-full animate-pulse rounded bg-blue-100 dark:bg-blue-900" />
+        </div>
+        <div className="flex-1 p-4">
+          <div className="space-y-2">
+            {[...Array(3)].map((_, i) => (
+              <div
+                key={i}
+                className="h-8 w-full animate-pulse rounded bg-gray-200 dark:bg-gray-700"
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -196,5 +274,35 @@ export function ChatSidebar({ className }: ChatSidebarProps) {
       <MoveChatDialog />
       <RenameDialog />
     </>
+  )
+}
+
+export function ChatSidebar({ className }: ChatSidebarProps) {
+  return (
+    <ErrorBoundary
+      fallback={({ retry }) => (
+        <div
+          className={cn(
+            'relative flex h-full flex-col border-r border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-900',
+            className
+          )}
+          style={{ width: `320px` }}
+        >
+          <div className="flex flex-col items-center justify-center p-8">
+            <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+              Failed to load sidebar
+            </p>
+            <button
+              onClick={retry}
+              className="rounded bg-blue-600 px-3 py-1.5 text-sm text-white hover:bg-blue-700"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      )}
+    >
+      <ChatSidebarInner className={className} />
+    </ErrorBoundary>
   )
 }

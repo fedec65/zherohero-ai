@@ -184,6 +184,12 @@ const MODEL_INFORMATION = {
 }
 
 export async function GET(request: NextRequest) {
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  }
+
   try {
     const { searchParams } = new URL(request.url)
     const provider = searchParams.get('provider') as AIProvider | null
@@ -205,7 +211,10 @@ export async function GET(request: NextRequest) {
         'deepseek',
       ]
       if (!validProviders.includes(provider)) {
-        return NextResponse.json({ error: 'Invalid provider' }, { status: 400 })
+        return NextResponse.json(
+          { error: 'Invalid provider' }, 
+          { status: 400, headers }
+        )
       }
 
       const models = MODEL_INFORMATION[provider] || []
@@ -219,7 +228,7 @@ export async function GET(request: NextRequest) {
         response.status = (providerStatuses as any)[provider]
       }
 
-      return NextResponse.json(response)
+      return NextResponse.json(response, { headers })
     }
 
     // Return all models
@@ -260,7 +269,7 @@ export async function GET(request: NextRequest) {
           .length,
       },
       timestamp: new Date().toISOString(),
-    })
+    }, { headers })
   } catch (error) {
     console.error('Models API error:', error)
 
@@ -269,25 +278,34 @@ export async function GET(request: NextRequest) {
         error: error instanceof Error ? error.message : 'Unknown error',
         timestamp: new Date().toISOString(),
       },
-      { status: 500 }
+      { status: 500, headers }
     )
   }
 }
 
 // Get model recommendations
 export async function POST(request: NextRequest) {
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  }
+
   try {
     const { task, providers } = await request.json()
 
     if (!task) {
-      return NextResponse.json({ error: 'Task is required' }, { status: 400 })
+      return NextResponse.json(
+        { error: 'Task is required' }, 
+        { status: 400, headers }
+      )
     }
 
     const validTasks = ['chat', 'code', 'analysis', 'creative']
     if (!validTasks.includes(task)) {
       return NextResponse.json(
         { error: 'Invalid task. Must be one of: ' + validTasks.join(', ') },
-        { status: 400 }
+        { status: 400, headers }
       )
     }
 
@@ -300,7 +318,7 @@ export async function POST(request: NextRequest) {
         recommendation: null,
         message: 'No suitable providers available',
         timestamp: new Date().toISOString(),
-      })
+      }, { headers })
     }
 
     // Get models for recommended provider
@@ -317,7 +335,7 @@ export async function POST(request: NextRequest) {
         status: providerStatus,
       },
       timestamp: new Date().toISOString(),
-    })
+    }, { headers })
   } catch (error) {
     console.error('Model recommendation error:', error)
 
@@ -326,7 +344,21 @@ export async function POST(request: NextRequest) {
         error: error instanceof Error ? error.message : 'Unknown error',
         timestamp: new Date().toISOString(),
       },
-      { status: 500 }
+      { status: 500, headers }
     )
   }
+}
+
+// OPTIONS - Handle preflight requests
+export async function OPTIONS() {
+  return NextResponse.json(
+    {},
+    {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      }
+    }
+  )
 }

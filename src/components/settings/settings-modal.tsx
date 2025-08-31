@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { X } from 'lucide-react'
 import { cn } from '../../lib/utils'
 import { useSettingsStore } from '../../lib/stores/settings-store'
@@ -9,6 +9,8 @@ import { SpeechTab } from './tabs/speech-tab'
 import { ImportExportTab } from './tabs/import-export-tab'
 import { AdvancedTab } from './tabs/advanced-tab'
 import { AboutTab } from './tabs/about-tab'
+import { useMounted } from '../../lib/hooks/use-mounted'
+import { ErrorBoundary } from '../ui/error-boundary'
 
 type SettingsTab = 'apis' | 'speech' | 'import-export' | 'advanced' | 'about'
 
@@ -18,11 +20,12 @@ interface SettingsModalProps {
   defaultTab?: SettingsTab
 }
 
-export function SettingsModal({
+function SettingsModalInner({
   open,
   onOpenChange,
   defaultTab = 'apis',
 }: SettingsModalProps) {
+  const mounted = useMounted()
   const [activeTab, setActiveTab] = useState<SettingsTab>(defaultTab)
 
   const tabs: Array<{ id: SettingsTab; label: string }> = [
@@ -58,7 +61,13 @@ export function SettingsModal({
     }
   }
 
-  if (!open) return null
+  // Update tab when defaultTab changes
+  useEffect(() => {
+    setActiveTab(defaultTab)
+  }, [defaultTab])
+
+  // Don't render during SSR or if not open
+  if (!mounted || !open) return null
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm">
@@ -137,5 +146,51 @@ export function SettingsModal({
         </div>
       </div>
     </div>
+  )
+}
+
+export function SettingsModal(props: SettingsModalProps) {
+  return (
+    <ErrorBoundary
+      fallback={({ retry }) => {
+        // Render a fallback modal for error state
+        if (!props.open) return null
+        
+        return (
+          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm">
+            <div className="fixed inset-0 overflow-y-auto">
+              <div className="flex min-h-full items-center justify-center p-4">
+                <div className="relative w-full max-w-md rounded-lg bg-white p-6 shadow-xl dark:bg-gray-900">
+                  <div className="text-center">
+                    <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
+                      Settings Error
+                    </h3>
+                    <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+                      Failed to load settings. Please try again.
+                    </p>
+                    <div className="flex justify-center gap-2">
+                      <button
+                        onClick={retry}
+                        className="rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+                      >
+                        Retry
+                      </button>
+                      <button
+                        onClick={() => props.onOpenChange(false)}
+                        className="rounded bg-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-400 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      }}
+    >
+      <SettingsModalInner {...props} />
+    </ErrorBoundary>
   )
 }

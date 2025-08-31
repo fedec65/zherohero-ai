@@ -9,7 +9,7 @@ import { immer } from 'zustand/middleware/immer'
 import { MCPServer, MCPCapability, AsyncState, Patch } from './types/index'
 import {
   createStorage,
-  createPartializer,
+  createAutoPartializer,
   PersistOptions,
 } from './middleware/persistence'
 import { nanoid } from 'nanoid'
@@ -1021,16 +1021,18 @@ export const useMCPStore = createWithEqualityFn<MCPStore>()(
         name: 'minddeck-mcp-store',
         storage: createStorage('localStorage'),
         version: 1,
-        partialize: createPartializer(['loading', 'connectionStates']),
+        partialize: createAutoPartializer(['loading', 'connectionStates']),
         onRehydrateStorage: () => (state) => {
+          // Reset transient state after rehydration
           if (state) {
-            // Reset transient state after rehydration
             state.loading = {
-              addServer: false,
               testConnection: false,
-              healthCheck: false,
+              enableServer: false,
+              addCustomServer: false,
+              removeServer: false,
             }
-
+            state.connectionStates = {}
+            
             // Initialize connection states for servers
             ;[...state.builtInServers, ...state.customServers].forEach(
               (server) => {
@@ -1041,6 +1043,8 @@ export const useMCPStore = createWithEqualityFn<MCPStore>()(
                 }
               }
             )
+            
+            // Auto-injection will be handled automatically when servers are registered
           }
         },
       } as any

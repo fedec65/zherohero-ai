@@ -8,6 +8,12 @@ import { aiAPI } from '../../../../lib/api'
 import { AIProvider } from '../../../../lib/stores/types/index'
 
 export async function GET() {
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  }
+
   try {
     // Get current status of all providers
     const statuses = aiAPI.getAllProviderStatuses()
@@ -62,7 +68,7 @@ export async function GET() {
       system: systemHealth,
       providers: providerDetails,
       timestamp: new Date().toISOString(),
-    })
+    }, { headers })
   } catch (error) {
     console.error('Health check error:', error)
 
@@ -72,20 +78,26 @@ export async function GET() {
         error: error instanceof Error ? error.message : 'Unknown error',
         timestamp: new Date().toISOString(),
       },
-      { status: 500 }
+      { status: 500, headers }
     )
   }
 }
 
 // Test specific provider
 export async function POST(request: NextRequest) {
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  }
+
   try {
     const { provider, testMessage } = await request.json()
 
     if (!provider) {
       return NextResponse.json(
         { error: 'Provider is required' },
-        { status: 400 }
+        { status: 400, headers }
       )
     }
 
@@ -97,7 +109,10 @@ export async function POST(request: NextRequest) {
       'deepseek',
     ]
     if (!validProviders.includes(provider)) {
-      return NextResponse.json({ error: 'Invalid provider' }, { status: 400 })
+      return NextResponse.json(
+        { error: 'Invalid provider' }, 
+        { status: 400, headers }
+      )
     }
 
     // Check if provider is initialized
@@ -111,7 +126,7 @@ export async function POST(request: NextRequest) {
           latency: 0,
         },
         timestamp: new Date().toISOString(),
-      })
+      }, { headers })
     }
 
     // Test connection
@@ -121,7 +136,7 @@ export async function POST(request: NextRequest) {
       provider,
       test: testResult,
       timestamp: new Date().toISOString(),
-    })
+    }, { headers })
   } catch (error) {
     console.error('Provider test error:', error)
 
@@ -130,9 +145,23 @@ export async function POST(request: NextRequest) {
         error: error instanceof Error ? error.message : 'Unknown error',
         timestamp: new Date().toISOString(),
       },
-      { status: 500 }
+      { status: 500, headers }
     )
   }
+}
+
+// OPTIONS - Handle preflight requests
+export async function OPTIONS() {
+  return NextResponse.json(
+    {},
+    {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      }
+    }
+  )
 }
 
 // Helper function to get provider status text

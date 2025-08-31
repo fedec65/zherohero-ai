@@ -9,9 +9,10 @@ import { immer } from 'zustand/middleware/immer'
 import { UserSettings, AIProvider } from './types'
 import {
   createStorage,
-  createPartializer,
+  createAutoPartializer,
   PersistOptions,
 } from './middleware/persistence'
+import { createSafePersistConfig } from './middleware/safe-persist'
 
 // Default settings
 const DEFAULT_SETTINGS: UserSettings = {
@@ -544,54 +545,65 @@ export const useSettingsStore = createWithEqualityFn<SettingsStore>()(
       })),
       {
         name: 'minddeck-settings-store',
-        storage: createStorage('localStorage'),
+        storage: createStorage('localStorage') as any,
         version: 1,
-        partialize: createPartializer([
+        partialize: createAutoPartializer([
           'unsavedChanges',
           'importingSettings',
           'exportingSettings',
         ]),
         onRehydrateStorage: () => (state) => {
-          if (state) {
-            // Apply theme and font size after rehydration
-            const effectiveTheme = state.getEffectiveTheme()
-            state.effectiveTheme = effectiveTheme
+            if (state && typeof window !== 'undefined') {
+              try {
+                // Reset transient state after rehydration
+                state.unsavedChanges = false
+                state.importingSettings = false
+                state.exportingSettings = false
+                
+                // Apply theme and font size after rehydration
+                const effectiveTheme = state.getEffectiveTheme()
+                state.effectiveTheme = effectiveTheme
 
-            // Apply to DOM
-            document.documentElement.setAttribute('data-theme', effectiveTheme)
-            document.documentElement.classList.remove('light', 'dark')
-            document.documentElement.classList.add(effectiveTheme)
-
-            const sizeMap = {
-              small: '14px',
-              medium: '16px',
-              large: '18px',
-            }
-            document.documentElement.style.setProperty(
-              '--base-font-size',
-              sizeMap[state.settings.fontSize]
-            )
-
-            // Listen for system theme changes
-            if (typeof window !== 'undefined') {
-              const mediaQuery = window.matchMedia(
-                '(prefers-color-scheme: dark)'
-              )
-              const handleThemeChange = () => {
-                if (state.settings.theme === 'system') {
-                  const newTheme = getSystemTheme()
-                  state.effectiveTheme = newTheme
-                  document.documentElement.setAttribute('data-theme', newTheme)
+                // Apply to DOM safely
+                requestAnimationFrame(() => {
+                  document.documentElement.setAttribute('data-theme', effectiveTheme)
                   document.documentElement.classList.remove('light', 'dark')
-                  document.documentElement.classList.add(newTheme)
-                }
-              }
+                  document.documentElement.classList.add(effectiveTheme)
 
-              mediaQuery.addEventListener('change', handleThemeChange)
+                  const sizeMap = {
+                    small: '14px',
+                    medium: '16px',
+                    large: '18px',
+                  }
+                  document.documentElement.style.setProperty(
+                    '--base-font-size',
+                    sizeMap[state.settings.fontSize]
+                  )
+                })
+
+                // Listen for system theme changes
+                const mediaQuery = window.matchMedia(
+                  '(prefers-color-scheme: dark)'
+                )
+                const handleThemeChange = () => {
+                  if (state.settings.theme === 'system') {
+                    const newTheme = getSystemTheme()
+                    state.effectiveTheme = newTheme
+                    requestAnimationFrame(() => {
+                      document.documentElement.setAttribute('data-theme', newTheme)
+                      document.documentElement.classList.remove('light', 'dark')
+                      document.documentElement.classList.add(newTheme)
+                    })
+                  }
+                }
+
+                mediaQuery.addEventListener('change', handleThemeChange)
+              } catch (error) {
+                console.warn('Failed to apply settings after rehydration:', error)
+              }
             }
-          }
-        },
-      } as any
+          },
+        }
     )
   )
 )

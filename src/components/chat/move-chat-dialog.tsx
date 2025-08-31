@@ -50,7 +50,7 @@ export function MoveChatDialog() {
     <Dialog open={dialogs.showMoveDialog} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Move "{dialogs.editingItem?.name}"</DialogTitle>
+          <DialogTitle>Move &ldquo;{dialogs.editingItem?.name}&rdquo;</DialogTitle>
           <DialogDescription>
             Select a folder to move this chat to:
           </DialogDescription>

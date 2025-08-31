@@ -28,7 +28,9 @@
     "pre-commit": "lint-staged",
     "validate": "npm run type-check && npm run lint && npm run test",
     "deploy:staging": "vercel --env staging",
-    "deploy:production": "vercel --prod"
+    "deploy:production": "vercel --prod",
+    "deploy:check": "npm run type-check && npm run lint && npm run build",
+    "vercel-build": "next build"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.17.1",

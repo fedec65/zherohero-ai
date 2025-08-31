@@ -1,10 +1,19 @@
 export async function register() {
-  if (process.env.NEXT_RUNTIME === 'nodejs') {
-    await import('./sentry.server.config')
-  }
+  // Only register Sentry in production and when DSN is available
+  const SENTRY_DSN = process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN
+  
+  if (process.env.NODE_ENV === 'production' && SENTRY_DSN) {
+    try {
+      if (process.env.NEXT_RUNTIME === 'nodejs') {
+        await import('./sentry.server.config')
+      }
 
-  if (process.env.NEXT_RUNTIME === 'edge') {
-    await import('./sentry.edge.config')
+      if (process.env.NEXT_RUNTIME === 'edge') {
+        await import('./sentry.edge.config')
+      }
+    } catch (error) {
+      console.warn('Sentry initialization failed:', error)
+    }
   }
 }
 

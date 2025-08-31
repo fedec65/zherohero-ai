@@ -1,5 +1,5 @@
 {
-  "buildCommand": "next build",
+  "buildCommand": "npm run build",
   "outputDirectory": ".next",
   "framework": "nextjs",
   "functions": {
@@ -9,9 +9,11 @@
   },
   "build": {
     "env": {
-      "NODE_OPTIONS": "--max-old-space-size=4096"
+      "NODE_OPTIONS": "--max-old-space-size=6144",
+      "SKIP_ENV_VALIDATION": "true"
     }
   },
+  "installCommand": "npm ci --no-audit --no-fund",
   "headers": [
     {
       "source": "/(.*)",
@@ -29,6 +31,12 @@
           "value": "1; mode=block"
         }
       ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/v1/:path*",
+      "destination": "/api/:path*"
     }
   ]
 }

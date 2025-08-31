@@ -12,11 +12,14 @@ const nextConfig = {
       '@vercel/analytics',
       '@vercel/speed-insights',
     ],
+    optimizePackageImports: ['lucide-react'],
   },
 
   // Compiler options - conservative for Vercel
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error', 'warn']
+    } : false,
   },
 
   // Performance optimizations
@@ -31,15 +34,21 @@ const nextConfig = {
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 
-  // Simplified webpack configuration
+  // Simplified webpack configuration for Vercel stability
   webpack: (config, { dev, isServer }) => {
-    // Only essential modifications for Vercel
+    // Skip complex modifications during production build
+    if (process.env.VERCEL_ENV && !dev) {
+      return config
+    }
+
+    // Only essential modifications for local development
     if (!dev && !isServer) {
       // Ensure proper externalization of syntax highlighter
-      config.externals = config.externals || []
-      config.externals.push({
+      config.resolve = config.resolve || {}
+      config.resolve.alias = {
+        ...config.resolve.alias,
         'react-syntax-highlighter/dist/esm/styles/prism': 'react-syntax-highlighter/dist/cjs/styles/prism',
-      })
+      }
     }
 
     return config
@@ -59,6 +68,19 @@ const nextConfig = {
             key: 'X-Frame-Options',
             value: 'DENY'
           },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=3600, s-maxage=86400'
+          },
+        ],
+      },
+      {
+        source: '/_next/static/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable'
+          },
         ],
       },
     ]
@@ -74,6 +96,9 @@ const nextConfig = {
       },
     ]
   },
+
+  // Skip environment validation during build
+  skipTrailingSlashRedirect: true,
 }
 
 module.exports = nextConfig

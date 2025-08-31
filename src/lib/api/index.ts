@@ -334,15 +334,20 @@ export const aiAPI = AIAPIManager.getInstance()
 
 // Initialize provider with environment variables
 export function initializeProviderFromEnv(provider: AIProvider): boolean {
-  // Skip initialization during build time
-  if (typeof window !== 'undefined' || process.env.NODE_ENV === 'development') {
-    // Only attempt initialization in browser or development mode
+  // Skip initialization during build time to prevent Vercel deployment issues
+  if (
+    typeof window !== 'undefined' ||
+    process.env.NEXT_PHASE === 'phase-production-build' ||
+    process.env.VERCEL_ENV === 'preview' ||
+    process.env.NODE_ENV === 'test'
+  ) {
     return false
   }
 
   let apiKey: string | undefined
 
   try {
+    // Safe environment variable access with try-catch
     switch (provider) {
       case 'openai':
         apiKey = process.env.OPENAI_API_KEY
@@ -365,19 +370,24 @@ export function initializeProviderFromEnv(provider: AIProvider): boolean {
     }
   } catch (error) {
     // Environment variable access failed (e.g., during build)
+    console.warn(`Environment access failed for ${provider}:`, error)
     return false
   }
 
-  if (!apiKey) {
-    // Don't log warnings during build time
-    if (process.env.NODE_ENV === 'production' && process.env.VERCEL_ENV) {
-      console.warn(`No API key found for provider ${provider}`)
+  if (!apiKey || apiKey.trim() === '') {
+    // Only warn in production runtime, not during build
+    if (
+      process.env.NODE_ENV === 'production' &&
+      process.env.VERCEL_ENV &&
+      process.env.VERCEL_ENV !== 'preview'
+    ) {
+      console.warn(`No API key configured for provider ${provider}`)
     }
     return false
   }
 
   try {
-    aiAPI.initializeProvider(provider, { apiKey })
+    aiAPI.initializeProvider(provider, { apiKey: apiKey.trim() })
     return true
   } catch (error) {
     console.error(`Failed to initialize provider ${provider}:`, error)
@@ -393,7 +403,9 @@ export function initializeAllProviders(): {
   // Skip during build time to prevent Vercel deployment issues
   if (
     typeof window !== 'undefined' ||
-    process.env.NEXT_PHASE === 'phase-production-build'
+    process.env.NEXT_PHASE === 'phase-production-build' ||
+    process.env.VERCEL_ENV === 'preview' ||
+    process.env.NODE_ENV === 'test'
   ) {
     return { initialized: [], failed: [] }
   }
@@ -410,16 +422,30 @@ export function initializeAllProviders(): {
 
   try {
     for (const provider of providers) {
-      if (initializeProviderFromEnv(provider)) {
-        initialized.push(provider)
-      } else {
+      try {
+        if (initializeProviderFromEnv(provider)) {
+          initialized.push(provider)
+        } else {
+          failed.push(provider)
+        }
+      } catch (providerError) {
+        console.warn(`Failed to initialize ${provider}:`, providerError)
         failed.push(provider)
       }
     }
   } catch (error) {
-    // If initialization fails during build, return empty arrays
+    // If initialization fails completely during build, return safe defaults
     console.error('Provider initialization failed during build:', error)
     return { initialized: [], failed: providers }
+  }
+
+  // Only log results in production runtime, not during build
+  if (
+    process.env.NODE_ENV === 'production' &&
+    process.env.VERCEL_ENV &&
+    process.env.VERCEL_ENV !== 'preview'
+  ) {
+    console.info(`AI Providers initialized: ${initialized.length}/${providers.length}`)
   }
 
   return { initialized, failed }

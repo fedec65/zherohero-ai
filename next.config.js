@@ -1,8 +1,14 @@
 /** @type {import('next').NextConfig} */
-const withBundleAnalyzer = require('@next/bundle-analyzer')({
-  enabled: process.env.ANALYZE === 'true',
-  openAnalyzer: false,
-})
+let withBundleAnalyzer
+try {
+  withBundleAnalyzer = require('@next/bundle-analyzer')({
+    enabled: process.env.ANALYZE === 'true' && process.env.NODE_ENV === 'development',
+    openAnalyzer: false,
+  })
+} catch (error) {
+  // Bundle analyzer not available during Vercel build
+  withBundleAnalyzer = (config) => config
+}
 
 const nextConfig = {
   // Enable experimental features for better performance
@@ -41,8 +47,13 @@ const nextConfig = {
     config,
     { buildId, dev, isServer, defaultLoaders, nextRuntime, webpack }
   ) => {
-    // Bundle analyzer in development
-    if (dev && !isServer) {
+    // Skip complex webpack modifications during Vercel build
+    if (process.env.VERCEL_ENV) {
+      return config
+    }
+
+    // Bundle analyzer in development only
+    if (dev && !isServer && process.env.NODE_ENV === 'development') {
       try {
         const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
         if (process.env.ANALYZE === 'true') {

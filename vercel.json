@@ -9,11 +9,13 @@
   },
   "build": {
     "env": {
-      "NODE_OPTIONS": "--max-old-space-size=6144",
-      "SKIP_ENV_VALIDATION": "true"
+      "NODE_OPTIONS": "--max-old-space-size=8192",
+      "SKIP_ENV_VALIDATION": "true",
+      "NEXT_TELEMETRY_DISABLED": "1",
+      "ANALYZE": "false"
     }
   },
-  "installCommand": "npm ci --no-audit --no-fund",
+  "installCommand": "npm ci --no-audit --no-fund --prefer-offline",
   "headers": [
     {
       "source": "/(.*)",
@@ -29,6 +31,19 @@
         {
           "key": "X-XSS-Protection",
           "value": "1; mode=block"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/_next/static/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
         }
       ]
     }

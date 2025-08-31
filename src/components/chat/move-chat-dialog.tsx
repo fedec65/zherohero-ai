@@ -14,15 +14,11 @@ import {
 import { Folder, Home } from 'lucide-react'
 
 export function MoveChatDialog() {
-  const { 
-    dialogs, 
-    closeMoveDialog, 
-    moveChat, 
-    folders,
-    chats,
-  } = useChatStore()
-  
-  const [selectedFolderId, setSelectedFolderId] = useState<string | undefined>(undefined)
+  const { dialogs, closeMoveDialog, moveChat, folders, chats } = useChatStore()
+
+  const [selectedFolderId, setSelectedFolderId] = useState<string | undefined>(
+    undefined
+  )
 
   // Reset selection when dialog opens
   useEffect(() => {
@@ -50,15 +46,17 @@ export function MoveChatDialog() {
     <Dialog open={dialogs.showMoveDialog} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Move &ldquo;{dialogs.editingItem?.name}&rdquo;</DialogTitle>
+          <DialogTitle>
+            Move &ldquo;{dialogs.editingItem?.name}&rdquo;
+          </DialogTitle>
           <DialogDescription>
             Select a folder to move this chat to:
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-2 max-h-[300px] overflow-y-auto">
+        <div className="max-h-[300px] space-y-2 overflow-y-auto">
           {/* Root option */}
-          <label className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+          <label className="flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800">
             <input
               type="radio"
               name="folder"
@@ -76,13 +74,15 @@ export function MoveChatDialog() {
           </label>
 
           {/* Folder options */}
-          {folderList.map(folder => {
-            const currentFolder = dialogs.targetChatId && chats[dialogs.targetChatId]?.folderId === folder.id
-            
+          {folderList.map((folder) => {
+            const currentFolder =
+              dialogs.targetChatId &&
+              chats[dialogs.targetChatId]?.folderId === folder.id
+
             return (
-              <label 
-                key={folder.id} 
-                className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              <label
+                key={folder.id}
+                className="flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
               >
                 <input
                   type="radio"
@@ -95,7 +95,9 @@ export function MoveChatDialog() {
                 <div className="flex-1">
                   <span className="font-medium">{folder.name}</span>
                   {currentFolder && (
-                    <span className="ml-2 text-xs text-gray-500">(current)</span>
+                    <span className="ml-2 text-xs text-gray-500">
+                      (current)
+                    </span>
                   )}
                 </div>
               </label>
@@ -107,9 +109,7 @@ export function MoveChatDialog() {
           <Button type="button" variant="outline" onClick={handleClose}>
             Cancel
           </Button>
-          <Button onClick={handleMove}>
-            Move
-          </Button>
+          <Button onClick={handleMove}>Move</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

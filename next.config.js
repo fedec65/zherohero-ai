@@ -2,7 +2,8 @@
 let withBundleAnalyzer
 try {
   withBundleAnalyzer = require('@next/bundle-analyzer')({
-    enabled: process.env.ANALYZE === 'true' && process.env.NODE_ENV === 'development',
+    enabled:
+      process.env.ANALYZE === 'true' && process.env.NODE_ENV === 'development',
     openAnalyzer: false,
   })
 } catch (error) {

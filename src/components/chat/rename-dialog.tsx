@@ -14,7 +14,8 @@ import {
 } from '../ui/dialog'
 
 export function RenameDialog() {
-  const { dialogs, closeRenameDialog, renameChat, updateFolder } = useChatStore()
+  const { dialogs, closeRenameDialog, renameChat, updateFolder } =
+    useChatStore()
   const [newName, setNewName] = useState('')
 
   useEffect(() => {
@@ -29,9 +30,9 @@ export function RenameDialog() {
       if (dialogs.editingItem.type === 'chat') {
         renameChat(dialogs.editingItem.id, newName.trim())
       } else {
-        updateFolder(dialogs.editingItem.id, { 
+        updateFolder(dialogs.editingItem.id, {
           id: dialogs.editingItem.id,
-          name: newName.trim() 
+          name: newName.trim(),
         })
       }
       closeRenameDialog()
@@ -71,9 +72,11 @@ export function RenameDialog() {
             <Button type="button" variant="outline" onClick={handleClose}>
               Cancel
             </Button>
-            <Button 
-              type="submit" 
-              disabled={!newName.trim() || newName === dialogs.editingItem?.name}
+            <Button
+              type="submit"
+              disabled={
+                !newName.trim() || newName === dialogs.editingItem?.name
+              }
             >
               Rename
             </Button>

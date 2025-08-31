@@ -5,7 +5,7 @@ const nextConfig = {
   // Basic configuration
   reactStrictMode: true,
   swcMinify: true,
-  
+
   // Experimental features (minimal for stability)
   experimental: {
     serverComponentsExternalPackages: [
@@ -17,9 +17,12 @@ const nextConfig = {
 
   // Compiler options - conservative for Vercel
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production' ? {
-      exclude: ['error', 'warn']
-    } : false,
+    removeConsole:
+      process.env.NODE_ENV === 'production'
+        ? {
+            exclude: ['error', 'warn'],
+          }
+        : false,
   },
 
   // Performance optimizations
@@ -47,7 +50,8 @@ const nextConfig = {
       config.resolve = config.resolve || {}
       config.resolve.alias = {
         ...config.resolve.alias,
-        'react-syntax-highlighter/dist/esm/styles/prism': 'react-syntax-highlighter/dist/cjs/styles/prism',
+        'react-syntax-highlighter/dist/esm/styles/prism':
+          'react-syntax-highlighter/dist/cjs/styles/prism',
       }
     }
 
@@ -62,15 +66,15 @@ const nextConfig = {
         headers: [
           {
             key: 'X-Content-Type-Options',
-            value: 'nosniff'
+            value: 'nosniff',
           },
           {
             key: 'X-Frame-Options',
-            value: 'DENY'
+            value: 'DENY',
           },
           {
             key: 'Cache-Control',
-            value: 'public, max-age=3600, s-maxage=86400'
+            value: 'public, max-age=3600, s-maxage=86400',
           },
         ],
       },
@@ -79,7 +83,7 @@ const nextConfig = {
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable'
+            value: 'public, max-age=31536000, immutable',
           },
         ],
       },

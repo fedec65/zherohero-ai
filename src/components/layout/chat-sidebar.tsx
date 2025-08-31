@@ -1,13 +1,7 @@
 'use client'
 
 import React, { useState, useRef, useEffect } from 'react'
-import {
-  Search,
-  Plus,
-  FolderPlus,
-  Filter,
-  Star,
-} from 'lucide-react'
+import { Search, Plus, FolderPlus, Filter, Star } from 'lucide-react'
 import { Button } from '../ui/button'
 import { EnhancedSearch } from '../chat/enhanced-search'
 import { ChatHierarchyView } from '../chat/chat-hierarchy-view'
@@ -37,7 +31,7 @@ export function ChatSidebar({ className }: ChatSidebarProps) {
     getChatHierarchy,
     buildChatHierarchy,
   } = useChatStore()
-  
+
   const { settings, setSidebarWidth } = useSettingsStore()
   const [isResizing, setIsResizing] = useState(false)
   const sidebarRef = useRef<HTMLDivElement>(null)
@@ -182,7 +176,7 @@ export function ChatSidebar({ className }: ChatSidebarProps) {
         </div>
 
         {/* Starred section */}
-        <div className="border-t border-gray-200 dark:border-gray-700 px-3 py-2">
+        <div className="border-t border-gray-200 px-3 py-2 dark:border-gray-700">
           <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
             <Star className="h-3 w-3" />
             Starred

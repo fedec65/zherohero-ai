@@ -74,22 +74,22 @@ export function ChatItem({ chat, level = 0 }: ChatItemProps) {
   }
 
   return (
-    <div className="relative group">
+    <div className="group relative">
       <button
         onClick={handleChatClick}
         className={cn(
-          'w-full flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors',
+          'flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors',
           level > 0 && 'ml-6',
           activeChat === chat.id
-            ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
-            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+            ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300'
+            : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
         )}
       >
         <MessageSquare className="h-4 w-4 flex-shrink-0" />
-        <span className="flex-1 text-left truncate">{chat.title}</span>
-        
+        <span className="flex-1 truncate text-left">{chat.title}</span>
+
         {chat.isPinned && (
-          <Pin className="h-3 w-3 text-blue-500 flex-shrink-0" />
+          <Pin className="h-3 w-3 flex-shrink-0 text-blue-500" />
         )}
 
         {/* Three-dots menu */}
@@ -97,7 +97,7 @@ export function ChatItem({ chat, level = 0 }: ChatItemProps) {
           <DropdownMenuTrigger asChild>
             <button
               className={cn(
-                'p-1 rounded transition-all',
+                'rounded p-1 transition-all',
                 'opacity-0 group-hover:opacity-100',
                 'hover:bg-gray-200 dark:hover:bg-gray-700',
                 showMenu && 'opacity-100'
@@ -110,35 +110,35 @@ export function ChatItem({ chat, level = 0 }: ChatItemProps) {
               <MoreVertical className="h-3 w-3" />
             </button>
           </DropdownMenuTrigger>
-          
+
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuItem onClick={handlePinToggle}>
-              <Pin className="h-4 w-4 mr-2" />
+              <Pin className="mr-2 h-4 w-4" />
               {chat.isPinned ? 'Unpin' : 'Pin'}
             </DropdownMenuItem>
-            
+
             <DropdownMenuItem onClick={handleRename}>
-              <Edit2 className="h-4 w-4 mr-2" />
+              <Edit2 className="mr-2 h-4 w-4" />
               Rename
             </DropdownMenuItem>
-            
+
             <DropdownMenuItem onClick={handleDuplicate}>
-              <Copy className="h-4 w-4 mr-2" />
+              <Copy className="mr-2 h-4 w-4" />
               Duplicate
             </DropdownMenuItem>
-            
+
             <DropdownMenuItem onClick={handleMove}>
-              <FolderOpen className="h-4 w-4 mr-2" />
+              <FolderOpen className="mr-2 h-4 w-4" />
               Move
             </DropdownMenuItem>
-            
+
             <DropdownMenuSeparator />
-            
-            <DropdownMenuItem 
+
+            <DropdownMenuItem
               onClick={handleDelete}
-              className="text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400"
+              className="text-red-600 focus:text-red-600 dark:text-red-400 dark:focus:text-red-400"
             >
-              <Trash2 className="h-4 w-4 mr-2" />
+              <Trash2 className="mr-2 h-4 w-4" />
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>

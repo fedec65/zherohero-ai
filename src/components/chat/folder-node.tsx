@@ -23,7 +23,7 @@ export function FolderNode({ node }: FolderNodeProps) {
       <button
         onClick={handleToggle}
         className={cn(
-          'w-full flex items-center gap-2 px-2 py-1.5 text-sm',
+          'flex w-full items-center gap-2 px-2 py-1.5 text-sm',
           'text-gray-700 dark:text-gray-300',
           'hover:bg-gray-100 dark:hover:bg-gray-800',
           'rounded-lg transition-colors'
@@ -35,23 +35,21 @@ export function FolderNode({ node }: FolderNodeProps) {
           <ChevronRight className="h-4 w-4 text-gray-500" />
         )}
         <Folder className="h-4 w-4 text-blue-500" />
-        <span className="flex-1 text-left truncate font-medium">
+        <span className="flex-1 truncate text-left font-medium">
           {node.folder.name}
         </span>
-        <span className="text-xs text-gray-500">
-          {node.chats.length}
-        </span>
+        <span className="text-xs text-gray-500">{node.chats.length}</span>
       </button>
 
       {/* Folder contents */}
       {node.isExpanded && (
-        <div className="ml-4 border-l border-gray-200 dark:border-gray-700 pl-2">
+        <div className="ml-4 border-l border-gray-200 pl-2 dark:border-gray-700">
           {node.chats.length > 0 ? (
-            node.chats.map(chat => (
+            node.chats.map((chat) => (
               <ChatItem key={chat.id} chat={chat} level={1} />
             ))
           ) : (
-            <div className="px-3 py-2 text-xs text-gray-500 dark:text-gray-400 italic">
+            <div className="px-3 py-2 text-xs italic text-gray-500 dark:text-gray-400">
               No chats in this folder
             </div>
           )}

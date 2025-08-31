@@ -9,7 +9,11 @@ export interface DropdownMenuProps {
   children: React.ReactNode
 }
 
-export function DropdownMenu({ open, onOpenChange, children }: DropdownMenuProps) {
+export function DropdownMenu({
+  open,
+  onOpenChange,
+  children,
+}: DropdownMenuProps) {
   const [isOpen, setIsOpen] = React.useState(open || false)
 
   React.useEffect(() => {
@@ -108,7 +112,7 @@ export function DropdownMenuContent({
     <div
       ref={ref}
       className={cn(
-        'absolute z-50 min-w-[8rem] overflow-hidden rounded-md border bg-white p-1 shadow-md animate-in fade-in-0 zoom-in-95',
+        'animate-in fade-in-0 zoom-in-95 absolute z-50 min-w-[8rem] overflow-hidden rounded-md border bg-white p-1 shadow-md',
         'dark:border-gray-700 dark:bg-gray-900',
         align === 'end' && 'right-0',
         align === 'center' && 'left-1/2 -translate-x-1/2',
@@ -167,7 +171,10 @@ export function DropdownMenuLabel({
 }) {
   return (
     <div
-      className={cn('px-2 py-1.5 text-sm font-semibold text-gray-900 dark:text-gray-50', className)}
+      className={cn(
+        'px-2 py-1.5 text-sm font-semibold text-gray-900 dark:text-gray-50',
+        className
+      )}
     >
       {children}
     </div>

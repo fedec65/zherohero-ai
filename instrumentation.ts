@@ -1,7 +1,8 @@
 export async function register() {
   // Only register Sentry in production and when DSN is available
-  const SENTRY_DSN = process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN
-  
+  const SENTRY_DSN =
+    process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN
+
   if (process.env.NODE_ENV === 'production' && SENTRY_DSN) {
     try {
       if (process.env.NEXT_RUNTIME === 'nodejs') {

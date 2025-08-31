@@ -116,7 +116,11 @@ interface ChatActions {
   closeCreateFolderDialog: () => void
   openMoveDialog: (chatId: string) => void
   closeMoveDialog: () => void
-  openRenameDialog: (type: 'chat' | 'folder', id: string, currentName: string) => void
+  openRenameDialog: (
+    type: 'chat' | 'folder',
+    id: string,
+    currentName: string
+  ) => void
   closeRenameDialog: () => void
 
   // Hierarchy management
@@ -894,7 +898,11 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
           })
         },
 
-        openRenameDialog: (type: 'chat' | 'folder', id: string, currentName: string) => {
+        openRenameDialog: (
+          type: 'chat' | 'folder',
+          id: string,
+          currentName: string
+        ) => {
           set((state) => {
             state.dialogs.showRenameDialog = true
             state.dialogs.editingItem = {
@@ -921,18 +929,30 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
           // Separate pinned chats
           const pinnedChats = chats
             .filter((chat) => chat.isPinned)
-            .sort((a, b) => (b.lastMessageAt?.getTime() || 0) - (a.lastMessageAt?.getTime() || 0))
+            .sort(
+              (a, b) =>
+                (b.lastMessageAt?.getTime() || 0) -
+                (a.lastMessageAt?.getTime() || 0)
+            )
 
           // Separate root chats (no folder)
           const rootChats = chats
             .filter((chat) => !chat.folderId && !chat.isPinned)
-            .sort((a, b) => (b.lastMessageAt?.getTime() || 0) - (a.lastMessageAt?.getTime() || 0))
+            .sort(
+              (a, b) =>
+                (b.lastMessageAt?.getTime() || 0) -
+                (a.lastMessageAt?.getTime() || 0)
+            )
 
           // Build folder nodes
           const folderNodes: FolderNode[] = folders.map((folder) => {
             const folderChats = chats
               .filter((chat) => chat.folderId === folder.id && !chat.isPinned)
-              .sort((a, b) => (b.lastMessageAt?.getTime() || 0) - (a.lastMessageAt?.getTime() || 0))
+              .sort(
+                (a, b) =>
+                  (b.lastMessageAt?.getTime() || 0) -
+                  (a.lastMessageAt?.getTime() || 0)
+              )
 
             return {
               folder,

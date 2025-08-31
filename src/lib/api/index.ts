@@ -445,7 +445,9 @@ export function initializeAllProviders(): {
     process.env.VERCEL_ENV &&
     process.env.VERCEL_ENV !== 'preview'
   ) {
-    console.info(`AI Providers initialized: ${initialized.length}/${providers.length}`)
+    console.info(
+      `AI Providers initialized: ${initialized.length}/${providers.length}`
+    )
   }
 
   return { initialized, failed }

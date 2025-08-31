@@ -18,6 +18,8 @@ export interface Chat extends BaseEntity {
   modelId: string
   lastMessageAt?: Date
   messageCount: number
+  isPinned?: boolean
+  order?: number
 }
 
 export interface Message extends BaseEntity {
@@ -44,6 +46,8 @@ export interface Folder extends BaseEntity {
   name: string
   parentId?: string
   color?: string
+  isExpanded?: boolean
+  order?: number
 }
 
 // AI Model types
@@ -272,4 +276,34 @@ export interface SearchState {
   filters: FilterOptions
   suggestions: string[]
   selectedResultId?: string
+}
+
+// Chat management types
+export interface ChatAction {
+  id: 'pin' | 'rename' | 'duplicate' | 'move' | 'delete'
+  label: string
+  icon?: string
+  action: (chatId: string) => void | Promise<void>
+  variant?: 'default' | 'destructive'
+}
+
+export interface FolderNode {
+  folder: Folder
+  chats: Chat[]
+  isExpanded: boolean
+}
+
+export interface ChatHierarchy {
+  folders: FolderNode[]
+  rootChats: Chat[]
+  pinnedChats: Chat[]
+}
+
+export interface DialogState {
+  showCreateFolderDialog: boolean
+  showMoveDialog: boolean
+  showRenameDialog: boolean
+  editingItem: { type: 'chat' | 'folder'; id: string; name: string } | null
+  targetChatId?: string
+  selectedFolderId?: string
 }

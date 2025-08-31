@@ -18,6 +18,9 @@ import {
   SearchHistory,
   SearchState,
   AIProvider,
+  DialogState,
+  ChatHierarchy,
+  FolderNode,
 } from './types'
 import {
   createStorage,
@@ -55,6 +58,12 @@ interface ChatState {
     messageId: string | null
     content: string
   } | null
+
+  // Dialog state
+  dialogs: DialogState
+
+  // Chat hierarchy
+  chatHierarchy: ChatHierarchy | null
 }
 
 // Chat store actions interface
@@ -95,6 +104,24 @@ interface ChatActions {
   createFolder: (name: string, parentId?: string) => string
   updateFolder: (folderId: string, updates: Patch<Folder>) => void
   deleteFolder: (folderId: string) => void
+  toggleFolder: (folderId: string) => void
+
+  // Chat management actions
+  pinChat: (chatId: string) => void
+  renameChat: (chatId: string, newName: string) => void
+  moveChat: (chatId: string, folderId: string | null) => void
+
+  // Dialog management
+  openCreateFolderDialog: () => void
+  closeCreateFolderDialog: () => void
+  openMoveDialog: (chatId: string) => void
+  closeMoveDialog: () => void
+  openRenameDialog: (type: 'chat' | 'folder', id: string, currentName: string) => void
+  closeRenameDialog: () => void
+
+  // Hierarchy management
+  buildChatHierarchy: () => void
+  getChatHierarchy: () => ChatHierarchy | null
 
   // Bulk operations
   deleteMultipleChats: (chatIds: string[]) => Promise<void>
@@ -160,6 +187,15 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
           createChat: false,
         },
         streamingMessage: null,
+        dialogs: {
+          showCreateFolderDialog: false,
+          showMoveDialog: false,
+          showRenameDialog: false,
+          editingItem: null,
+          targetChatId: undefined,
+          selectedFolderId: undefined,
+        },
+        chatHierarchy: null,
 
         // Actions
         createChat: async (options = {}) => {
@@ -776,6 +812,155 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
         },
 
         // AI Integration method
+        // Toggle folder expansion
+        toggleFolder: (folderId: string) => {
+          set((state) => {
+            const folder = state.folders[folderId]
+            if (folder) {
+              folder.isExpanded = !folder.isExpanded
+            }
+          })
+          get().buildChatHierarchy()
+        },
+
+        // Pin/unpin chat
+        pinChat: (chatId: string) => {
+          set((state) => {
+            const chat = state.chats[chatId]
+            if (chat) {
+              chat.isPinned = !chat.isPinned
+              chat.updatedAt = new Date()
+            }
+          })
+          get().buildChatHierarchy()
+        },
+
+        // Rename chat
+        renameChat: (chatId: string, newName: string) => {
+          set((state) => {
+            const chat = state.chats[chatId]
+            if (chat) {
+              chat.title = newName
+              chat.updatedAt = new Date()
+            }
+          })
+        },
+
+        // Move chat to folder
+        moveChat: (chatId: string, folderId: string | null) => {
+          set((state) => {
+            const chat = state.chats[chatId]
+            if (chat) {
+              chat.folderId = folderId || undefined
+              chat.updatedAt = new Date()
+            }
+          })
+          get().buildChatHierarchy()
+        },
+
+        // Dialog management
+        openCreateFolderDialog: () => {
+          set((state) => {
+            state.dialogs.showCreateFolderDialog = true
+          })
+        },
+
+        closeCreateFolderDialog: () => {
+          set((state) => {
+            state.dialogs.showCreateFolderDialog = false
+          })
+        },
+
+        openMoveDialog: (chatId: string) => {
+          set((state) => {
+            const chat = state.chats[chatId]
+            if (chat) {
+              state.dialogs.showMoveDialog = true
+              state.dialogs.targetChatId = chatId
+              state.dialogs.editingItem = {
+                type: 'chat',
+                id: chatId,
+                name: chat.title,
+              }
+            }
+          })
+        },
+
+        closeMoveDialog: () => {
+          set((state) => {
+            state.dialogs.showMoveDialog = false
+            state.dialogs.targetChatId = undefined
+            state.dialogs.selectedFolderId = undefined
+          })
+        },
+
+        openRenameDialog: (type: 'chat' | 'folder', id: string, currentName: string) => {
+          set((state) => {
+            state.dialogs.showRenameDialog = true
+            state.dialogs.editingItem = {
+              type,
+              id,
+              name: currentName,
+            }
+          })
+        },
+
+        closeRenameDialog: () => {
+          set((state) => {
+            state.dialogs.showRenameDialog = false
+            state.dialogs.editingItem = null
+          })
+        },
+
+        // Build chat hierarchy
+        buildChatHierarchy: () => {
+          const state = get()
+          const chats = Object.values(state.chats)
+          const folders = Object.values(state.folders)
+
+          // Separate pinned chats
+          const pinnedChats = chats
+            .filter((chat) => chat.isPinned)
+            .sort((a, b) => (b.lastMessageAt?.getTime() || 0) - (a.lastMessageAt?.getTime() || 0))
+
+          // Separate root chats (no folder)
+          const rootChats = chats
+            .filter((chat) => !chat.folderId && !chat.isPinned)
+            .sort((a, b) => (b.lastMessageAt?.getTime() || 0) - (a.lastMessageAt?.getTime() || 0))
+
+          // Build folder nodes
+          const folderNodes: FolderNode[] = folders.map((folder) => {
+            const folderChats = chats
+              .filter((chat) => chat.folderId === folder.id && !chat.isPinned)
+              .sort((a, b) => (b.lastMessageAt?.getTime() || 0) - (a.lastMessageAt?.getTime() || 0))
+
+            return {
+              folder,
+              chats: folderChats,
+              isExpanded: folder.isExpanded ?? true,
+            }
+          })
+
+          // Sort folders by name
+          folderNodes.sort((a, b) => a.folder.name.localeCompare(b.folder.name))
+
+          set((state) => {
+            state.chatHierarchy = {
+              folders: folderNodes,
+              rootChats,
+              pinnedChats,
+            }
+          })
+        },
+
+        getChatHierarchy: () => {
+          const state = get()
+          if (!state.chatHierarchy) {
+            get().buildChatHierarchy()
+          }
+          return state.chatHierarchy
+        },
+
         sendAIMessage: async (chatId: string, messageId: string) => {
           try {
             const state = get()

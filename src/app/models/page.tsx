@@ -3,11 +3,30 @@
 import { useState } from 'react'
 import dynamic from 'next/dynamic'
 import { ModelsLayout } from '../../components/layout'
-import { LoadingSkeletons } from '../../components/ui/lazy-wrapper'
 import { PerformanceProvider } from '../../components/performance/performance-provider'
 import { Button } from '../../components/ui/button'
 import { Activity } from 'lucide-react'
 import { useRenderPerformance } from '../../lib/performance/monitoring'
+
+// Simple loading component for server-side rendering
+function CardsLoadingFallback({ count = 6 }: { count?: number }) {
+  return (
+    <div className="space-y-4">
+      {[...Array(count)].map((_, i) => (
+        <div
+          key={i}
+          className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800"
+        >
+          <div className="mb-2 h-5 w-3/4 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+          <div className="space-y-2">
+            <div className="h-4 w-full animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+            <div className="h-4 w-5/6 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
 
 // Lazy load components to reduce initial bundle size
 const ModelTabs = dynamic(
@@ -29,7 +48,7 @@ const ModelGrid = dynamic(
       default: mod.ModelGrid,
     })),
   {
-    loading: () => <LoadingSkeletons.Card count={6} />,
+    loading: () => <CardsLoadingFallback count={6} />,
     ssr: false,
   }
 )

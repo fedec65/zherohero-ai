@@ -50,7 +50,10 @@ class ErrorBoundaryClass extends React.Component<
     }
 
     // Built-in error reporting for production
-    if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
+    if (
+      typeof window !== 'undefined' &&
+      process.env.NODE_ENV === 'production'
+    ) {
       // Send to error reporting service in production
       console.error('Application error:', error, errorInfo)
     }

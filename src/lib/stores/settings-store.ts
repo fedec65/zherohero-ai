@@ -553,57 +553,63 @@ export const useSettingsStore = createWithEqualityFn<SettingsStore>()(
           'exportingSettings',
         ]),
         onRehydrateStorage: () => (state) => {
-            if (state && typeof window !== 'undefined') {
-              try {
-                // Reset transient state after rehydration
-                state.unsavedChanges = false
-                state.importingSettings = false
-                state.exportingSettings = false
-                
-                // Apply theme and font size after rehydration
-                const effectiveTheme = state.getEffectiveTheme()
-                state.effectiveTheme = effectiveTheme
+          if (state && typeof window !== 'undefined') {
+            try {
+              // Reset transient state after rehydration
+              state.unsavedChanges = false
+              state.importingSettings = false
+              state.exportingSettings = false
 
-                // Apply to DOM safely
-                requestAnimationFrame(() => {
-                  document.documentElement.setAttribute('data-theme', effectiveTheme)
-                  document.documentElement.classList.remove('light', 'dark')
-                  document.documentElement.classList.add(effectiveTheme)
+              // Apply theme and font size after rehydration
+              const effectiveTheme = state.getEffectiveTheme()
+              state.effectiveTheme = effectiveTheme
 
-                  const sizeMap = {
-                    small: '14px',
-                    medium: '16px',
-                    large: '18px',
-                  }
-                  document.documentElement.style.setProperty(
-                    '--base-font-size',
-                    sizeMap[state.settings.fontSize]
-                  )
-                })
-
-                // Listen for system theme changes
-                const mediaQuery = window.matchMedia(
-                  '(prefers-color-scheme: dark)'
+              // Apply to DOM safely
+              requestAnimationFrame(() => {
+                document.documentElement.setAttribute(
+                  'data-theme',
+                  effectiveTheme
                 )
-                const handleThemeChange = () => {
-                  if (state.settings.theme === 'system') {
-                    const newTheme = getSystemTheme()
-                    state.effectiveTheme = newTheme
-                    requestAnimationFrame(() => {
-                      document.documentElement.setAttribute('data-theme', newTheme)
-                      document.documentElement.classList.remove('light', 'dark')
-                      document.documentElement.classList.add(newTheme)
-                    })
-                  }
-                }
+                document.documentElement.classList.remove('light', 'dark')
+                document.documentElement.classList.add(effectiveTheme)
 
-                mediaQuery.addEventListener('change', handleThemeChange)
-              } catch (error) {
-                console.warn('Failed to apply settings after rehydration:', error)
+                const sizeMap = {
+                  small: '14px',
+                  medium: '16px',
+                  large: '18px',
+                }
+                document.documentElement.style.setProperty(
+                  '--base-font-size',
+                  sizeMap[state.settings.fontSize]
+                )
+              })
+
+              // Listen for system theme changes
+              const mediaQuery = window.matchMedia(
+                '(prefers-color-scheme: dark)'
+              )
+              const handleThemeChange = () => {
+                if (state.settings.theme === 'system') {
+                  const newTheme = getSystemTheme()
+                  state.effectiveTheme = newTheme
+                  requestAnimationFrame(() => {
+                    document.documentElement.setAttribute(
+                      'data-theme',
+                      newTheme
+                    )
+                    document.documentElement.classList.remove('light', 'dark')
+                    document.documentElement.classList.add(newTheme)
+                  })
+                }
               }
+
+              mediaQuery.addEventListener('change', handleThemeChange)
+            } catch (error) {
+              console.warn('Failed to apply settings after rehydration:', error)
             }
-          },
-        }
+          }
+        },
+      }
     )
   )
 )

@@ -1134,7 +1134,12 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
         name: 'minddeck-chat-store',
         storage: createStorage('indexedDB'),
         version: 1,
-        partialize: createAutoPartializer(['loading', 'streamingMessage']),
+        partialize: createAutoPartializer([
+          'loading',
+          'streamingMessage',
+          'buildChatHierarchy',
+          'getChatHierarchy',
+        ]),
         onRehydrateStorage: () => (state) => {
           // Reset transient state after rehydration
           if (state) {
@@ -1144,11 +1149,9 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
               createChat: false,
             }
             state.streamingMessage = null
-            
-            // Rebuild chat hierarchy if needed
-            if (state.buildChatHierarchy) {
-              state.buildChatHierarchy()
-            }
+
+            // Note: buildChatHierarchy will be called when components mount
+            // since functions are not persisted and not available during rehydration
           }
         },
       } as any

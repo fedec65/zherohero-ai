@@ -10,12 +10,12 @@ const mockDataCollections = {
   users: [
     { id: 1, name: 'John Doe', status: 'active' },
     { id: 2, name: 'Jane Smith', status: 'inactive' },
-    { id: 3, name: 'Bob Johnson', status: 'active' }
+    { id: 3, name: 'Bob Johnson', status: 'active' },
   ],
   products: [
     { id: 1, name: 'Widget A', price: 19.99, category: 'widgets' },
     { id: 2, name: 'Gadget B', price: 29.99, category: 'gadgets' },
-    { id: 3, name: 'Tool C', price: 39.99, category: 'tools' }
+    { id: 3, name: 'Tool C', price: 39.99, category: 'tools' },
   ],
   analytics: {
     pageViews: 12543,
@@ -25,22 +25,22 @@ const mockDataCollections = {
     topPages: [
       { path: '/', views: 5432 },
       { path: '/models', views: 3210 },
-      { path: '/chat', views: 2901 }
+      { path: '/chat', views: 2901 },
     ],
     traffic: {
       organic: 45,
       direct: 32,
       referral: 15,
-      social: 8
-    }
+      social: 8,
+    },
   },
   performance: {
     serverResponseTime: 120,
     firstContentfulPaint: 1.2,
     largestContentfulPaint: 2.1,
     cumulativeLayoutShift: 0.05,
-    timeToInteractive: 3.4
-  }
+    timeToInteractive: 3.4,
+  },
 }
 
 // GET - Retrieve data
@@ -50,9 +50,11 @@ export async function GET(request: NextRequest) {
     const type = searchParams.get('type') || 'users'
     const limit = parseInt(searchParams.get('limit') || '10')
     const offset = parseInt(searchParams.get('offset') || '0')
-    
+
     // Add artificial delay to simulate real API
-    await new Promise(resolve => setTimeout(resolve, Math.random() * 300 + 50))
+    await new Promise((resolve) =>
+      setTimeout(resolve, Math.random() * 300 + 50)
+    )
 
     const headers = {
       'Access-Control-Allow-Origin': '*',
@@ -63,12 +65,12 @@ export async function GET(request: NextRequest) {
     // Return specific data type
     if (type in mockDataCollections) {
       const data = mockDataCollections[type as keyof typeof mockDataCollections]
-      
+
       // Handle pagination for array data
       if (Array.isArray(data)) {
         const total = data.length
         const paginatedData = data.slice(offset, offset + limit)
-        
+
         return NextResponse.json(
           {
             data: paginatedData,
@@ -76,21 +78,21 @@ export async function GET(request: NextRequest) {
               total,
               limit,
               offset,
-              hasMore: offset + limit < total
+              hasMore: offset + limit < total,
             },
             type,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
           },
           { headers }
         )
       }
-      
+
       // Return non-paginated data as-is
       return NextResponse.json(
         {
           data,
           type,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         },
         { headers }
       )
@@ -101,7 +103,7 @@ export async function GET(request: NextRequest) {
       {
         error: `Data type '${type}' not found`,
         availableTypes: Object.keys(mockDataCollections),
-        data: null
+        data: null,
       },
       { status: 404, headers }
     )
@@ -110,7 +112,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       {
         error: 'Failed to retrieve data',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     )
@@ -122,16 +124,18 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     const { type = 'generic', data } = body
-    
+
     // Simulate processing time
-    await new Promise(resolve => setTimeout(resolve, Math.random() * 200 + 100))
+    await new Promise((resolve) =>
+      setTimeout(resolve, Math.random() * 200 + 100)
+    )
 
     // Simulate success/failure based on data completeness
     if (!data || Object.keys(data).length === 0) {
       return NextResponse.json(
-        { 
+        {
           error: 'Data is required',
-          received: body
+          received: body,
         },
         { status: 400 }
       )
@@ -147,8 +151,8 @@ export async function POST(request: NextRequest) {
       data: {
         ...data,
         id: Math.random().toString(36).substr(2, 9),
-        createdAt: new Date().toISOString()
-      }
+        createdAt: new Date().toISOString(),
+      },
     }
 
     return NextResponse.json(response, {
@@ -157,14 +161,14 @@ export async function POST(request: NextRequest) {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      }
+      },
     })
   } catch (error) {
     console.error('Data POST error:', error)
     return NextResponse.json(
       {
         error: 'Failed to process data',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 400 }
     )
@@ -176,7 +180,7 @@ export async function PUT(request: NextRequest) {
   try {
     const body = await request.json()
     const { id, type = 'generic', data } = body
-    
+
     if (!id) {
       return NextResponse.json(
         { error: 'ID is required for updates' },
@@ -185,7 +189,9 @@ export async function PUT(request: NextRequest) {
     }
 
     // Simulate processing
-    await new Promise(resolve => setTimeout(resolve, Math.random() * 150 + 75))
+    await new Promise((resolve) =>
+      setTimeout(resolve, Math.random() * 150 + 75)
+    )
 
     const response = {
       success: true,
@@ -196,8 +202,8 @@ export async function PUT(request: NextRequest) {
       data: {
         ...data,
         id,
-        updatedAt: new Date().toISOString()
-      }
+        updatedAt: new Date().toISOString(),
+      },
     }
 
     return NextResponse.json(response, {
@@ -205,14 +211,14 @@ export async function PUT(request: NextRequest) {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      }
+      },
     })
   } catch (error) {
     console.error('Data PUT error:', error)
     return NextResponse.json(
       {
         error: 'Failed to update data',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 400 }
     )
@@ -225,7 +231,7 @@ export async function DELETE(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
     const type = searchParams.get('type') || 'generic'
-    
+
     if (!id) {
       return NextResponse.json(
         { error: 'ID is required for deletion' },
@@ -234,7 +240,9 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Simulate processing
-    await new Promise(resolve => setTimeout(resolve, Math.random() * 100 + 50))
+    await new Promise((resolve) =>
+      setTimeout(resolve, Math.random() * 100 + 50)
+    )
 
     return NextResponse.json(
       {
@@ -242,14 +250,14 @@ export async function DELETE(request: NextRequest) {
         message: 'Data deleted successfully',
         id,
         type,
-        deletedAt: new Date().toISOString()
+        deletedAt: new Date().toISOString(),
       },
       {
         headers: {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        }
+        },
       }
     )
   } catch (error) {
@@ -257,7 +265,7 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json(
       {
         error: 'Failed to delete data',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     )
@@ -273,7 +281,7 @@ export async function OPTIONS() {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      }
+      },
     }
   )
 }

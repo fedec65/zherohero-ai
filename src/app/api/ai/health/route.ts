@@ -64,11 +64,14 @@ export async function GET() {
       totalProviders: providers.length,
     }
 
-    return NextResponse.json({
-      system: systemHealth,
-      providers: providerDetails,
-      timestamp: new Date().toISOString(),
-    }, { headers })
+    return NextResponse.json(
+      {
+        system: systemHealth,
+        providers: providerDetails,
+        timestamp: new Date().toISOString(),
+      },
+      { headers }
+    )
   } catch (error) {
     console.error('Health check error:', error)
 
@@ -110,7 +113,7 @@ export async function POST(request: NextRequest) {
     ]
     if (!validProviders.includes(provider)) {
       return NextResponse.json(
-        { error: 'Invalid provider' }, 
+        { error: 'Invalid provider' },
         { status: 400, headers }
       )
     }
@@ -118,25 +121,31 @@ export async function POST(request: NextRequest) {
     // Check if provider is initialized
     const status = aiAPI.getProviderStatus(provider)
     if (!status.initialized) {
-      return NextResponse.json({
-        provider,
-        test: {
-          success: false,
-          error: 'Provider not initialized',
-          latency: 0,
+      return NextResponse.json(
+        {
+          provider,
+          test: {
+            success: false,
+            error: 'Provider not initialized',
+            latency: 0,
+          },
+          timestamp: new Date().toISOString(),
         },
-        timestamp: new Date().toISOString(),
-      }, { headers })
+        { headers }
+      )
     }
 
     // Test connection
     const testResult = await aiAPI.testProviderConnection(provider, testMessage)
 
-    return NextResponse.json({
-      provider,
-      test: testResult,
-      timestamp: new Date().toISOString(),
-    }, { headers })
+    return NextResponse.json(
+      {
+        provider,
+        test: testResult,
+        timestamp: new Date().toISOString(),
+      },
+      { headers }
+    )
   } catch (error) {
     console.error('Provider test error:', error)
 
@@ -159,7 +168,7 @@ export async function OPTIONS() {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      }
+      },
     }
   )
 }

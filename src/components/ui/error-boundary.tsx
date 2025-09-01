@@ -38,14 +38,22 @@ class ErrorBoundaryClass extends React.Component<
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('ErrorBoundary caught an error:', error, errorInfo)
-    
+
     this.setState({
       error,
       errorInfo,
     })
 
     // Call optional error handler
-    this.props.onError?.(error, errorInfo)
+    if (this.props.onError) {
+      this.props.onError(error, errorInfo)
+    }
+
+    // Built-in error reporting for production
+    if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
+      // Send to error reporting service in production
+      console.error('Application error:', error, errorInfo)
+    }
   }
 
   retry = () => {
@@ -60,14 +68,60 @@ class ErrorBoundaryClass extends React.Component<
         return <FallbackComponent error={this.state.error} retry={this.retry} />
       }
 
-      return <DefaultErrorFallback error={this.state.error} retry={this.retry} />
+      return (
+        <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
+          <div className="p-8 text-center">
+            <h1 className="mb-4 text-2xl font-bold text-gray-900 dark:text-white">
+              Application Error
+            </h1>
+            <p className="mb-6 text-gray-600 dark:text-gray-400">
+              Something went wrong. Please try refreshing the page.
+            </p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={this.retry}
+                className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+              >
+                Try Again
+              </button>
+              <button
+                onClick={() => {
+                  if (typeof window !== 'undefined') {
+                    window.location.reload()
+                  }
+                }}
+                className="rounded bg-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-400 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+              >
+                Refresh Page
+              </button>
+            </div>
+            {process.env.NODE_ENV === 'development' && this.state.error && (
+              <details className="mt-6 text-left">
+                <summary className="cursor-pointer font-mono text-sm text-red-600 dark:text-red-400">
+                  Error Details (Development Only)
+                </summary>
+                <pre className="mt-2 whitespace-pre-wrap text-xs text-red-600 dark:text-red-400">
+                  {this.state.error.message}
+                  {this.state.error.stack}
+                </pre>
+              </details>
+            )}
+          </div>
+        </div>
+      )
     }
 
     return this.props.children
   }
 }
 
-function DefaultErrorFallback({ error, retry }: { error?: Error; retry: () => void }) {
+function DefaultErrorFallback({
+  error,
+  retry,
+}: {
+  error?: Error
+  retry: () => void
+}) {
   return (
     <div className="flex min-h-[200px] flex-col items-center justify-center rounded-lg border border-red-200 bg-red-50 p-6 text-center dark:border-red-800 dark:bg-red-950/20">
       <AlertTriangle className="mb-4 h-12 w-12 text-red-500" />
@@ -127,8 +181,8 @@ export function withErrorBoundary<P extends object>(
       <Component {...props} />
     </ErrorBoundary>
   )
-  
+
   WrappedComponent.displayName = `withErrorBoundary(${Component.displayName || Component.name})`
-  
+
   return WrappedComponent
 }

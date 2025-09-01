@@ -11,33 +11,38 @@ export const test = base.extend({
   page: async ({ page }, use) => {
     // Wait for the app to fully load
     await page.goto('/')
-    
+
     // Wait for hydration to complete
-    await page.waitForFunction(() => {
-      return window.document.readyState === 'complete' && 
-             !document.querySelector('[data-testid="loading"]')
-    }, { timeout: 30000 })
+    await page.waitForFunction(
+      () => {
+        return (
+          window.document.readyState === 'complete' &&
+          !document.querySelector('[data-testid="loading"]')
+        )
+      },
+      { timeout: 30000 }
+    )
 
     // Wait for any initial API calls to settle
     await page.waitForTimeout(1000)
-    
+
     // Ensure no React errors
     const errors = await page.evaluate(() => {
       const errors: string[] = []
-      
+
       // Check for React error messages
       const errorElements = document.querySelectorAll('[data-testid="error"]')
-      errorElements.forEach(el => {
+      errorElements.forEach((el) => {
         if (el.textContent) errors.push(el.textContent)
       })
-      
+
       return errors
     })
-    
+
     if (errors.length > 0) {
       throw new Error(`React errors detected: ${errors.join(', ')}`)
     }
-    
+
     await use(page)
   },
 })
@@ -46,8 +51,8 @@ export const test = base.extend({
 export const helpers = {
   // Wait for element with retry logic
   async waitForElement(page: any, selector: string, timeout = 10000) {
-    return await page.waitForSelector(selector, { 
-      state: 'visible', 
+    return await page.waitForSelector(selector, {
+      state: 'visible',
       timeout,
     })
   },
@@ -74,17 +79,17 @@ export const helpers = {
   // Check for console errors
   async getConsoleErrors(page: any): Promise<string[]> {
     const errors: string[] = []
-    
+
     page.on('console', (msg: any) => {
       if (msg.type() === 'error') {
         errors.push(msg.text())
       }
     })
-    
+
     page.on('pageerror', (error: any) => {
       errors.push(error.message)
     })
-    
+
     return errors
   },
 
@@ -93,7 +98,7 @@ export const helpers = {
     await page.evaluate(() => {
       localStorage.clear()
       sessionStorage.clear()
-      
+
       // Clear IndexedDB
       if ('indexedDB' in window) {
         indexedDB.databases?.().then((databases) => {
@@ -123,14 +128,14 @@ export const helpers = {
     // Mock external API calls
     await this.mockApiResponse(page, '**/api/ai/**', {
       success: true,
-      data: { message: 'Test response' }
+      data: { message: 'Test response' },
     })
-    
+
     // Set test mode
     await page.addInitScript(() => {
       window.localStorage.setItem('test-mode', 'true')
     })
-    
+
     // Disable animations for faster tests
     await page.addInitScript(() => {
       const style = document.createElement('style')

@@ -17,7 +17,7 @@ let mockSettings: Record<string, any> = {
   defaultModel: 'gpt-4o',
   apiKeys: {}, // API keys should be encrypted in production
   mcpServers: [],
-  modelConfigs: {}
+  modelConfigs: {},
 }
 
 interface UpdateSettingsRequest {
@@ -59,20 +59,20 @@ export async function GET(request: NextRequest) {
           { status: 404, headers }
         )
       }
-      
-      return NextResponse.json(
-        { key, value: mockSettings[key] },
-        { headers }
-      )
+
+      return NextResponse.json({ key, value: mockSettings[key] }, { headers })
     }
 
     // Return all settings (excluding sensitive data like API keys in full form)
     const safeSettings = {
       ...mockSettings,
-      apiKeys: Object.keys(mockSettings.apiKeys || {}).reduce((acc, provider) => {
-        acc[provider] = mockSettings.apiKeys[provider] ? '••••••••' : null
-        return acc
-      }, {} as Record<string, string | null>)
+      apiKeys: Object.keys(mockSettings.apiKeys || {}).reduce(
+        (acc, provider) => {
+          acc[provider] = mockSettings.apiKeys[provider] ? '••••••••' : null
+          return acc
+        },
+        {} as Record<string, string | null>
+      ),
     }
 
     return NextResponse.json(safeSettings, { headers })
@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       {
         error: 'Failed to retrieve settings',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     )
@@ -92,14 +92,14 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body: UpdateSettingsRequest = await request.json()
-    
+
     // Validate settings before updating
     const validationErrors = validateSettings(body)
     if (validationErrors.length > 0) {
       return NextResponse.json(
-        { 
+        {
           error: 'Invalid settings',
-          details: validationErrors
+          details: validationErrors,
         },
         { status: 400 }
       )
@@ -109,29 +109,32 @@ export async function POST(request: NextRequest) {
     mockSettings = {
       ...mockSettings,
       ...body,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     }
 
     // Return updated settings (with API keys masked)
     const safeSettings = {
       ...mockSettings,
-      apiKeys: Object.keys(mockSettings.apiKeys || {}).reduce((acc, provider) => {
-        acc[provider] = mockSettings.apiKeys[provider] ? '••••••••' : null
-        return acc
-      }, {} as Record<string, string | null>)
+      apiKeys: Object.keys(mockSettings.apiKeys || {}).reduce(
+        (acc, provider) => {
+          acc[provider] = mockSettings.apiKeys[provider] ? '••••••••' : null
+          return acc
+        },
+        {} as Record<string, string | null>
+      ),
     }
 
     return NextResponse.json(
       {
         message: 'Settings updated successfully',
-        settings: safeSettings
+        settings: safeSettings,
       },
       {
         headers: {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        }
+        },
       }
     )
   } catch (error) {
@@ -139,7 +142,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         error: 'Failed to update settings',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 400 }
     )
@@ -151,7 +154,7 @@ export async function PUT(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const key = searchParams.get('key')
-    
+
     if (!key) {
       return NextResponse.json(
         { error: 'Setting key is required' },
@@ -160,7 +163,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const { value } = await request.json()
-    
+
     if (value === undefined) {
       return NextResponse.json(
         { error: 'Setting value is required' },
@@ -171,35 +174,33 @@ export async function PUT(request: NextRequest) {
     // Validate specific setting
     const validationError = validateSingleSetting(key, value)
     if (validationError) {
-      return NextResponse.json(
-        { error: validationError },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: validationError }, { status: 400 })
     }
 
     mockSettings[key] = value
     mockSettings.updatedAt = new Date().toISOString()
 
     // Return masked value for API keys
-    const returnValue = key === 'apiKeys' && value 
-      ? Object.keys(value).reduce((acc: Record<string, string>, provider) => {
-          acc[provider] = value[provider] ? '••••••••' : null
-          return acc
-        }, {})
-      : value
+    const returnValue =
+      key === 'apiKeys' && value
+        ? Object.keys(value).reduce((acc: Record<string, string>, provider) => {
+            acc[provider] = value[provider] ? '••••••••' : null
+            return acc
+          }, {})
+        : value
 
     return NextResponse.json(
       {
         message: 'Setting updated successfully',
         key,
-        value: returnValue
+        value: returnValue,
       },
       {
         headers: {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        }
+        },
       }
     )
   } catch (error) {
@@ -207,7 +208,7 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json(
       {
         error: 'Failed to update setting',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 400 }
     )
@@ -238,18 +239,22 @@ export async function DELETE(request: NextRequest) {
         defaultModel: 'gpt-4o',
         apiKeys: {},
         mcpServers: [],
-        modelConfigs: {}
+        modelConfigs: {},
       }
     }
 
     return NextResponse.json(
-      { message: key ? `Setting ${key} reset successfully` : 'All settings reset successfully' },
+      {
+        message: key
+          ? `Setting ${key} reset successfully`
+          : 'All settings reset successfully',
+      },
       {
         headers: {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        }
+        },
       }
     )
   } catch (error) {
@@ -257,7 +262,7 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json(
       {
         error: 'Failed to reset settings',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     )
@@ -273,7 +278,7 @@ export async function OPTIONS() {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      }
+      },
     }
   )
 }
@@ -286,7 +291,10 @@ function validateSettings(settings: UpdateSettingsRequest): string[] {
     errors.push('Invalid theme. Must be light, dark, or system')
   }
 
-  if (settings.sidebarWidth && (settings.sidebarWidth < 200 || settings.sidebarWidth > 600)) {
+  if (
+    settings.sidebarWidth &&
+    (settings.sidebarWidth < 200 || settings.sidebarWidth > 600)
+  ) {
     errors.push('Invalid sidebar width. Must be between 200 and 600')
   }
 
@@ -294,19 +302,33 @@ function validateSettings(settings: UpdateSettingsRequest): string[] {
     errors.push('Invalid language. Must be a string')
   }
 
-  if (settings.autoSave !== undefined && typeof settings.autoSave !== 'boolean') {
+  if (
+    settings.autoSave !== undefined &&
+    typeof settings.autoSave !== 'boolean'
+  ) {
     errors.push('Invalid autoSave. Must be a boolean')
   }
 
-  if (settings.streamingEnabled !== undefined && typeof settings.streamingEnabled !== 'boolean') {
+  if (
+    settings.streamingEnabled !== undefined &&
+    typeof settings.streamingEnabled !== 'boolean'
+  ) {
     errors.push('Invalid streamingEnabled. Must be a boolean')
   }
 
-  if (settings.showTooltips !== undefined && typeof settings.showTooltips !== 'boolean') {
+  if (
+    settings.showTooltips !== undefined &&
+    typeof settings.showTooltips !== 'boolean'
+  ) {
     errors.push('Invalid showTooltips. Must be a boolean')
   }
 
-  if (settings.defaultProvider && !['openai', 'anthropic', 'gemini', 'xai', 'deepseek'].includes(settings.defaultProvider)) {
+  if (
+    settings.defaultProvider &&
+    !['openai', 'anthropic', 'gemini', 'xai', 'deepseek'].includes(
+      settings.defaultProvider
+    )
+  ) {
     errors.push('Invalid default provider')
   }
 

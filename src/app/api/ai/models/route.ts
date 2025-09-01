@@ -212,7 +212,7 @@ export async function GET(request: NextRequest) {
       ]
       if (!validProviders.includes(provider)) {
         return NextResponse.json(
-          { error: 'Invalid provider' }, 
+          { error: 'Invalid provider' },
           { status: 400, headers }
         )
       }
@@ -257,19 +257,22 @@ export async function GET(request: NextRequest) {
       .flat()
       .filter((model) => model.isNew).length
 
-    return NextResponse.json({
-      providers: allModels,
-      summary: {
-        totalProviders: Object.keys(MODEL_INFORMATION).length,
-        totalModels,
-        newModels,
-        deprecatedModels: Object.values(MODEL_INFORMATION)
-          .flat()
-          .filter((model) => 'isDeprecated' in model && model.isDeprecated)
-          .length,
+    return NextResponse.json(
+      {
+        providers: allModels,
+        summary: {
+          totalProviders: Object.keys(MODEL_INFORMATION).length,
+          totalModels,
+          newModels,
+          deprecatedModels: Object.values(MODEL_INFORMATION)
+            .flat()
+            .filter((model) => 'isDeprecated' in model && model.isDeprecated)
+            .length,
+        },
+        timestamp: new Date().toISOString(),
       },
-      timestamp: new Date().toISOString(),
-    }, { headers })
+      { headers }
+    )
   } catch (error) {
     console.error('Models API error:', error)
 
@@ -296,7 +299,7 @@ export async function POST(request: NextRequest) {
 
     if (!task) {
       return NextResponse.json(
-        { error: 'Task is required' }, 
+        { error: 'Task is required' },
         { status: 400, headers }
       )
     }
@@ -313,12 +316,15 @@ export async function POST(request: NextRequest) {
     const recommendedProvider = aiAPI.getRecommendedProvider(task, providers)
 
     if (!recommendedProvider) {
-      return NextResponse.json({
-        task,
-        recommendation: null,
-        message: 'No suitable providers available',
-        timestamp: new Date().toISOString(),
-      }, { headers })
+      return NextResponse.json(
+        {
+          task,
+          recommendation: null,
+          message: 'No suitable providers available',
+          timestamp: new Date().toISOString(),
+        },
+        { headers }
+      )
     }
 
     // Get models for recommended provider
@@ -327,15 +333,18 @@ export async function POST(request: NextRequest) {
     // Get provider status
     const providerStatus = aiAPI.getProviderStatus(recommendedProvider)
 
-    return NextResponse.json({
-      task,
-      recommendation: {
-        provider: recommendedProvider,
-        models: providerModels,
-        status: providerStatus,
+    return NextResponse.json(
+      {
+        task,
+        recommendation: {
+          provider: recommendedProvider,
+          models: providerModels,
+          status: providerStatus,
+        },
+        timestamp: new Date().toISOString(),
       },
-      timestamp: new Date().toISOString(),
-    }, { headers })
+      { headers }
+    )
   } catch (error) {
     console.error('Model recommendation error:', error)
 
@@ -358,7 +367,7 @@ export async function OPTIONS() {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      }
+      },
     }
   )
 }

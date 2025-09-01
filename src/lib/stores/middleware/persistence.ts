@@ -123,7 +123,7 @@ class IndexedDBStorage implements StateStorage {
 // Storage factory
 export function createStorage(type: StorageConfig['storage']): StateStorage {
   let baseStorage: StateStorage
-  
+
   switch (type) {
     case 'localStorage':
       baseStorage = {
@@ -250,22 +250,22 @@ export function createAutoPartializer<T>(
       if (typeof value === 'function') {
         continue
       }
-      
+
       // Skip symbols
       if (typeof value === 'symbol') {
         continue
       }
-      
+
       // Skip undefined values
       if (value === undefined) {
         continue
       }
-      
+
       // Skip additional excluded keys
       if (additionalExcludes.includes(key)) {
         continue
       }
-      
+
       // Only include serializable values
       try {
         // Test if the value can be JSON serialized and preserve Date objects properly
@@ -273,17 +273,25 @@ export function createAutoPartializer<T>(
         if (serialized === undefined) {
           continue
         }
-        
+
         // Additional check for complex objects that might contain non-serializable nested values
-        if (typeof value === 'object' && value !== null && !Array.isArray(value) && !(value instanceof Date)) {
+        if (
+          typeof value === 'object' &&
+          value !== null &&
+          !Array.isArray(value) &&
+          !(value instanceof Date)
+        ) {
           // For plain objects, recursively check serialization
           JSON.parse(serialized)
         }
-        
+
         result[key] = value
       } catch (error) {
         // Skip values that can't be serialized
-        console.warn(`Skipping non-serializable property: ${String(key)}`, error)
+        console.warn(
+          `Skipping non-serializable property: ${String(key)}`,
+          error
+        )
       }
     }
 
@@ -301,13 +309,16 @@ export function createInclusivePartializer<T extends object>(
     for (const key of includeKeys) {
       if (key in state) {
         const value = state[key]
-        
+
         // Double-check that the value is serializable
         try {
           JSON.stringify(value)
           result[key] = value
         } catch (error) {
-          console.warn(`Skipping non-serializable included property: ${String(key)}`, error)
+          console.warn(
+            `Skipping non-serializable included property: ${String(key)}`,
+            error
+          )
         }
       }
     }
@@ -353,7 +364,7 @@ export function createSafeStorage(storage: StateStorage): StateStorage {
         return null
       }
     },
-    
+
     setItem: async (name: string, value: string) => {
       try {
         // Validate that the value can be parsed as JSON
@@ -361,14 +372,21 @@ export function createSafeStorage(storage: StateStorage): StateStorage {
         await storage.setItem(name, value)
       } catch (error) {
         console.error(`Failed to set item '${name}' to storage:`, error)
-        if (error instanceof Error && error.message.includes('could not be cloned')) {
-          console.error('This is likely due to non-serializable data (functions, symbols, etc.) in the state')
-          console.error('Check your store\'s partialize configuration to exclude non-serializable properties')
+        if (
+          error instanceof Error &&
+          error.message.includes('could not be cloned')
+        ) {
+          console.error(
+            'This is likely due to non-serializable data (functions, symbols, etc.) in the state'
+          )
+          console.error(
+            "Check your store's partialize configuration to exclude non-serializable properties"
+          )
         }
         throw error
       }
     },
-    
+
     removeItem: async (name: string) => {
       try {
         await storage.removeItem(name)

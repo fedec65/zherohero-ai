@@ -35,7 +35,8 @@ export function useSafeStorage<T>(
     if (!mounted || typeof window === 'undefined') return
 
     try {
-      const storageObj = storage === 'localStorage' ? localStorage : sessionStorage
+      const storageObj =
+        storage === 'localStorage' ? localStorage : sessionStorage
       const stored = storageObj.getItem(key)
       if (stored) {
         setValue(JSON.parse(stored))
@@ -47,10 +48,11 @@ export function useSafeStorage<T>(
 
   const setSafeValue = (newValue: T) => {
     setValue(newValue)
-    
+
     if (mounted && typeof window !== 'undefined') {
       try {
-        const storageObj = storage === 'localStorage' ? localStorage : sessionStorage
+        const storageObj =
+          storage === 'localStorage' ? localStorage : sessionStorage
         storageObj.setItem(key, JSON.stringify(newValue))
       } catch (error) {
         console.warn(`Failed to write to ${storage} for key "${key}":`, error)

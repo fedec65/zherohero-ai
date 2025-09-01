@@ -19,7 +19,7 @@ let mockMCPServers: any[] = [
     icon: 'https://github.com/favicon.ico',
     config: {},
     createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-01T00:00:00Z'
+    updatedAt: '2024-01-01T00:00:00Z',
   },
   {
     id: 'filesystem-1',
@@ -33,8 +33,8 @@ let mockMCPServers: any[] = [
     icon: null,
     config: {},
     createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-01T00:00:00Z'
-  }
+    updatedAt: '2024-01-01T00:00:00Z',
+  },
 ]
 
 let nextMCPId = 3
@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
     const type = searchParams.get('type') // 'built-in' or 'custom'
     const enabled = searchParams.get('enabled')
     const category = searchParams.get('category')
-    
+
     const headers = {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
@@ -92,7 +92,7 @@ export async function GET(request: NextRequest) {
 
     // Get specific server
     if (serverId) {
-      const server = mockMCPServers.find(s => s.id === serverId)
+      const server = mockMCPServers.find((s) => s.id === serverId)
       if (!server) {
         return NextResponse.json(
           { error: 'MCP server not found' },
@@ -106,16 +106,16 @@ export async function GET(request: NextRequest) {
     let filteredServers = mockMCPServers
 
     if (type) {
-      filteredServers = filteredServers.filter(s => s.type === type)
+      filteredServers = filteredServers.filter((s) => s.type === type)
     }
 
     if (enabled !== null) {
       const isEnabled = enabled === 'true'
-      filteredServers = filteredServers.filter(s => s.enabled === isEnabled)
+      filteredServers = filteredServers.filter((s) => s.enabled === isEnabled)
     }
 
     if (category) {
-      filteredServers = filteredServers.filter(s => s.category === category)
+      filteredServers = filteredServers.filter((s) => s.category === category)
     }
 
     // Sort by name
@@ -125,17 +125,19 @@ export async function GET(request: NextRequest) {
       {
         servers: filteredServers,
         total: filteredServers.length,
-        categories: [...new Set(mockMCPServers.map(s => s.category).filter(Boolean))],
-        enabledCount: filteredServers.filter(s => s.enabled).length
+        categories: [
+          ...new Set(mockMCPServers.map((s) => s.category).filter(Boolean)),
+        ],
+        enabledCount: filteredServers.filter((s) => s.enabled).length,
       },
       { headers }
     )
   } catch (error) {
     console.error('MCP servers GET error:', error)
     return NextResponse.json(
-      { 
+      {
         error: 'Failed to retrieve MCP servers',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     )
@@ -146,7 +148,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body: CreateMCPServerRequest = await request.json()
-    
+
     // Validate required fields
     if (!body.name || !body.url) {
       return NextResponse.json(
@@ -156,7 +158,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check for duplicate names
-    const existingServer = mockMCPServers.find(s => s.name === body.name)
+    const existingServer = mockMCPServers.find((s) => s.name === body.name)
     if (existingServer) {
       return NextResponse.json(
         { error: 'Server with this name already exists' },
@@ -177,25 +179,25 @@ export async function POST(request: NextRequest) {
       icon: body.icon || null,
       config: body.config || {},
       createdAt: now,
-      updatedAt: now
+      updatedAt: now,
     }
 
     mockMCPServers.push(newServer)
 
-    return NextResponse.json(newServer, { 
+    return NextResponse.json(newServer, {
       status: 201,
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      }
+      },
     })
   } catch (error) {
     console.error('MCP servers POST error:', error)
     return NextResponse.json(
       {
         error: 'Failed to create MCP server',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 400 }
     )
@@ -207,7 +209,7 @@ export async function PUT(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const serverId = searchParams.get('id')
-    
+
     if (!serverId) {
       return NextResponse.json(
         { error: 'Server ID is required' },
@@ -216,8 +218,8 @@ export async function PUT(request: NextRequest) {
     }
 
     const body: UpdateMCPServerRequest = await request.json()
-    const serverIndex = mockMCPServers.findIndex(s => s.id === serverId)
-    
+    const serverIndex = mockMCPServers.findIndex((s) => s.id === serverId)
+
     if (serverIndex === -1) {
       return NextResponse.json(
         { error: 'MCP server not found' },
@@ -227,7 +229,9 @@ export async function PUT(request: NextRequest) {
 
     // Check if trying to rename to an existing name
     if (body.name && body.name !== mockMCPServers[serverIndex].name) {
-      const existingServer = mockMCPServers.find(s => s.name === body.name && s.id !== serverId)
+      const existingServer = mockMCPServers.find(
+        (s) => s.name === body.name && s.id !== serverId
+      )
       if (existingServer) {
         return NextResponse.json(
           { error: 'Server with this name already exists' },
@@ -240,9 +244,9 @@ export async function PUT(request: NextRequest) {
     const updatedServer = {
       ...mockMCPServers[serverIndex],
       ...body,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     }
-    
+
     mockMCPServers[serverIndex] = updatedServer
 
     return NextResponse.json(updatedServer, {
@@ -250,14 +254,14 @@ export async function PUT(request: NextRequest) {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      }
+      },
     })
   } catch (error) {
     console.error('MCP servers PUT error:', error)
     return NextResponse.json(
       {
         error: 'Failed to update MCP server',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 400 }
     )
@@ -269,7 +273,7 @@ export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const serverId = searchParams.get('id')
-    
+
     if (!serverId) {
       return NextResponse.json(
         { error: 'Server ID is required' },
@@ -277,8 +281,8 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    const serverIndex = mockMCPServers.findIndex(s => s.id === serverId)
-    
+    const serverIndex = mockMCPServers.findIndex((s) => s.id === serverId)
+
     if (serverIndex === -1) {
       return NextResponse.json(
         { error: 'MCP server not found' },
@@ -287,7 +291,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     const server = mockMCPServers[serverIndex]
-    
+
     // Prevent deletion of built-in servers
     if (server.type === 'built-in') {
       return NextResponse.json(
@@ -306,7 +310,7 @@ export async function DELETE(request: NextRequest) {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        }
+        },
       }
     )
   } catch (error) {
@@ -314,7 +318,7 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json(
       {
         error: 'Failed to delete MCP server',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     )
@@ -330,7 +334,7 @@ export async function OPTIONS() {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      }
+      },
     }
   )
 }

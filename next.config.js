@@ -12,17 +12,17 @@ const nextConfig = {
   compiler: {
     // Remove console logs in production
     removeConsole: process.env.NODE_ENV === 'production',
-    
+
     // React optimizations
     reactRemoveProperties: process.env.NODE_ENV === 'production',
-    
+
     // Styled components support (if needed)
     styledComponents: false,
   },
 
   // Build optimizations
   swcMinify: true,
-  
+
   // Image optimization
   images: {
     formats: ['image/avif', 'image/webp'],
@@ -131,7 +131,7 @@ const nextConfig = {
     // Tree shaking optimizations
     config.optimization.usedExports = true
     config.optimization.providedExports = true
-    
+
     // Module resolution improvements
     config.resolve.alias = {
       ...config.resolve.alias,

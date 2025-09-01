@@ -155,7 +155,7 @@ export function SettingsModal(props: SettingsModalProps) {
       fallback={({ retry }) => {
         // Render a fallback modal for error state
         if (!props.open) return null
-        
+
         return (
           <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm">
             <div className="fixed inset-0 overflow-y-auto">

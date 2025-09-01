@@ -17,6 +17,7 @@ Failed to execute 'put' on 'IDBObjectStore': async function(){...} could not be 
 **Added three new partializer functions:**
 
 #### `createAutoPartializer<T>(additionalExcludes?: (keyof T)[])`
+
 - Automatically excludes all functions (sync and async)
 - Excludes symbols, undefined values, and other non-serializable data
 - Allows additional explicit exclusions
@@ -24,17 +25,20 @@ Failed to execute 'put' on 'IDBObjectStore': async function(){...} could not be 
 - **Safer than manual exclusion lists** - functions are automatically filtered out
 
 #### `createSafeStorage(storage: StateStorage)`
+
 - Wraps storage with error handling
 - Provides helpful error messages for serialization issues
 - Gracefully handles failures without crashing the app
 
 #### `createInclusivePartializer<T>(includeKeys: (keyof T)[])`
+
 - Only persists explicitly allowed properties
 - Most secure approach for sensitive applications
 
 ### 2. Updated Store Configurations
 
 #### Chat Store (`/src/lib/stores/chat-store.ts`)
+
 ```typescript
 // Before (BROKEN)
 partialize: createPartializer(['loading', 'streamingMessage'])
@@ -44,38 +48,49 @@ partialize: createAutoPartializer(['loading', 'streamingMessage'])
 ```
 
 **Excluded from persistence:**
+
 - All async functions: `createChat`, `sendMessage`, `deleteChat`, etc.
 - Transient state: `loading`, `streamingMessage`
 - Enhanced rehydration with `buildChatHierarchy()` restoration
 
 #### Model Store (`/src/lib/stores/model-store.ts`)
+
 ```typescript
 // Fixed partialize configuration
 partialize: createAutoPartializer(['loading', 'testResults'])
 ```
 
 **Excluded from persistence:**
+
 - All async functions: `fetchOpenRouterModels`, `testModel`, etc.
 - Transient state: `loading`, `testResults`
 - OpenRouter error states are cleared on rehydration
 
 #### Settings Store (`/src/lib/stores/settings-store.ts`)
+
 ```typescript
-// Fixed partialize configuration  
-partialize: createAutoPartializer(['unsavedChanges', 'importingSettings', 'exportingSettings'])
+// Fixed partialize configuration
+partialize: createAutoPartializer([
+  'unsavedChanges',
+  'importingSettings',
+  'exportingSettings',
+])
 ```
 
 **Excluded from persistence:**
+
 - All async functions: `validateApiKey`, `testApiConnection`, etc.
 - Transient UI state: `unsavedChanges`, `importingSettings`, `exportingSettings`
 
 #### MCP Store (`/src/lib/stores/mcp-store.ts`)
+
 ```typescript
 // Fixed partialize configuration
 partialize: createAutoPartializer(['loading', 'connectionStates'])
 ```
 
 **Excluded from persistence:**
+
 - All async functions: `testConnection`, `enableServer`, etc.
 - Transient state: `loading`, `connectionStates`
 - Auto-injection reinitialized on rehydration
@@ -83,13 +98,17 @@ partialize: createAutoPartializer(['loading', 'connectionStates'])
 ### 3. Enhanced Error Handling
 
 #### Safe Storage Wrapper
+
 All storage operations now include:
+
 - Automatic serialization validation
 - Helpful error messages identifying the cause
 - Graceful degradation instead of app crashes
 
 #### Improved Rehydration
+
 Each store's `onRehydrateStorage` handler now:
+
 - Properly resets transient state
 - Rebuilds computed state (like chat hierarchy)
 - Reinitializes services (like auto-injection)
@@ -97,21 +116,25 @@ Each store's `onRehydrateStorage` handler now:
 ## Key Benefits
 
 ### ✅ **Backward Compatibility**
+
 - Existing user data is preserved
 - Stores continue to work exactly the same functionally
 - No breaking changes to the public API
 
 ### ✅ **Auto-Protection Against Future Issues**
+
 - New async functions are automatically excluded
 - No need to manually update exclusion lists
 - Prevents similar issues as the codebase evolves
 
 ### ✅ **Better Error Handling**
+
 - Clear error messages when serialization fails
 - Graceful degradation instead of crashes
 - Helpful debugging information
 
 ### ✅ **Performance Improvements**
+
 - Only necessary data is persisted
 - Smaller storage footprint
 - Faster serialization/deserialization
@@ -143,6 +166,7 @@ Each store's `onRehydrateStorage` handler now:
 ## Testing
 
 Created comprehensive test suite (`test-stores-fix.js`) that validates:
+
 - Auto-partializer correctly excludes functions
 - JSON serialization works properly
 - IndexedDB clone compatibility
@@ -153,11 +177,13 @@ Created comprehensive test suite (`test-stores-fix.js`) that validates:
 ## Migration Notes
 
 ### For Existing Users
+
 - **No action required** - the fix is transparent
 - Existing data will be preserved during the update
 - Transient state will be properly reset on first load
 
-### For Developers  
+### For Developers
+
 - When adding new async functions to stores, no manual exclusion needed
 - Use `createAutoPartializer()` for new stores
 - Consider `createInclusivePartializer()` for highly sensitive state
@@ -165,6 +191,7 @@ Created comprehensive test suite (`test-stores-fix.js`) that validates:
 ## Error Prevention
 
 The fix prevents these common serialization errors:
+
 - `DataCloneError: function could not be cloned`
 - `DataCloneError: symbol could not be cloned`
 - `TypeError: Converting circular structure to JSON`
@@ -173,12 +200,14 @@ The fix prevents these common serialization errors:
 ## Performance Impact
 
 **Positive Impact:**
+
 - 🚀 Smaller persisted state (functions excluded)
 - 🚀 Faster serialization (less data to process)
 - 🚀 Reduced IndexedDB storage usage
 - 🚀 No more serialization-related crashes
 
 **No Negative Impact:**
+
 - All functionality preserved
 - No performance regression
 - Same user experience

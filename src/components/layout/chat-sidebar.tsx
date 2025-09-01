@@ -22,10 +22,10 @@ interface ChatSidebarProps {
 function ChatSidebarInner({ className }: ChatSidebarProps) {
   const mounted = useMounted()
   const [isStoreReady, setIsStoreReady] = useState(false)
-  
+
   const chatStore = useChatStore()
   const settingsStore = useSettingsStore()
-  
+
   const {
     chats,
     createChat,
@@ -59,7 +59,7 @@ function ChatSidebarInner({ className }: ChatSidebarProps) {
   // Memoized hierarchy builder to prevent unnecessary re-renders
   const buildHierarchySafe = useCallback(() => {
     if (!mounted || !isStoreReady) return
-    
+
     try {
       buildChatHierarchy()
     } catch (error) {
@@ -73,14 +73,17 @@ function ChatSidebarInner({ className }: ChatSidebarProps) {
   }, [buildHierarchySafe, chats])
 
   // Get hierarchy with error handling
-  const chatHierarchy = mounted && isStoreReady ? (() => {
-    try {
-      return getChatHierarchy()
-    } catch (error) {
-      console.warn('Failed to get chat hierarchy:', error)
-      return null
-    }
-  })() : null
+  const chatHierarchy =
+    mounted && isStoreReady
+      ? (() => {
+          try {
+            return getChatHierarchy()
+          } catch (error) {
+            console.warn('Failed to get chat hierarchy:', error)
+            return null
+          }
+        })()
+      : null
 
   // Handle sidebar resizing
   useEffect(() => {

@@ -1,6 +1,13 @@
 'use client'
 
-import React, { createContext, useContext, useEffect, useState, useRef, useCallback } from 'react'
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+} from 'react'
 import { useSettingsStore } from '../../lib/stores/settings-store'
 import {
   applyThemeWithTransition,
@@ -27,12 +34,14 @@ function ThemeProviderInner({ children }: ThemeProviderProps) {
   const mounted = useMounted()
   const [isStoreReady, setIsStoreReady] = useState(false)
   const cleanupRef = useRef<(() => void) | null>(null)
-  
+
   // Get store values with error handling
   const settingsStore = useSettingsStore()
   const { settings, setTheme, toggleTheme, getEffectiveTheme } = settingsStore
-  
-  const [currentEffectiveTheme, setCurrentEffectiveTheme] = useState<'light' | 'dark'>(() => {
+
+  const [currentEffectiveTheme, setCurrentEffectiveTheme] = useState<
+    'light' | 'dark'
+  >(() => {
     // Only access getEffectiveTheme if mounted to prevent hydration issues
     if (typeof window === 'undefined') return 'light'
     return 'light'
@@ -136,7 +145,9 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
         <div className="min-h-screen bg-gray-50 transition-colors duration-200">
           <div className="flex items-center justify-center p-8">
             <div className="text-center">
-              <p className="mb-4 text-gray-600">Failed to load theme provider</p>
+              <p className="mb-4 text-gray-600">
+                Failed to load theme provider
+              </p>
               <button
                 onClick={retry}
                 className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"

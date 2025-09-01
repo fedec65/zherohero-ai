@@ -1440,7 +1440,7 @@ export const useModelStore = createWithEqualityFn<ModelStore>()(
               addCustomModel: false,
             }
             state.testResults = {}
-            
+
             // Clear any OpenRouter error states
             if (state.testResults && state.testResults['openrouter:error']) {
               delete state.testResults['openrouter:error']

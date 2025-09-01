@@ -46,22 +46,25 @@ function ChatItemInner({ chat, level = 0 }: ChatItemProps) {
   } = chatStore
 
   // Prevent multiple rapid actions
-  const performAction = useCallback(async (action: () => Promise<void> | void) => {
-    if (actionInProgressRef.current || !mounted) return
-    
-    actionInProgressRef.current = true
-    setIsUpdating(true)
-    
-    try {
-      await action()
-    } catch (error) {
-      console.warn('Chat item action failed:', error)
-    } finally {
-      actionInProgressRef.current = false
-      setIsUpdating(false)
-      setShowMenu(false)
-    }
-  }, [mounted])
+  const performAction = useCallback(
+    async (action: () => Promise<void> | void) => {
+      if (actionInProgressRef.current || !mounted) return
+
+      actionInProgressRef.current = true
+      setIsUpdating(true)
+
+      try {
+        await action()
+      } catch (error) {
+        console.warn('Chat item action failed:', error)
+      } finally {
+        actionInProgressRef.current = false
+        setIsUpdating(false)
+        setShowMenu(false)
+      }
+    },
+    [mounted]
+  )
 
   const handleChatClick = useCallback(() => {
     if (!mounted || isUpdating) return
@@ -72,32 +75,47 @@ function ChatItemInner({ chat, level = 0 }: ChatItemProps) {
     }
   }, [mounted, isUpdating, setActiveChat, chat.id])
 
-  const handlePinToggle = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation()
-    performAction(() => pinChat(chat.id))
-  }, [performAction, pinChat, chat.id])
+  const handlePinToggle = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation()
+      performAction(() => pinChat(chat.id))
+    },
+    [performAction, pinChat, chat.id]
+  )
 
-  const handleRename = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation()
-    performAction(() => openRenameDialog('chat', chat.id, chat.title))
-  }, [performAction, openRenameDialog, chat.id, chat.title])
+  const handleRename = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation()
+      performAction(() => openRenameDialog('chat', chat.id, chat.title))
+    },
+    [performAction, openRenameDialog, chat.id, chat.title]
+  )
 
-  const handleDuplicate = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation()
-    performAction(async () => {
-      await duplicateChat(chat.id)
-    })
-  }, [performAction, duplicateChat, chat.id])
+  const handleDuplicate = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation()
+      performAction(async () => {
+        await duplicateChat(chat.id)
+      })
+    },
+    [performAction, duplicateChat, chat.id]
+  )
 
-  const handleMove = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation()
-    performAction(() => openMoveDialog(chat.id))
-  }, [performAction, openMoveDialog, chat.id])
+  const handleMove = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation()
+      performAction(() => openMoveDialog(chat.id))
+    },
+    [performAction, openMoveDialog, chat.id]
+  )
 
-  const handleDelete = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation()
-    performAction(() => deleteChat(chat.id))
-  }, [performAction, deleteChat, chat.id])
+  const handleDelete = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation()
+      performAction(() => deleteChat(chat.id))
+    },
+    [performAction, deleteChat, chat.id]
+  )
 
   // Cleanup on unmount
   useEffect(() => {
@@ -128,7 +146,7 @@ function ChatItemInner({ chat, level = 0 }: ChatItemProps) {
           activeChat === chat.id
             ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300'
             : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800',
-          isUpdating && 'opacity-50 pointer-events-none'
+          isUpdating && 'pointer-events-none opacity-50'
         )}
         disabled={isUpdating}
       >

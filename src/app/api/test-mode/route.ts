@@ -25,18 +25,18 @@ const testData = {
           id: 'msg-1',
           role: 'user',
           content: 'Hello, this is a test message',
-          timestamp: '2024-01-01T12:00:00Z'
+          timestamp: '2024-01-01T12:00:00Z',
         },
         {
           id: 'msg-2',
           role: 'assistant',
           content: 'Hello! This is a mock response for testing.',
-          timestamp: '2024-01-01T12:00:01Z'
-        }
+          timestamp: '2024-01-01T12:00:01Z',
+        },
       ],
       createdAt: '2024-01-01T12:00:00Z',
-      updatedAt: '2024-01-01T12:00:01Z'
-    }
+      updatedAt: '2024-01-01T12:00:01Z',
+    },
   ],
   users: [
     {
@@ -46,43 +46,43 @@ const testData = {
       avatar: null,
       preferences: {
         theme: 'dark',
-        notifications: true
-      }
-    }
+        notifications: true,
+      },
+    },
   ],
   settings: {
     theme: 'system',
     sidebarWidth: 320,
     defaultProvider: 'openai',
-    defaultModel: 'gpt-4o'
+    defaultModel: 'gpt-4o',
   },
   providers: {
     openai: {
       initialized: true,
       hasApiKey: true,
       healthy: true,
-      status: 'healthy'
+      status: 'healthy',
     },
     anthropic: {
       initialized: true,
       hasApiKey: true,
       healthy: true,
-      status: 'healthy'
+      status: 'healthy',
     },
     gemini: {
       initialized: false,
       hasApiKey: false,
       healthy: false,
-      status: 'no_api_key'
-    }
-  }
+      status: 'no_api_key',
+    },
+  },
 }
 
 // GET - Check test mode status and get test data
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const dataType = searchParams.get('type')
-  
+
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
@@ -93,9 +93,9 @@ export async function GET(request: NextRequest) {
 
   if (!isTest) {
     return NextResponse.json(
-      { 
-        testMode: false, 
-        message: 'Test mode is only available in test environment' 
+      {
+        testMode: false,
+        message: 'Test mode is only available in test environment',
       },
       { status: 403, headers }
     )
@@ -107,7 +107,7 @@ export async function GET(request: NextRequest) {
       {
         testMode: true,
         dataType,
-        data: testData[dataType as keyof typeof testData]
+        data: testData[dataType as keyof typeof testData],
       },
       { headers }
     )
@@ -119,7 +119,7 @@ export async function GET(request: NextRequest) {
       testMode: true,
       environment: process.env.NODE_ENV,
       data: testData,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     },
     { headers }
   )
@@ -137,8 +137,8 @@ export async function POST(request: NextRequest) {
 
   if (!isTest) {
     return NextResponse.json(
-      { 
-        error: 'Test mode configuration is only available in test environment' 
+      {
+        error: 'Test mode configuration is only available in test environment',
       },
       { status: 403, headers }
     )
@@ -146,15 +146,15 @@ export async function POST(request: NextRequest) {
 
   try {
     const config = await request.json()
-    
+
     // In a real implementation, you might store test configuration
     // For now, we just acknowledge the configuration
-    
+
     return NextResponse.json(
       {
         message: 'Test mode configuration updated',
         config,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       },
       { headers }
     )
@@ -162,7 +162,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         error: 'Failed to update test mode configuration',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 400, headers }
     )
@@ -178,7 +178,7 @@ export async function OPTIONS() {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      }
+      },
     }
   )
 }

@@ -50,23 +50,23 @@ export async function GET(
           total,
           limit,
           offset,
-          hasMore: offset + limit < total
-        }
+          hasMore: offset + limit < total,
+        },
       },
       {
         headers: {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        }
+        },
       }
     )
   } catch (error) {
     console.error('Messages GET error:', error)
     return NextResponse.json(
-      { 
+      {
         error: 'Failed to retrieve messages',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     )
@@ -104,7 +104,7 @@ export async function POST(
       role: body.role,
       content: body.content,
       timestamp: new Date().toISOString(),
-      metadata: body.metadata
+      metadata: body.metadata,
     }
 
     // Initialize chat messages array if it doesn't exist
@@ -114,20 +114,20 @@ export async function POST(
 
     mockMessages[chatId].push(newMessage)
 
-    return NextResponse.json(newMessage, { 
+    return NextResponse.json(newMessage, {
       status: 201,
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      }
+      },
     })
   } catch (error) {
     console.error('Messages POST error:', error)
     return NextResponse.json(
       {
         error: 'Failed to create message',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 400 }
     )
@@ -141,7 +141,7 @@ export async function DELETE(
 ) {
   try {
     const chatId = params.id
-    
+
     if (mockMessages[chatId]) {
       mockMessages[chatId] = []
     }
@@ -153,7 +153,7 @@ export async function DELETE(
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        }
+        },
       }
     )
   } catch (error) {
@@ -161,7 +161,7 @@ export async function DELETE(
     return NextResponse.json(
       {
         error: 'Failed to clear messages',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     )
@@ -177,7 +177,7 @@ export async function OPTIONS() {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      }
+      },
     }
   )
 }

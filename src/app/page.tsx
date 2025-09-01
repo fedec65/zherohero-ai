@@ -6,7 +6,10 @@ import { PerformanceProvider } from '../components/performance/performance-provi
 
 // Lazy load the ChatContainer to reduce initial bundle size
 const ChatContainer = dynamic(
-  () => import('../components/chat/chat-container').then(mod => ({ default: mod.ChatContainer })),
+  () =>
+    import('../components/chat/chat-container').then((mod) => ({
+      default: mod.ChatContainer,
+    })),
   {
     loading: () => <LoadingSkeletons.Chat />,
     ssr: false, // Disable SSR for chat container to prevent hydration issues

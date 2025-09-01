@@ -110,7 +110,7 @@ export function useRenderPerformance(componentName: string) {
   useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
       const renderTime = performance.now() - renderStartRef.current
-      
+
       // Skip initial render timing as it includes mounting time
       if (!isInitialRender.current) {
         performanceMonitor.record(componentName, renderTime)
@@ -124,7 +124,7 @@ export function useRenderPerformance(componentName: string) {
     if (process.env.NODE_ENV === 'development') {
       const metrics = performanceMonitor.getMetrics(componentName)
       const avgTime = performanceMonitor.getAverageRenderTime(componentName)
-      
+
       return {
         totalRenders: metrics.length,
         averageRenderTime: avgTime,
@@ -180,7 +180,9 @@ export function useComponentLifecycle(componentName: string) {
 
       return () => {
         const lifetime = performance.now() - mountTimeRef.current
-        console.log(`[Lifecycle] ${componentName} unmounted (lifetime: ${lifetime.toFixed(2)}ms)`)
+        console.log(
+          `[Lifecycle] ${componentName} unmounted (lifetime: ${lifetime.toFixed(2)}ms)`
+        )
       }
     }
   }, [componentName])
@@ -245,7 +247,9 @@ export function analyzeBundleSize() {
     return size
   }, 0)
 
-  console.log(`[Bundle Analysis] Estimated total bundle size: ${(totalSize / 1024).toFixed(2)}KB`)
+  console.log(
+    `[Bundle Analysis] Estimated total bundle size: ${(totalSize / 1024).toFixed(2)}KB`
+  )
 }
 
 /**
@@ -253,13 +257,18 @@ export function analyzeBundleSize() {
  */
 export function useTrackMemoryUsage(componentName: string) {
   useEffect(() => {
-    if (process.env.NODE_ENV !== 'development' || typeof window === 'undefined') {
+    if (
+      process.env.NODE_ENV !== 'development' ||
+      typeof window === 'undefined'
+    ) {
       return
     }
 
     if ('memory' in performance) {
       const memory = (performance as any).memory
-      console.log(`[Memory] ${componentName} - Used: ${(memory.usedJSHeapSize / 1024 / 1024).toFixed(2)}MB`)
+      console.log(
+        `[Memory] ${componentName} - Used: ${(memory.usedJSHeapSize / 1024 / 1024).toFixed(2)}MB`
+      )
     }
   }, [componentName])
 }
@@ -274,6 +283,8 @@ export function trackMemoryUsage(componentName: string) {
 
   if ('memory' in performance) {
     const memory = (performance as any).memory
-    console.log(`[Memory] ${componentName} - Used: ${(memory.usedJSHeapSize / 1024 / 1024).toFixed(2)}MB`)
+    console.log(
+      `[Memory] ${componentName} - Used: ${(memory.usedJSHeapSize / 1024 / 1024).toFixed(2)}MB`
+    )
   }
 }

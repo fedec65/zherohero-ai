@@ -1032,7 +1032,7 @@ export const useMCPStore = createWithEqualityFn<MCPStore>()(
               removeServer: false,
             }
             state.connectionStates = {}
-            
+
             // Initialize connection states for servers
             ;[...state.builtInServers, ...state.customServers].forEach(
               (server) => {
@@ -1043,7 +1043,7 @@ export const useMCPStore = createWithEqualityFn<MCPStore>()(
                 }
               }
             )
-            
+
             // Auto-injection will be handled automatically when servers are registered
           }
         },

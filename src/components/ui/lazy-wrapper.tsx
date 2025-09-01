@@ -59,7 +59,7 @@ export function createLazyComponent<P extends object>(
   }
 ) {
   const LazyComponent = React.lazy(importFn)
-  
+
   const WrappedComponent = (props: P) => (
     <LazyWrapper
       fallback={options?.fallback}
@@ -68,11 +68,11 @@ export function createLazyComponent<P extends object>(
       <LazyComponent {...(props as any)} />
     </LazyWrapper>
   )
-  
+
   if (options?.displayName) {
     WrappedComponent.displayName = options.displayName
   }
-  
+
   return WrappedComponent
 }
 

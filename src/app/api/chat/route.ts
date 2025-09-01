@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
 
     // Get specific chat
     if (chatId) {
-      const chat = mockChats.find(c => c.id === chatId)
+      const chat = mockChats.find((c) => c.id === chatId)
       if (!chat) {
         return NextResponse.json(
           { error: 'Chat not found' },
@@ -73,11 +73,12 @@ export async function GET(request: NextRequest) {
     // Apply search filter
     if (search) {
       const searchLower = search.toLowerCase()
-      filteredChats = mockChats.filter(chat => 
-        chat.title.toLowerCase().includes(searchLower) ||
-        chat.messages.some((msg: any) => 
-          msg.content.toLowerCase().includes(searchLower)
-        )
+      filteredChats = mockChats.filter(
+        (chat) =>
+          chat.title.toLowerCase().includes(searchLower) ||
+          chat.messages.some((msg: any) =>
+            msg.content.toLowerCase().includes(searchLower)
+          )
       )
     }
 
@@ -85,7 +86,10 @@ export async function GET(request: NextRequest) {
     const total = filteredChats.length
     const paginatedChats = filteredChats
       .slice(offset, offset + limit)
-      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+      .sort(
+        (a, b) =>
+          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+      )
 
     return NextResponse.json(
       {
@@ -94,17 +98,17 @@ export async function GET(request: NextRequest) {
           total,
           limit,
           offset,
-          hasMore: offset + limit < total
-        }
+          hasMore: offset + limit < total,
+        },
       },
       { headers }
     )
   } catch (error) {
     console.error('Chat GET error:', error)
     return NextResponse.json(
-      { 
+      {
         error: 'Failed to retrieve chats',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     )
@@ -115,7 +119,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body: CreateChatRequest = await request.json()
-    
+
     const now = new Date().toISOString()
     const newChat: Chat = {
       id: (nextId++).toString(),
@@ -125,25 +129,25 @@ export async function POST(request: NextRequest) {
       updatedAt: now,
       provider: body.provider || 'openai',
       model: body.model || 'gpt-4o',
-      isIncognito: body.isIncognito || false
+      isIncognito: body.isIncognito || false,
     }
 
     mockChats.push(newChat)
 
-    return NextResponse.json(newChat, { 
+    return NextResponse.json(newChat, {
       status: 201,
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      }
+      },
     })
   } catch (error) {
     console.error('Chat POST error:', error)
     return NextResponse.json(
       {
         error: 'Failed to create chat',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 400 }
     )
@@ -155,7 +159,7 @@ export async function PUT(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const chatId = searchParams.get('id')
-    
+
     if (!chatId) {
       return NextResponse.json(
         { error: 'Chat ID is required' },
@@ -164,22 +168,19 @@ export async function PUT(request: NextRequest) {
     }
 
     const body: UpdateChatRequest = await request.json()
-    const chatIndex = mockChats.findIndex(c => c.id === chatId)
-    
+    const chatIndex = mockChats.findIndex((c) => c.id === chatId)
+
     if (chatIndex === -1) {
-      return NextResponse.json(
-        { error: 'Chat not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Chat not found' }, { status: 404 })
     }
 
     // Update chat
     const updatedChat = {
       ...mockChats[chatIndex],
       ...body,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     }
-    
+
     mockChats[chatIndex] = updatedChat
 
     return NextResponse.json(updatedChat, {
@@ -187,14 +188,14 @@ export async function PUT(request: NextRequest) {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      }
+      },
     })
   } catch (error) {
     console.error('Chat PUT error:', error)
     return NextResponse.json(
       {
         error: 'Failed to update chat',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 400 }
     )
@@ -206,7 +207,7 @@ export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const chatId = searchParams.get('id')
-    
+
     if (!chatId) {
       return NextResponse.json(
         { error: 'Chat ID is required' },
@@ -214,13 +215,10 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    const chatIndex = mockChats.findIndex(c => c.id === chatId)
-    
+    const chatIndex = mockChats.findIndex((c) => c.id === chatId)
+
     if (chatIndex === -1) {
-      return NextResponse.json(
-        { error: 'Chat not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Chat not found' }, { status: 404 })
     }
 
     // Remove chat
@@ -233,7 +231,7 @@ export async function DELETE(request: NextRequest) {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        }
+        },
       }
     )
   } catch (error) {
@@ -241,7 +239,7 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json(
       {
         error: 'Failed to delete chat',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     )
@@ -257,7 +255,7 @@ export async function OPTIONS() {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      }
+      },
     }
   )
 }

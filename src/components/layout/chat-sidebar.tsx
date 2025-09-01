@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useRef, useEffect, useCallback } from 'react'
-import { Search, Filter, Star, MessageSquare, Plus, Folder, Settings } from 'lucide-react'
+import { Search, Filter, Star, MessageSquare, Plus, Folder, Settings, Sparkles } from 'lucide-react'
 import { Button } from '../ui/button'
 import { EnhancedSearch } from '../chat/enhanced-search'
 import { ChatHierarchyView } from '../chat/chat-hierarchy-view'
@@ -222,46 +222,50 @@ function ChatSidebarInner({ className }: ChatSidebarProps) {
             />
           </div>
 
-          {/* New Chat Button with Overlaid Corner Icons */}
-          <div className="relative">
+          {/* New Chat Button Layout */}
+          <div className="space-y-2">
             {/* Main New Chat Button */}
             <Button
               onClick={handleNewChat}
-              className="w-full relative bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-all duration-200 pr-12"
+              className="w-full bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-all duration-200 flex items-center justify-center gap-2 py-2.5"
             >
-              <MessageSquare className="mr-2 h-4 w-4 flex-shrink-0" />
-              <span className="flex-1 text-left">New Chat</span>
+              <Plus className="h-4 w-4 flex-shrink-0" />
+              <span className="font-medium">New Chat</span>
+              <Sparkles className="h-4 w-4 flex-shrink-0" />
             </Button>
             
-            {/* Folder Icon - Bottom Left Corner */}
-            <Tooltip content="Create Folder">
-              <button
-                onClick={handleOpenFolderDialog}
-                className="absolute bottom-1 left-1 p-1 rounded bg-blue-500 hover:bg-blue-400 transition-colors"
-                aria-label="Create new folder"
-              >
-                <Folder className="h-3 w-3 text-white" />
-              </button>
-            </Tooltip>
-            
-            {/* Sort/Filter Icon - Bottom Right Corner */}
-            <Tooltip content="Sort & Filter">
-              <button
-                onClick={handleToggleSortDropdown}
-                className="absolute bottom-1 right-1 p-1 rounded bg-blue-500 hover:bg-blue-400 transition-colors"
-                aria-label="Sort and filter options"
-              >
-                <Filter className="h-3 w-3 text-white" />
-              </button>
-            </Tooltip>
-            
-            {/* Sort Dropdown */}
-            {showSortDropdown && (
-              <SortDropdown 
-                className="absolute top-0 right-0" 
-                onClose={() => setShowSortDropdown(false)}
-              />
-            )}
+            {/* Secondary Action Buttons */}
+            <div className="flex items-center justify-between gap-2 relative">
+              {/* Create Folder Button */}
+              <Tooltip content="Create Folder">
+                <button
+                  onClick={handleOpenFolderDialog}
+                  className="flex items-center justify-center w-8 h-8 rounded-md bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                  aria-label="Create new folder"
+                >
+                  <Folder className="h-4 w-4 text-gray-600 dark:text-gray-300" />
+                </button>
+              </Tooltip>
+              
+              {/* Sort/Filter Button */}
+              <Tooltip content="Sort & Filter">
+                <button
+                  onClick={handleToggleSortDropdown}
+                  className="flex items-center justify-center w-8 h-8 rounded-md bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                  aria-label="Sort and filter options"
+                >
+                  <Filter className="h-4 w-4 text-gray-600 dark:text-gray-300" />
+                </button>
+              </Tooltip>
+              
+              {/* Sort Dropdown */}
+              {showSortDropdown && (
+                <SortDropdown 
+                  className="absolute top-10 right-0 z-10" 
+                  onClose={() => setShowSortDropdown(false)}
+                />
+              )}
+            </div>
           </div>
         </div>
 

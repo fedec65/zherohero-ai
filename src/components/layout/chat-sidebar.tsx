@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useRef, useEffect, useCallback } from 'react'
-import { Search, Plus, FolderPlus, Filter, Star } from 'lucide-react'
+import { Search, Filter, Star, MessageSquare, Plus } from 'lucide-react'
 import { Button } from '../ui/button'
 import { EnhancedSearch } from '../chat/enhanced-search'
 import { ChatHierarchyView } from '../chat/chat-hierarchy-view'
@@ -35,7 +35,6 @@ function ChatSidebarInner({ className }: ChatSidebarProps) {
     setSearchFilters,
     getSearchSuggestions,
     selectSearchResult,
-    openCreateFolderDialog,
     getChatHierarchy,
     buildChatHierarchy,
   } = chatStore
@@ -129,14 +128,6 @@ function ChatSidebarInner({ className }: ChatSidebarProps) {
     }
   }, [mounted, isStoreReady, createChat])
 
-  const handleNewFolder = useCallback(() => {
-    if (!mounted || !isStoreReady) return
-    try {
-      openCreateFolderDialog()
-    } catch (error) {
-      console.warn('Failed to open create folder dialog:', error)
-    }
-  }, [mounted, isStoreReady, openCreateFolderDialog])
 
   // Show loading skeleton during hydration
   if (!mounted || !isStoreReady) {
@@ -152,7 +143,10 @@ function ChatSidebarInner({ className }: ChatSidebarProps) {
           <div className="mb-3">
             <div className="h-9 w-full animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
           </div>
-          <div className="h-9 w-full animate-pulse rounded bg-blue-100 dark:bg-blue-900" />
+          <div className="flex items-center gap-2">
+            <div className="h-9 flex-1 animate-pulse rounded bg-blue-100 dark:bg-blue-900" />
+            <div className="h-9 w-12 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+          </div>
         </div>
         <div className="flex-1 p-4">
           <div className="space-y-2">
@@ -198,37 +192,26 @@ function ChatSidebarInner({ className }: ChatSidebarProps) {
             />
           </div>
 
-          {/* Primary Action Button */}
+          {/* New Chat Actions - Horizontal Layout */}
           <div className="flex items-center gap-2">
+            {/* Primary New Chat Button */}
             <Tooltip content="New Chat">
               <Button
                 onClick={handleNewChat}
-                className="min-w-0 flex-1 whitespace-nowrap bg-blue-600 text-white hover:bg-blue-700"
+                className="flex-1 min-w-0 whitespace-nowrap bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-all duration-200"
               >
-                <Plus className="mr-2 h-4 w-4 flex-shrink-0" />
+                <MessageSquare className="mr-2 h-4 w-4 flex-shrink-0" />
                 <span className="whitespace-nowrap">New Chat</span>
               </Button>
             </Tooltip>
-          </div>
-
-          {/* Secondary buttons */}
-          <div className="mt-2 flex items-center gap-2">
-            <Tooltip content="New Folder">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleNewFolder}
-                className="group relative flex-1 overflow-hidden border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100 font-medium transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-indigo-200 hover:from-indigo-50 hover:to-purple-50 hover:shadow-lg dark:border-gray-600 dark:from-gray-800 dark:to-gray-700 dark:hover:border-indigo-700 dark:hover:from-indigo-900/20 dark:hover:to-purple-900/20"
-              >
-                <FolderPlus className="mr-2 h-4 w-4 flex-shrink-0 transition-all duration-300 group-hover:scale-110 group-hover:text-indigo-600 dark:group-hover:text-indigo-400" />
-                <span className="transition-colors duration-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
-                  Folder
-                </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-              </Button>
-            </Tooltip>
+            
+            {/* Secondary Filter/Folder Button */}
             <Tooltip content="Filter & Sort">
-              <Button variant="outline" size="sm">
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="px-3 border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-800 transition-all duration-200"
+              >
                 <Filter className="h-4 w-4" />
               </Button>
             </Tooltip>

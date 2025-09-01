@@ -1,7 +1,8 @@
-import { test, expect } from '@playwright/test'
+import { test, expect, helpers } from './setup'
 
 test.describe('MCP Servers Page', () => {
   test.beforeEach(async ({ page }) => {
+    await helpers.setupTestEnvironment(page)
     await page.goto('/mcp-servers')
   })
 
@@ -27,10 +28,8 @@ test.describe('MCP Servers Page', () => {
   })
 
   test('should display Tavily Search server', async ({ page }) => {
-    // Wait for server cards to load
-    await page.waitForSelector('[data-testid="mcp-server-card"]', {
-      timeout: 5000,
-    })
+    // Wait for server cards to load with optimized timeout
+    await helpers.waitForElement(page, '[data-testid="mcp-server-card"]', 3000)
 
     // Check for Tavily Search server
     await expect(page.locator('text=Tavily Search')).toBeVisible()
@@ -38,10 +37,8 @@ test.describe('MCP Servers Page', () => {
   })
 
   test('should show server status indicators', async ({ page }) => {
-    // Wait for server cards to load
-    await page.waitForSelector('[data-testid="mcp-server-card"]', {
-      timeout: 5000,
-    })
+    // Wait for server cards to load with optimized timeout
+    await helpers.waitForElement(page, '[data-testid="mcp-server-card"]', 3000)
 
     const serverCard = page.locator('[data-testid="mcp-server-card"]').first()
 
@@ -55,8 +52,8 @@ test.describe('MCP Servers Page', () => {
     // Click on Custom Servers tab
     await page.getByRole('button', { name: 'Custom Servers' }).click()
 
-    // Wait for tab content to change
-    await page.waitForTimeout(500)
+    // Minimal wait for tab content to change
+    await page.waitForTimeout(100)
 
     // Should show empty state or custom servers content
     await expect(page.locator('text=No custom servers')).toBeVisible()

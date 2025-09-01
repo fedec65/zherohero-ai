@@ -8,12 +8,12 @@ export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: !process.env.CI,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 3 : 0, // Increased retries for flaky CI
-  workers: process.env.CI ? 2 : undefined, // Increase workers for better parallelization
-  timeout: process.env.CI ? 60 * 1000 : 30 * 1000, // 60s in CI for complex operations
-  globalTimeout: process.env.CI ? 10 * 60 * 1000 : 5 * 60 * 1000, // 10min CI, 5min local
+  retries: process.env.CI ? 1 : 0, // Reduced retries from 3 to 1
+  workers: process.env.CI ? 1 : undefined, // Reduced from 2 to 1 worker for stability
+  timeout: process.env.CI ? 30 * 1000 : 15 * 1000, // Reduced from 60s to 30s
+  globalTimeout: process.env.CI ? 5 * 60 * 1000 : 3 * 60 * 1000, // Reduced from 10min to 5min
   expect: {
-    timeout: process.env.CI ? 15 * 1000 : 10 * 1000, // Increased for slow CI
+    timeout: process.env.CI ? 10 * 1000 : 5 * 1000, // Reduced from 15s to 10s
   },
   reporter: process.env.CI
     ? [
@@ -29,8 +29,8 @@ export default defineConfig({
     trace: process.env.CI ? 'retain-on-failure' : 'on-first-retry',
     screenshot: 'only-on-failure',
     video: process.env.CI ? 'retain-on-failure' : 'off',
-    actionTimeout: process.env.CI ? 20 * 1000 : 10 * 1000, // Increased for slow operations
-    navigationTimeout: process.env.CI ? 60 * 1000 : 30 * 1000, // Increased for app startup
+    actionTimeout: process.env.CI ? 15 * 1000 : 8 * 1000, // Reduced from 20s to 15s
+    navigationTimeout: process.env.CI ? 30 * 1000 : 15 * 1000, // Reduced from 60s to 30s
     // Add browser context optimizations
     ignoreHTTPSErrors: true,
     // Reduce resource usage in CI
@@ -80,6 +80,6 @@ export default defineConfig({
         command: 'npm run build && npm start',
         url: 'http://localhost:3000',
         reuseExistingServer: true,
-        timeout: 120 * 1000,
+        timeout: 60 * 1000, // Reduced from 120s to 60s
       },
 })

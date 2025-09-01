@@ -1,7 +1,8 @@
-import { test, expect } from '@playwright/test'
+import { test, expect, helpers } from './setup'
 
 test.describe('Models Page', () => {
   test.beforeEach(async ({ page }) => {
+    await helpers.setupTestEnvironment(page)
     await page.goto('/models')
   })
 
@@ -31,10 +32,8 @@ test.describe('Models Page', () => {
   })
 
   test('should display model cards', async ({ page }) => {
-    // Wait for model cards to load
-    await page.waitForSelector('[data-testid="model-card"]', {
-      timeout: 10000,
-    })
+    // Wait for model cards to load with reduced timeout
+    await helpers.waitForElement(page, '[data-testid="model-card"]', 3000)
 
     // Check that model cards are displayed
     const modelCards = page.locator('[data-testid="model-card"]')
@@ -46,10 +45,8 @@ test.describe('Models Page', () => {
   })
 
   test('should show model details', async ({ page }) => {
-    // Wait for model cards to load
-    await page.waitForSelector('[data-testid="model-card"]', {
-      timeout: 10000,
-    })
+    // Wait for model cards to load with reduced timeout
+    await helpers.waitForElement(page, '[data-testid="model-card"]', 3000)
 
     const firstModelCard = page.locator('[data-testid="model-card"]').first()
 
@@ -69,8 +66,8 @@ test.describe('Models Page', () => {
     // Click on Custom Models tab
     await page.getByRole('button', { name: 'Custom Models' }).click()
 
-    // Wait for tab content to change
-    await page.waitForTimeout(500)
+    // Minimal wait for tab content to change
+    await page.waitForTimeout(100)
 
     // Should show empty state or custom models content
     await expect(page.locator('text=No custom models')).toBeVisible()

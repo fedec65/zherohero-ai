@@ -16,7 +16,7 @@ import {
   Patch,
 } from './types'
 import {
-  createStorage,
+  createEnhancedStorage,
   createAutoPartializer,
   PersistOptions,
 } from './middleware/persistence'
@@ -1427,9 +1427,31 @@ export const useModelStore = createWithEqualityFn<ModelStore>()(
       })),
       {
         name: 'minddeck-model-store',
-        storage: createStorage('localStorage'),
+        storage: createEnhancedStorage('localStorage'),
         version: 1,
-        partialize: createAutoPartializer(['loading', 'testResults']),
+        partialize: createAutoPartializer([
+          'loading', 
+          'testResults',
+          'setSelectedModel',
+          'updateModelConfig',
+          'resetModelConfig',
+          'addCustomModel',
+          'updateCustomModel',
+          'deleteCustomModel',
+          'testModel',
+          'fetchModels',
+          'getModelsByProvider',
+          'getAllModels',
+          'getModelConfig',
+          'isModelAvailable',
+          'searchModels',
+          'fetchOpenRouterModels',
+          'refreshOpenRouterModels',
+          'getOpenRouterProviders',
+          'setOpenRouterSettings',
+          'testOpenRouterConnection',
+          'getFilteredModels',
+        ]),
         onRehydrateStorage: () => (state) => {
           // Reset transient state after rehydration
           if (state) {

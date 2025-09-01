@@ -110,3 +110,16 @@ temp/
 
 # Sentry
 .sentryclirc
+# Test Results
+test-results/
+playwright-report/
+*.png
+*.md
+!README.md
+!*.config.md
+!CLAUDE.md
+!E2E_TEST_OPTIMIZATIONS.md
+!SERIALIZATION_FIXES.md
+!INDEXEDDB-SERIALIZATION-FIX.md
+!REACT_PERFORMANCE_FIXES.md
+

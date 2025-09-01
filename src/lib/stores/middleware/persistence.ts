@@ -2,7 +2,7 @@
  * Persistence middleware for Zustand stores with multiple storage backends
  */
 
-import { StateStorage } from 'zustand/middleware'
+import { StateStorage, PersistStorage } from 'zustand/middleware'
 import { StorageConfig } from '../types'
 
 // IndexedDB adapter for large data
@@ -120,6 +120,45 @@ class IndexedDBStorage implements StateStorage {
   }
 }
 
+// Enhanced storage factory with serialization support
+export function createEnhancedStorage(type: StorageConfig['storage']): any {
+  const baseStorage = createStorage(type)
+  
+  return {
+    getItem: async (name: string) => {
+      try {
+        const result = await baseStorage.getItem(name)
+        if (result === null) return null
+        
+        // The result should be a JSON string, deserialize it with Date handling
+        return stateSerializer.deserialize(result)
+      } catch (error) {
+        console.warn(`Failed to get/deserialize item '${name}':`, error)
+        return null
+      }
+    },
+    
+    setItem: async (name: string, value: string) => {
+      try {
+        // Zustand passes the stringified state, but we need to enhance it with Date serialization
+        // First parse the JSON to get the object
+        const parsedValue = JSON.parse(value)
+        
+        // Then re-serialize it with our enhanced Date serialization
+        const enhancedValue = stateSerializer.serialize(parsedValue)
+        
+        return await baseStorage.setItem(name, enhancedValue)
+      } catch (error) {
+        console.error(`Failed to serialize/store item '${name}':`, error)
+        console.error(`Value that failed: ${value.substring(0, 200)}...`)
+        throw error
+      }
+    },
+    
+    removeItem: baseStorage.removeItem,
+  } as StateStorage
+}
+
 // Storage factory
 export function createStorage(type: StorageConfig['storage']): StateStorage {
   let baseStorage: StateStorage
@@ -170,6 +209,111 @@ export interface PersistOptions<T> extends StorageConfig {
   onFinishHydration?: (state: T) => void
   partialize?: (state: T) => Partial<T>
   skipHydration?: boolean
+}
+
+// Date serialization utilities
+export const dateSerializer = {
+  serialize: (obj: any): any => {
+    if (obj === null || obj === undefined) {
+      return obj
+    }
+
+    if (obj instanceof Date) {
+      return {
+        __type: 'Date',
+        __value: obj.toISOString(),
+      }
+    }
+
+    if (Array.isArray(obj)) {
+      return obj.map((item) => dateSerializer.serialize(item))
+    }
+
+    if (typeof obj === 'object') {
+      const serialized: any = {}
+      for (const [key, value] of Object.entries(obj)) {
+        serialized[key] = dateSerializer.serialize(value)
+      }
+      return serialized
+    }
+
+    return obj
+  },
+
+  deserialize: (obj: any): any => {
+    if (obj === null || obj === undefined) {
+      return obj
+    }
+
+    // Handle Date objects marked with __type: 'Date'
+    if (
+      typeof obj === 'object' &&
+      obj.__type === 'Date' &&
+      typeof obj.__value === 'string'
+    ) {
+      return new Date(obj.__value)
+    }
+
+    if (Array.isArray(obj)) {
+      return obj.map((item) => dateSerializer.deserialize(item))
+    }
+
+    if (typeof obj === 'object') {
+      const deserialized: any = {}
+      for (const [key, value] of Object.entries(obj)) {
+        deserialized[key] = dateSerializer.deserialize(value)
+      }
+      return deserialized
+    }
+
+    return obj
+  },
+}
+
+// Enhanced serialization utilities for state persistence
+export const stateSerializer = {
+  serialize: (state: any): string => {
+    try {
+      // First, serialize Date objects to a special format
+      const dateSerializedState = dateSerializer.serialize(state)
+      
+      // Then convert to JSON string
+      const result = JSON.stringify(dateSerializedState)
+      
+      // Validation check to prevent "[object Object]" issues
+      if (result === '"[object Object]"' || result === '[object Object]') {
+        console.error('Serialization produced "[object Object]" string')
+        console.error('Original state:', state)
+        throw new Error('State serialization failed - produced "[object Object]" string')
+      }
+      
+      return result
+    } catch (error) {
+      console.error('State serialization error:', error)
+      console.error('State that failed to serialize:', state)
+      throw error
+    }
+  },
+
+  deserialize: (str: string): any => {
+    try {
+      // Check for the problematic "[object Object]" string
+      if (str === '[object Object]' || str === '"[object Object]"') {
+        console.warn('Encountered "[object Object]" string during deserialization, returning empty object')
+        return {}
+      }
+      
+      // Parse JSON first
+      const parsed = JSON.parse(str)
+      
+      // Then deserialize Date objects
+      return dateSerializer.deserialize(parsed)
+    } catch (error) {
+      console.error('State deserialization error:', error)
+      console.error('String that failed to deserialize:', str.substring(0, 200) + '...')
+      throw error
+    }
+  },
 }
 
 // Compression utilities for large datasets
@@ -248,53 +392,93 @@ export function createAutoPartializer<T>(
     ][]) {
       // Skip functions (including async functions)
       if (typeof value === 'function') {
+        console.log(`Excluding function property: ${String(key)}`)
         continue
       }
 
       // Skip symbols
       if (typeof value === 'symbol') {
+        console.log(`Excluding symbol property: ${String(key)}`)
         continue
       }
 
       // Skip undefined values
       if (value === undefined) {
+        console.log(`Excluding undefined property: ${String(key)}`)
         continue
       }
 
       // Skip additional excluded keys
       if (additionalExcludes.includes(key)) {
+        console.log(`Excluding additional property: ${String(key)}`)
         continue
       }
 
-      // Only include serializable values
+      // Handle special cases
       try {
-        // Test if the value can be JSON serialized and preserve Date objects properly
-        const serialized = JSON.stringify(value)
-        if (serialized === undefined) {
+        // Date objects are fine - they'll be handled by the date serializer
+        if (value instanceof Date) {
+          result[key] = value
           continue
         }
 
-        // Additional check for complex objects that might contain non-serializable nested values
-        if (
-          typeof value === 'object' &&
-          value !== null &&
-          !Array.isArray(value) &&
-          !(value instanceof Date)
-        ) {
-          // For plain objects, recursively check serialization
-          JSON.parse(serialized)
+        // Arrays are generally fine if their contents are serializable
+        if (Array.isArray(value)) {
+          // Test serialization of the array
+          const testSerialized = stateSerializer.serialize(value)
+          if (testSerialized && testSerialized !== '"[object Object]"' && testSerialized !== '[object Object]') {
+            result[key] = value
+            continue
+          } else {
+            console.warn(`Excluding non-serializable array property: ${String(key)}`)
+            continue
+          }
         }
 
+        // For primitive types, include them directly
+        if (
+          typeof value === 'string' ||
+          typeof value === 'number' ||
+          typeof value === 'boolean' ||
+          value === null
+        ) {
+          result[key] = value
+          continue
+        }
+
+        // For objects, test basic JSON serialization to catch edge cases
+        if (typeof value === 'object' && value !== null) {
+          try {
+            const testSerialized = JSON.stringify(value)
+            
+            // Check if serialization produced the problematic "[object Object]" string
+            if (testSerialized === '"[object Object]"' || testSerialized === '[object Object]') {
+              console.warn(`Excluding property that serializes to "[object Object]": ${String(key)}`, value)
+              continue
+            }
+
+            // Basic validation that it can be parsed back
+            JSON.parse(testSerialized)
+            result[key] = value
+            continue
+          } catch (testError) {
+            console.warn(`Excluding property that failed serialization test: ${String(key)}`, testError)
+            continue
+          }
+        }
+
+        // If we get here, it's probably safe to include
         result[key] = value
       } catch (error) {
         // Skip values that can't be serialized
         console.warn(
-          `Skipping non-serializable property: ${String(key)}`,
-          error
+          `Skipping non-serializable property: ${String(key)} - Error: ${error instanceof Error ? error.message : String(error)}`,
+          { value, error }
         )
       }
     }
 
+    console.log(`Auto-partializer processed ${Object.keys(state || {}).length} properties, included ${Object.keys(result).length}`)
     return result
   }
 }
@@ -367,11 +551,36 @@ export function createSafeStorage(storage: StateStorage): StateStorage {
 
     setItem: async (name: string, value: string) => {
       try {
-        // Validate that the value can be parsed as JSON
-        JSON.parse(value)
+        // Add detailed logging to catch serialization issues
+        if (typeof value !== 'string') {
+          console.error(`Invalid value type for storage. Expected string, got:`, typeof value, value)
+          throw new Error(`Storage value must be a string, got ${typeof value}`)
+        }
+
+        // Check if the value is the problematic "[object Object]" string
+        if (value === '[object Object]') {
+          console.error('Attempting to store "[object Object]" string - this indicates a serialization bug')
+          console.error('Stack trace:', new Error().stack)
+          throw new Error('Cannot store "[object Object]" - object was not properly serialized')
+        }
+
+        // Basic JSON validation without double-parsing
+        // (Zustand already handles JSON serialization, we just validate format)
+        if (value.length > 0 && (value[0] === '{' || value[0] === '[')) {
+          try {
+            JSON.parse(value)
+          } catch (parseError) {
+            console.error(`Invalid JSON format for storage item '${name}':`, value.substring(0, 200) + '...')
+            throw new Error(`Invalid JSON format: ${parseError}`)
+          }
+        }
+
         await storage.setItem(name, value)
       } catch (error) {
         console.error(`Failed to set item '${name}' to storage:`, error)
+        console.error(`Value type: ${typeof value}`)
+        console.error(`Value preview: ${String(value).substring(0, 200)}...`)
+        
         if (
           error instanceof Error &&
           error.message.includes('could not be cloned')

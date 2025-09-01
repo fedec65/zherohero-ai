@@ -23,7 +23,7 @@ import {
   FolderNode,
 } from './types'
 import {
-  createStorage,
+  createEnhancedStorage,
   createAutoPartializer,
   PersistOptions,
 } from './middleware/persistence'
@@ -1132,23 +1132,107 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
       })),
       {
         name: 'minddeck-chat-store',
-        storage: createStorage('indexedDB'),
+        storage: createEnhancedStorage('indexedDB'),
         version: 1,
         partialize: createAutoPartializer([
           'loading',
           'streamingMessage',
           'buildChatHierarchy',
           'getChatHierarchy',
+          'createChat',
+          'deleteChat',
+          'updateChat',
+          'duplicateChat',
+          'starChat',
+          'moveToFolder',
+          'sendMessage',
+          'editMessage',
+          'deleteMessage',
+          'regenerateMessage',
+          'startStreamingMessage',
+          'updateStreamingContent',
+          'finishStreamingMessage',
+          'cancelStreaming',
+          'setActiveChat',
+          'setSearchQuery',
+          'createFolder',
+          'updateFolder',
+          'deleteFolder',
+          'toggleFolder',
+          'pinChat',
+          'renameChat',
+          'moveChat',
+          'openCreateFolderDialog',
+          'closeCreateFolderDialog',
+          'openMoveDialog',
+          'closeMoveDialog',
+          'openRenameDialog',
+          'closeRenameDialog',
+          'getChatHierarchy',
+          'deleteMultipleChats',
+          'exportChats',
+          'importChats',
+          'searchChats',
+          'getRecentChats',
+          'getStarredChats',
+          'getChatsByFolder',
+          'performSearch',
+          'clearSearch',
+          'setSearchFilters',
+          'getFilteredChats',
+          'addToSearchHistory',
+          'getSearchSuggestions',
+          'selectSearchResult',
+          'getChatTitle',
+          'getChatMessageCount',
+          'getLastMessage',
+          'clearAllChats',
+          'archiveOldChats',
+          'sendAIMessage',
         ]),
         onRehydrateStorage: () => (state) => {
           // Reset transient state after rehydration
           if (state) {
+            console.log('Rehydrating chat store state...')
+            
             state.loading = {
               sendMessage: false,
               deleteChat: false,
               createChat: false,
             }
             state.streamingMessage = null
+
+            // Validate rehydrated dates
+            try {
+              Object.values(state.chats || {}).forEach((chat: any) => {
+                if (chat.createdAt && !(chat.createdAt instanceof Date)) {
+                  console.warn('Chat createdAt is not a Date object after rehydration:', chat.id, chat.createdAt)
+                }
+                if (chat.updatedAt && !(chat.updatedAt instanceof Date)) {
+                  console.warn('Chat updatedAt is not a Date object after rehydration:', chat.id, chat.updatedAt)
+                }
+                if (chat.lastMessageAt && !(chat.lastMessageAt instanceof Date)) {
+                  console.warn('Chat lastMessageAt is not a Date object after rehydration:', chat.id, chat.lastMessageAt)
+                }
+              })
+
+              Object.values(state.messages || {}).forEach((chatMessages: any) => {
+                if (Array.isArray(chatMessages)) {
+                  chatMessages.forEach((message: any) => {
+                    if (message.createdAt && !(message.createdAt instanceof Date)) {
+                      console.warn('Message createdAt is not a Date object after rehydration:', message.id, message.createdAt)
+                    }
+                    if (message.updatedAt && !(message.updatedAt instanceof Date)) {
+                      console.warn('Message updatedAt is not a Date object after rehydration:', message.id, message.updatedAt)
+                    }
+                  })
+                }
+              })
+
+              console.log('Chat store rehydration completed successfully')
+            } catch (error) {
+              console.error('Error during chat store rehydration validation:', error)
+            }
 
             // Note: buildChatHierarchy will be called when components mount
             // since functions are not persisted and not available during rehydration

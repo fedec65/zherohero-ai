@@ -8,7 +8,7 @@ import { persist } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
 import { MCPServer, MCPCapability, AsyncState, Patch } from './types/index'
 import {
-  createStorage,
+  createEnhancedStorage,
   createAutoPartializer,
   PersistOptions,
 } from './middleware/persistence'
@@ -1019,9 +1019,38 @@ export const useMCPStore = createWithEqualityFn<MCPStore>()(
       })),
       {
         name: 'minddeck-mcp-store',
-        storage: createStorage('localStorage'),
+        storage: createEnhancedStorage('localStorage'),
         version: 1,
-        partialize: createAutoPartializer(['loading', 'connectionStates']),
+        partialize: createAutoPartializer([
+          'loading', 
+          'connectionStates',
+          'addCustomServer',
+          'updateCustomServer',
+          'deleteCustomServer',
+          'enableServer',
+          'disableServer',
+          'updateServerConfig',
+          'testConnection',
+          'connectServer',
+          'disconnectServer',
+          'performHealthCheck',
+          'setSelectedTab',
+          'setSearchQuery',
+          'getEnabledServers',
+          'getServersByCapability',
+          'searchServers',
+          'updateGlobalSettings',
+          'resetGlobalSettings',
+          'getConnectionStats',
+          'clearStats',
+          'exportConfig',
+          'importConfig',
+          'autoConnectServers',
+          'registerAutoInjection',
+          'unregisterAutoInjection',
+          'getAutoInjectedServers',
+          'getTavilyUrl',
+        ]),
         onRehydrateStorage: () => (state) => {
           // Reset transient state after rehydration
           if (state) {

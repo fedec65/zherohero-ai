@@ -259,6 +259,7 @@ export interface FilterOptions {
   hasMessages?: boolean
   sortBy?: 'date' | 'title' | 'messageCount' | 'relevance'
   sortOrder?: 'asc' | 'desc'
+  showFoldersFirst?: boolean
 }
 
 export interface SearchHistory {

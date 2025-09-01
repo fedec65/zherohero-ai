@@ -128,9 +128,11 @@ const nextConfig = {
       }
     }
 
-    // Tree shaking optimizations
-    config.optimization.usedExports = true
-    config.optimization.providedExports = true
+    // Tree shaking optimizations (only in production and without conflicting settings)
+    if (!dev && !config.cache?.cacheUnaffected) {
+      config.optimization.usedExports = true
+      config.optimization.providedExports = true
+    }
 
     // Module resolution improvements
     config.resolve.alias = {

@@ -1,13 +1,14 @@
 'use client'
 
 import React, { useState, useRef, useEffect, useCallback } from 'react'
-import { Search, Filter, Star, MessageSquare, Plus } from 'lucide-react'
+import { Search, Filter, Star, MessageSquare, Plus, Folder, Settings } from 'lucide-react'
 import { Button } from '../ui/button'
 import { EnhancedSearch } from '../chat/enhanced-search'
 import { ChatHierarchyView } from '../chat/chat-hierarchy-view'
 import { CreateFolderDialog } from '../chat/create-folder-dialog'
 import { MoveChatDialog } from '../chat/move-chat-dialog'
 import { RenameDialog } from '../chat/rename-dialog'
+import { SortDropdown } from '../chat/sort-dropdown'
 import { useChatStore } from '../../lib/stores/chat-store'
 import { useSettingsStore } from '../../lib/stores/settings-store'
 import { cn } from '../../lib/utils'
@@ -22,6 +23,7 @@ interface ChatSidebarProps {
 function ChatSidebarInner({ className }: ChatSidebarProps) {
   const mounted = useMounted()
   const [isStoreReady, setIsStoreReady] = useState(false)
+  const [showSortDropdown, setShowSortDropdown] = useState(false)
 
   const chatStore = useChatStore()
   const settingsStore = useSettingsStore()
@@ -29,6 +31,7 @@ function ChatSidebarInner({ className }: ChatSidebarProps) {
   const {
     chats,
     createChat,
+    openCreateFolderDialog,
     search,
     performSearch,
     clearSearch,
@@ -128,6 +131,33 @@ function ChatSidebarInner({ className }: ChatSidebarProps) {
     }
   }, [mounted, isStoreReady, createChat])
 
+  const handleOpenFolderDialog = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation() // Prevent triggering the main button
+    if (!mounted || !isStoreReady) return
+    try {
+      openCreateFolderDialog()
+    } catch (error) {
+      console.warn('Failed to open folder dialog:', error)
+    }
+  }, [mounted, isStoreReady, openCreateFolderDialog])
+
+  const handleToggleSortDropdown = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation() // Prevent triggering the main button
+    setShowSortDropdown(!showSortDropdown)
+  }, [showSortDropdown])
+
+  // Close sort dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showSortDropdown && sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
+        setShowSortDropdown(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [showSortDropdown])
+
 
   // Show loading skeleton during hydration
   if (!mounted || !isStoreReady) {
@@ -192,29 +222,46 @@ function ChatSidebarInner({ className }: ChatSidebarProps) {
             />
           </div>
 
-          {/* New Chat Actions - Horizontal Layout */}
-          <div className="flex items-center gap-2">
-            {/* Primary New Chat Button */}
-            <Tooltip content="New Chat">
-              <Button
-                onClick={handleNewChat}
-                className="flex-1 min-w-0 whitespace-nowrap bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-all duration-200"
+          {/* New Chat Button with Overlaid Corner Icons */}
+          <div className="relative">
+            {/* Main New Chat Button */}
+            <Button
+              onClick={handleNewChat}
+              className="w-full relative bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-all duration-200 pr-12"
+            >
+              <MessageSquare className="mr-2 h-4 w-4 flex-shrink-0" />
+              <span className="flex-1 text-left">New Chat</span>
+            </Button>
+            
+            {/* Folder Icon - Bottom Left Corner */}
+            <Tooltip content="Create Folder">
+              <button
+                onClick={handleOpenFolderDialog}
+                className="absolute bottom-1 left-1 p-1 rounded bg-blue-500 hover:bg-blue-400 transition-colors"
+                aria-label="Create new folder"
               >
-                <MessageSquare className="mr-2 h-4 w-4 flex-shrink-0" />
-                <span className="whitespace-nowrap">New Chat</span>
-              </Button>
+                <Folder className="h-3 w-3 text-white" />
+              </button>
             </Tooltip>
             
-            {/* Secondary Filter/Folder Button */}
-            <Tooltip content="Filter & Sort">
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="px-3 border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-800 transition-all duration-200"
+            {/* Sort/Filter Icon - Bottom Right Corner */}
+            <Tooltip content="Sort & Filter">
+              <button
+                onClick={handleToggleSortDropdown}
+                className="absolute bottom-1 right-1 p-1 rounded bg-blue-500 hover:bg-blue-400 transition-colors"
+                aria-label="Sort and filter options"
               >
-                <Filter className="h-4 w-4" />
-              </Button>
+                <Filter className="h-3 w-3 text-white" />
+              </button>
             </Tooltip>
+            
+            {/* Sort Dropdown */}
+            {showSortDropdown && (
+              <SortDropdown 
+                className="absolute top-0 right-0" 
+                onClose={() => setShowSortDropdown(false)}
+              />
+            )}
           </div>
         </div>
 

@@ -10,6 +10,7 @@ import {
   Chat,
   Message,
   Folder,
+  FolderTreeItem,
   AsyncState,
   Patch,
   SearchResult,
@@ -77,7 +78,7 @@ interface ChatActions {
   deleteChat: (chatId: string) => Promise<void>
   updateChat: (chatId: string, updates: Patch<Chat>) => void
   duplicateChat: (chatId: string) => Promise<string>
-  starChat: (chatId: string, starred: boolean) => void
+  starChat: (chatId: string) => void
   moveToFolder: (chatId: string, folderId: string | null) => void
 
   // Message management
@@ -101,15 +102,23 @@ interface ChatActions {
   setSearchQuery: (query: string) => void
 
   // Folder management
-  createFolder: (name: string, parentId?: string) => string
+  createFolder: (name: string, color?: string, parentId?: string) => string
   updateFolder: (folderId: string, updates: Patch<Folder>) => void
   deleteFolder: (folderId: string) => void
   toggleFolder: (folderId: string) => void
+  toggleFolderExpansion: (folderId: string) => void
+  getFolderTree: () => FolderTreeItem[]
+  getChatsInFolder: (folderId: string) => Chat[]
 
   // Chat management actions
   pinChat: (chatId: string) => void
   renameChat: (chatId: string, newName: string) => void
   moveChat: (chatId: string, folderId: string | null) => void
+
+  // Folder management actions
+  pinFolder: (folderId: string) => void
+  unpinFolder: (folderId: string) => void
+  renameFolder: (folderId: string, newName: string) => void
 
   // Dialog management
   openCreateFolderDialog: () => void
@@ -158,6 +167,9 @@ interface ChatActions {
 
   // AI Integration
   sendAIMessage: (chatId: string, messageId: string) => Promise<void>
+
+  // Migration
+  migrateExistingData: (state: any) => void
 }
 
 type ChatStore = ChatState & ChatActions
@@ -216,6 +228,8 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
               title: options.title || 'New Chat',
               folderId: options.folderId,
               starred: false,
+              isStarred: false,
+              isPinned: false,
               isIncognito: options.isIncognito || false,
               modelId: '', // Will be set from model store
               lastMessageAt: now,
@@ -305,14 +319,15 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
           return newChatId
         },
 
-        starChat: (chatId: string, starred: boolean) => {
+        starChat: (chatId: string) => {
           set((state) => {
             const chat = state.chats[chatId]
             if (chat) {
-              chat.starred = starred
+              chat.isStarred = !chat.isStarred
               chat.updatedAt = new Date()
             }
           })
+          get().buildChatHierarchy()
         },
 
         moveToFolder: (chatId: string, folderId: string | null) => {
@@ -526,7 +541,7 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
         },
 
         // Folder management
-        createFolder: (name: string, parentId?: string) => {
+        createFolder: (name: string, color?: string, parentId?: string) => {
           const folderId = nanoid()
           const now = new Date()
 
@@ -535,11 +550,17 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
               id: folderId,
               name,
               parentId,
+              color: color || 'blue', // Default to blue if no color provided
+              isExpanded: true,
+              isPinned: false,
+              chatCount: 0,
               createdAt: now,
               updatedAt: now,
             }
           })
 
+          // Rebuild hierarchy after creating folder
+          get().buildChatHierarchy()
           return folderId
         },
 
@@ -550,6 +571,8 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
               Object.assign(folder, updates, { updatedAt: new Date() })
             }
           })
+          // Rebuild hierarchy after updating folder
+          get().buildChatHierarchy()
         },
 
         deleteFolder: (folderId: string) => {
@@ -563,6 +586,8 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
 
             delete state.folders[folderId]
           })
+          // Rebuild hierarchy after deleting folder
+          get().buildChatHierarchy()
         },
 
         // Bulk operations
@@ -716,13 +741,14 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
             const searchEngine = SearchEngine.getInstance()
 
             // Build/update search index if needed
-            searchEngine.buildIndex(state.chats, state.messages)
+            searchEngine.buildIndex(state.chats, state.messages, state.folders)
 
             // Perform search
             const results = searchEngine.search(
               options,
               state.chats,
-              state.messages
+              state.messages,
+              state.folders
             )
 
             set((draft) => {
@@ -793,7 +819,8 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
           return searchEngine.generateSuggestions(
             query,
             state.search.searchHistory,
-            state.chats
+            state.chats,
+            state.folders
           )
         },
 
@@ -805,13 +832,24 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
             set((draft) => {
               draft.search.selectedResultId = resultId
 
-              // Navigate to the relevant chat
+              // Navigate to the relevant chat or folder
               if (result.type === 'chat') {
                 draft.activeChat = result.id
               } else if (result.type === 'message' && result.chatId) {
                 draft.activeChat = result.chatId
+              } else if (result.type === 'folder') {
+                // For folder results, expand the folder and clear active chat
+                if (draft.folders[result.id]) {
+                  draft.folders[result.id].isExpanded = true
+                }
+                draft.activeChat = null
               }
             })
+
+            // Rebuild hierarchy to reflect folder expansion
+            if (result.type === 'folder') {
+              get().buildChatHierarchy()
+            }
           }
         },
 
@@ -825,6 +863,68 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
             }
           })
           get().buildChatHierarchy()
+        },
+
+        // Alias for toggleFolder for backward compatibility  
+        toggleFolderExpansion: (folderId: string) => {
+          get().toggleFolder(folderId)
+        },
+
+        // Get folder tree structure for hierarchical display
+        getFolderTree: () => {
+          const state = get()
+          const folders = Object.values(state.folders)
+          const chats = Object.values(state.chats)
+          
+          // Build tree structure
+          const buildTree = (parentId?: string, level = 0): FolderTreeItem[] => {
+            const items: FolderTreeItem[] = []
+            
+            // Add folders at this level
+            folders
+              .filter(folder => folder.parentId === parentId)
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .forEach(folder => {
+                const folderChats = chats.filter(chat => chat.folderId === folder.id)
+                const children = buildTree(folder.id, level + 1)
+                
+                items.push({
+                  id: folder.id,
+                  name: folder.name,
+                  type: 'folder',
+                  parentId: folder.parentId,
+                  level,
+                  isExpanded: folder.isExpanded,
+                  isPinned: folder.isPinned,
+                  chatCount: folderChats.length,
+                  hasChildren: children.length > 0 || folderChats.length > 0,
+                  children: [...children, ...folderChats.map(chat => ({
+                    id: chat.id,
+                    name: chat.title,
+                    type: 'chat' as const,
+                    parentId: folder.id,
+                    level: level + 1,
+                    isPinned: chat.isPinned,
+                    color: folder.color,
+                    createdAt: chat.createdAt,
+                    updatedAt: chat.updatedAt,
+                  }))],
+                  color: folder.color,
+                  createdAt: folder.createdAt,
+                  updatedAt: folder.updatedAt,
+                })
+              })
+              
+            return items
+          }
+          
+          return buildTree()
+        },
+
+        // Get chats in a specific folder
+        getChatsInFolder: (folderId: string) => {
+          const state = get()
+          return Object.values(state.chats).filter(chat => chat.folderId === folderId)
         },
 
         // Pin/unpin chat
@@ -857,6 +957,47 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
             if (chat) {
               chat.folderId = folderId || undefined
               chat.updatedAt = new Date()
+              
+              // Expand the target folder to show the moved chat
+              if (folderId && state.folders[folderId]) {
+                state.folders[folderId].isExpanded = true
+              }
+            }
+          })
+          get().buildChatHierarchy()
+        },
+
+        // Pin folder
+        pinFolder: (folderId: string) => {
+          set((state) => {
+            const folder = state.folders[folderId]
+            if (folder) {
+              folder.isPinned = true
+              folder.updatedAt = new Date()
+            }
+          })
+          get().buildChatHierarchy()
+        },
+
+        // Unpin folder
+        unpinFolder: (folderId: string) => {
+          set((state) => {
+            const folder = state.folders[folderId]
+            if (folder) {
+              folder.isPinned = false
+              folder.updatedAt = new Date()
+            }
+          })
+          get().buildChatHierarchy()
+        },
+
+        // Rename folder
+        renameFolder: (folderId: string, newName: string) => {
+          set((state) => {
+            const folder = state.folders[folderId]
+            if (folder) {
+              folder.name = newName
+              folder.updatedAt = new Date()
             }
           })
           get().buildChatHierarchy()
@@ -953,6 +1094,12 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
                   (b.lastMessageAt?.getTime() || 0) -
                   (a.lastMessageAt?.getTime() || 0)
               )
+
+            // Update folder's chat count
+            if (folder.chatCount !== folderChats.length) {
+              folder.chatCount = folderChats.length
+              folder.updatedAt = new Date()
+            }
 
             return {
               folder,
@@ -1129,6 +1276,106 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
             throw error
           }
         },
+
+        // Migration function for existing users
+        migrateExistingData: (state: any) => {
+          console.log('Running migration for existing data...')
+          let migrated = false
+
+          // Ensure folders object exists
+          if (!state.folders) {
+            console.log('Creating empty folders object')
+            state.folders = {}
+            migrated = true
+          }
+
+          // Ensure all chats have required properties
+          Object.values(state.chats || {}).forEach((chat: any) => {
+            // Ensure folderId is properly set (can be undefined for root chats)
+            if (chat.folderId === null) {
+              chat.folderId = undefined
+              migrated = true
+            }
+
+            // Ensure isStarred property exists
+            if (chat.isStarred === undefined) {
+              chat.isStarred = chat.starred || false
+              migrated = true
+            }
+
+            // Ensure isPinned property exists
+            if (chat.isPinned === undefined) {
+              chat.isPinned = false
+              migrated = true
+            }
+          })
+
+          // Ensure all folders have required properties
+          Object.values(state.folders || {}).forEach((folder: any) => {
+            // Ensure isExpanded property exists (default to true)
+            if (folder.isExpanded === undefined) {
+              folder.isExpanded = true
+              migrated = true
+            }
+
+            // Ensure isPinned property exists (default to false)
+            if (folder.isPinned === undefined) {
+              folder.isPinned = false
+              migrated = true
+            }
+
+            // Ensure chatCount property exists
+            if (folder.chatCount === undefined) {
+              // Count chats in this folder
+              folder.chatCount = Object.values(state.chats || {}).filter(
+                (chat: any) => chat.folderId === folder.id
+              ).length
+              migrated = true
+            }
+
+            // Ensure color property exists (default to blue)
+            if (!folder.color) {
+              folder.color = 'blue'
+              migrated = true
+            }
+          })
+
+          // Ensure search state exists with proper structure
+          if (!state.search) {
+            state.search = {
+              query: '',
+              results: [],
+              isSearching: false,
+              searchHistory: [],
+              filters: {
+                chatType: 'all',
+                sortBy: 'date',
+                sortOrder: 'desc',
+              },
+              suggestions: [],
+            }
+            migrated = true
+          }
+
+          // Ensure dialogs state exists
+          if (!state.dialogs) {
+            state.dialogs = {
+              showCreateFolderDialog: false,
+              showMoveDialog: false,
+              showRenameDialog: false,
+              editingItem: null,
+              targetChatId: undefined,
+              selectedFolderId: undefined,
+            }
+            migrated = true
+          }
+
+          if (migrated) {
+            console.log('Data migration completed successfully')
+          } else {
+            console.log('No migration needed - data structure is up to date')
+          }
+        },
       })),
       {
         name: 'minddeck-chat-store',
@@ -1202,6 +1449,105 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
             }
             state.streamingMessage = null
 
+            // Migration for existing users - ensure all required properties exist
+            // Note: We need to run migration inline since functions aren't available during rehydration
+            console.log('Running migration for existing data...')
+            let migrated = false
+
+            // Ensure folders object exists
+            if (!state.folders) {
+              console.log('Creating empty folders object')
+              state.folders = {}
+              migrated = true
+            }
+
+            // Ensure all chats have required properties
+            Object.values(state.chats || {}).forEach((chat: any) => {
+              // Ensure folderId is properly set (can be undefined for root chats)
+              if (chat.folderId === null) {
+                chat.folderId = undefined
+                migrated = true
+              }
+
+              // Ensure isStarred property exists
+              if (chat.isStarred === undefined) {
+                chat.isStarred = chat.starred || false
+                migrated = true
+              }
+
+              // Ensure isPinned property exists
+              if (chat.isPinned === undefined) {
+                chat.isPinned = false
+                migrated = true
+              }
+            })
+
+            // Ensure all folders have required properties
+            Object.values(state.folders || {}).forEach((folder: any) => {
+              // Ensure isExpanded property exists (default to true)
+              if (folder.isExpanded === undefined) {
+                folder.isExpanded = true
+                migrated = true
+              }
+
+              // Ensure isPinned property exists (default to false)
+              if (folder.isPinned === undefined) {
+                folder.isPinned = false
+                migrated = true
+              }
+
+              // Ensure chatCount property exists
+              if (folder.chatCount === undefined) {
+                // Count chats in this folder
+                folder.chatCount = Object.values(state.chats || {}).filter(
+                  (chat: any) => chat.folderId === folder.id
+                ).length
+                migrated = true
+              }
+
+              // Ensure color property exists (default to blue)
+              if (!folder.color) {
+                folder.color = 'blue'
+                migrated = true
+              }
+            })
+
+            // Ensure search state exists with proper structure
+            if (!state.search) {
+              state.search = {
+                query: '',
+                results: [],
+                isSearching: false,
+                searchHistory: [],
+                filters: {
+                  chatType: 'all',
+                  sortBy: 'date',
+                  sortOrder: 'desc',
+                },
+                suggestions: [],
+              }
+              migrated = true
+            }
+
+            // Ensure dialogs state exists
+            if (!state.dialogs) {
+              state.dialogs = {
+                showCreateFolderDialog: false,
+                showMoveDialog: false,
+                showRenameDialog: false,
+                editingItem: null,
+                targetChatId: undefined,
+                selectedFolderId: undefined,
+              }
+              migrated = true
+            }
+
+            if (migrated) {
+              console.log('Data migration completed successfully')
+            } else {
+              console.log('No migration needed - data structure is up to date')
+            }
+
             // Validate rehydrated dates
             try {
               Object.values(state.chats || {}).forEach((chat: any) => {
@@ -1229,7 +1575,17 @@ export const useChatStore = createWithEqualityFn<ChatStore>()(
                 }
               })
 
+              Object.values(state.folders || {}).forEach((folder: any) => {
+                if (folder.createdAt && !(folder.createdAt instanceof Date)) {
+                  console.warn('Folder createdAt is not a Date object after rehydration:', folder.id, folder.createdAt)
+                }
+                if (folder.updatedAt && !(folder.updatedAt instanceof Date)) {
+                  console.warn('Folder updatedAt is not a Date object after rehydration:', folder.id, folder.updatedAt)
+                }
+              })
+
               console.log('Chat store rehydration completed successfully')
+              console.log(`Loaded ${Object.keys(state.chats || {}).length} chats, ${Object.keys(state.folders || {}).length} folders`)
             } catch (error) {
               console.error('Error during chat store rehydration validation:', error)
             }

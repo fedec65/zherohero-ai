@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Persistence Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        
+        button {
+            margin: 5px;
+            padding: 8px 15px;
+            cursor: pointer;
+        }
+        
+        .results {
+            background-color: #f5f5f5;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 3px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        
+        .success {
+            color: green;
+        }
+        
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Folder Persistence Test</h1>
+    
+    <div class="section">
+        <h2>Test Actions</h2>
+        <button onclick="createTestData()">1. Create Test Data</button>
+        <button onclick="testPersistence()">2. Test Persistence</button>
+        <button onclick="clearData()">3. Clear All Data</button>
+        <button onclick="refreshPage()">4. Refresh Page</button>
+    </div>
+
+    <div class="section">
+        <h2>Results</h2>
+        <div id="results" class="results">Click buttons above to run tests...</div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : '';
+            resultsDiv.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+
+        function createTestData() {
+            log('Creating test folders and chats...');
+            
+            try {
+                // Simulate creating folders and chats in localStorage
+                const testData = {
+                    folders: {
+                        'folder1': {
+                            id: 'folder1',
+                            name: 'Work Projects',
+                            color: 'blue',
+                            isExpanded: true,
+                            isPinned: false,
+                            chatCount: 2,
+                            createdAt: new Date().toISOString(),
+                            updatedAt: new Date().toISOString()
+                        },
+                        'folder2': {
+                            id: 'folder2',
+                            name: 'Personal Stuff',
+                            color: 'green',
+                            isExpanded: false,
+                            isPinned: true,
+                            chatCount: 1,
+                            createdAt: new Date().toISOString(),
+                            updatedAt: new Date().toISOString()
+                        }
+                    },
+                    chats: {
+                        'chat1': {
+                            id: 'chat1',
+                            title: 'React Development',
+                            folderId: 'folder1',
+                            isStarred: true,
+                            isPinned: false,
+                            isIncognito: false,
+                            modelId: 'gpt-4',
+                            messageCount: 5,
+                            createdAt: new Date().toISOString(),
+                            updatedAt: new Date().toISOString(),
+                            lastMessageAt: new Date().toISOString()
+                        },
+                        'chat2': {
+                            id: 'chat2',
+                            title: 'API Design',
+                            folderId: 'folder1',
+                            isStarred: false,
+                            isPinned: false,
+                            isIncognito: false,
+                            modelId: 'gpt-4',
+                            messageCount: 3,
+                            createdAt: new Date().toISOString(),
+                            updatedAt: new Date().toISOString(),
+                            lastMessageAt: new Date().toISOString()
+                        },
+                        'chat3': {
+                            id: 'chat3',
+                            title: 'Travel Planning',
+                            folderId: 'folder2',
+                            isStarred: false,
+                            isPinned: false,
+                            isIncognito: false,
+                            modelId: 'gpt-4',
+                            messageCount: 1,
+                            createdAt: new Date().toISOString(),
+                            updatedAt: new Date().toISOString(),
+                            lastMessageAt: new Date().toISOString()
+                        }
+                    },
+                    messages: {
+                        'chat1': [
+                            { id: 'msg1', chatId: 'chat1', role: 'user', content: 'How do I use React hooks?', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
+                        ],
+                        'chat2': [
+                            { id: 'msg2', chatId: 'chat2', role: 'user', content: 'Best practices for REST API?', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
+                        ],
+                        'chat3': [
+                            { id: 'msg3', chatId: 'chat3', role: 'user', content: 'Plan a trip to Japan', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
+                        ]
+                    },
+                    activeChat: null,
+                    searchQuery: ''
+                };
+
+                // Store test data
+                localStorage.setItem('minddeck-chat-store', JSON.stringify(testData));
+                log('✓ Test data created successfully', 'success');
+                log(`  - Created ${Object.keys(testData.folders).length} folders`);
+                log(`  - Created ${Object.keys(testData.chats).length} chats`);
+                log(`  - Created ${Object.keys(testData.messages).length} chat histories`);
+                
+            } catch (error) {
+                log('✗ Failed to create test data: ' + error.message, 'error');
+            }
+        }
+
+        function testPersistence() {
+            log('Testing data persistence...');
+            
+            try {
+                const storedData = localStorage.getItem('minddeck-chat-store');
+                if (!storedData) {
+                    log('✗ No data found in localStorage', 'error');
+                    return;
+                }
+
+                const data = JSON.parse(storedData);
+                
+                // Test folder structure
+                if (data.folders) {
+                    log('✓ Folders found in storage', 'success');
+                    Object.values(data.folders).forEach(folder => {
+                        log(`  - ${folder.name} (${folder.chatCount} chats, expanded: ${folder.isExpanded}, pinned: ${folder.isPinned})`);
+                    });
+                } else {
+                    log('✗ No folders found in storage', 'error');
+                }
+
+                // Test chat structure
+                if (data.chats) {
+                    log('✓ Chats found in storage', 'success');
+                    Object.values(data.chats).forEach(chat => {
+                        log(`  - ${chat.title} (folder: ${chat.folderId || 'none'}, starred: ${chat.isStarred}, pinned: ${chat.isPinned})`);
+                    });
+                } else {
+                    log('✗ No chats found in storage', 'error');
+                }
+
+                // Test folder-chat relationships
+                const foldersWithChats = {};
+                Object.values(data.chats).forEach(chat => {
+                    if (chat.folderId) {
+                        if (!foldersWithChats[chat.folderId]) {
+                            foldersWithChats[chat.folderId] = [];
+                        }
+                        foldersWithChats[chat.folderId].push(chat.title);
+                    }
+                });
+
+                log('✓ Folder-chat relationships preserved', 'success');
+                Object.entries(foldersWithChats).forEach(([folderId, chats]) => {
+                    const folderName = data.folders[folderId]?.name || 'Unknown';
+                    log(`  - ${folderName}: ${chats.join(', ')}`);
+                });
+
+            } catch (error) {
+                log('✗ Failed to test persistence: ' + error.message, 'error');
+            }
+        }
+
+        function clearData() {
+            log('Clearing all data...');
+            localStorage.removeItem('minddeck-chat-store');
+            log('✓ All data cleared from localStorage', 'success');
+        }
+
+        function refreshPage() {
+            log('Refreshing page to test persistence across reload...');
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        }
+
+        // Check if data exists on page load
+        window.onload = function() {
+            const storedData = localStorage.getItem('minddeck-chat-store');
+            if (storedData) {
+                log('✓ Found existing data on page load', 'success');
+                testPersistence();
+            } else {
+                log('No existing data found on page load');
+            }
+        };
+    </script>
+</body>
+</html>

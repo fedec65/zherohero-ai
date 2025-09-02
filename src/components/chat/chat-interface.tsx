@@ -94,7 +94,7 @@ export function ChatInterface({ chatId, className }: ChatInterfaceProps) {
   }
 
   const handleStarToggle = () => {
-    starChat(chatId, !chat.starred)
+    starChat(chatId)
   }
 
   const handleDeleteChat = () => {

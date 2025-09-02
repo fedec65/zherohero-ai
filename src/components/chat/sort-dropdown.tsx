@@ -54,7 +54,7 @@ export function SortDropdown({ className, onClose }: SortDropdownProps) {
   return (
     <div className={cn('relative', className)} ref={dropdownRef}>
       {/* Dropdown menu */}
-      <div className="absolute bottom-full right-0 mb-2 w-56 rounded-lg border border-gray-200 bg-white p-2 shadow-lg dark:border-gray-700 dark:bg-gray-800 z-50">
+      <div className="absolute top-full right-0 mt-2 w-56 max-h-96 overflow-y-auto rounded-lg border border-gray-200 bg-white p-2 shadow-lg dark:border-gray-700 dark:bg-gray-800 z-50">
           {/* Sort by section */}
           <div className="mb-3">
             <div className="mb-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">

@@ -5,6 +5,7 @@
 import {
   Chat,
   Message,
+  Folder,
   SearchResult,
   SearchOptions,
   FilterOptions,
@@ -27,7 +28,8 @@ export class SearchEngine {
    */
   buildIndex(
     chats: Record<string, Chat>,
-    messages: Record<string, Message[]>
+    messages: Record<string, Message[]>,
+    folders?: Record<string, Folder>
   ): void {
     this.searchIndex.clear()
 
@@ -41,6 +43,19 @@ export class SearchEngine {
         this.searchIndex.get(term)!.add(`chat:${chat.id}`)
       })
     })
+
+    // Index folder names
+    if (folders) {
+      Object.values(folders).forEach((folder) => {
+        const terms = this.tokenize(folder.name)
+        terms.forEach((term) => {
+          if (!this.searchIndex.has(term)) {
+            this.searchIndex.set(term, new Set())
+          }
+          this.searchIndex.get(term)!.add(`folder:${folder.id}`)
+        })
+      })
+    }
 
     // Index message content
     Object.entries(messages).forEach(([chatId, chatMessages]) => {
@@ -62,7 +77,8 @@ export class SearchEngine {
   search(
     options: SearchOptions,
     chats: Record<string, Chat>,
-    messages: Record<string, Message[]>
+    messages: Record<string, Message[]>,
+    folders?: Record<string, Folder>
   ): SearchResult[] {
     if (!options.query.trim()) return []
 
@@ -76,14 +92,30 @@ export class SearchEngine {
     const results: SearchResult[] = []
 
     if (regex) {
-      return this.regexSearch(options, chats, messages)
+      return this.regexSearch(options, chats, messages, folders)
     }
 
     if (exact) {
-      return this.exactSearch(options, chats, messages)
+      return this.exactSearch(options, chats, messages, folders)
     }
 
-    return this.fuzzySearch(options, chats, messages)
+    return this.fuzzySearch(options, chats, messages, folders)
+  }
+
+  /**
+   * Helper function to get folder path
+   */
+  private getFolderPath(folderId: string, folders: Record<string, Folder>): string {
+    const path: string[] = []
+    let currentFolderId: string | undefined = folderId
+
+    while (currentFolderId && folders[currentFolderId]) {
+      const folder = folders[currentFolderId]
+      path.unshift(folder.name)
+      currentFolderId = folder.parentId
+    }
+
+    return path.join(' › ')
   }
 
   /**
@@ -92,7 +124,8 @@ export class SearchEngine {
   private regexSearch(
     options: SearchOptions,
     chats: Record<string, Chat>,
-    messages: Record<string, Message[]>
+    messages: Record<string, Message[]>,
+    folders?: Record<string, Folder>
   ): SearchResult[] {
     const results: SearchResult[] = []
     let regex: RegExp
@@ -109,12 +142,32 @@ export class SearchEngine {
       Object.values(chats).forEach((chat) => {
         const matches = chat.title.match(regex)
         if (matches) {
+          const folderPath = chat.folderId && folders ? this.getFolderPath(chat.folderId, folders) : undefined
           results.push({
             type: 'chat',
             id: chat.id,
             title: chat.title,
             relevance: this.calculateChatRelevance(chat, options.query),
             highlights: matches.slice(0, 3),
+            folderPath,
+          })
+        }
+      })
+    }
+
+    // Search in folders
+    if (folders && (options.type === 'folder' || options.type === 'all')) {
+      Object.values(folders).forEach((folder) => {
+        const matches = folder.name.match(regex)
+        if (matches) {
+          const folderPath = this.getFolderPath(folder.id, folders)
+          results.push({
+            type: 'folder',
+            id: folder.id,
+            title: folder.name,
+            relevance: this.calculateFolderRelevance(folder, options.query),
+            highlights: matches.slice(0, 3),
+            folderPath,
           })
         }
       })
@@ -126,15 +179,18 @@ export class SearchEngine {
         chatMessages.forEach((message, index) => {
           const matches = message.content.match(regex)
           if (matches) {
+            const chat = chats[chatId]
+            const folderPath = chat?.folderId && folders ? this.getFolderPath(chat.folderId, folders) : undefined
             results.push({
               type: 'message',
               id: message.id,
               chatId,
               messageIndex: index,
-              title: chats[chatId]?.title || 'Unknown Chat',
+              title: chat?.title || 'Unknown Chat',
               snippet: this.createSnippet(message.content, matches[0]),
               relevance: this.calculateMessageRelevance(message, options.query),
               highlights: matches.slice(0, 3),
+              folderPath,
             })
           }
         })
@@ -150,7 +206,8 @@ export class SearchEngine {
   private exactSearch(
     options: SearchOptions,
     chats: Record<string, Chat>,
-    messages: Record<string, Message[]>
+    messages: Record<string, Message[]>,
+    folders?: Record<string, Folder>
   ): SearchResult[] {
     const results: SearchResult[] = []
     const searchQuery = options.caseSensitive
@@ -164,12 +221,34 @@ export class SearchEngine {
           ? chat.title
           : chat.title.toLowerCase()
         if (title.includes(searchQuery)) {
+          const folderPath = chat.folderId && folders ? this.getFolderPath(chat.folderId, folders) : undefined
           results.push({
             type: 'chat',
             id: chat.id,
             title: chat.title,
             relevance: this.calculateChatRelevance(chat, options.query),
             highlights: [options.query],
+            folderPath,
+          })
+        }
+      })
+    }
+
+    // Search in folders
+    if (folders && (options.type === 'folder' || options.type === 'all')) {
+      Object.values(folders).forEach((folder) => {
+        const name = options.caseSensitive
+          ? folder.name
+          : folder.name.toLowerCase()
+        if (name.includes(searchQuery)) {
+          const folderPath = this.getFolderPath(folder.id, folders)
+          results.push({
+            type: 'folder',
+            id: folder.id,
+            title: folder.name,
+            relevance: this.calculateFolderRelevance(folder, options.query),
+            highlights: [options.query],
+            folderPath,
           })
         }
       })
@@ -183,15 +262,18 @@ export class SearchEngine {
             ? message.content
             : message.content.toLowerCase()
           if (content.includes(searchQuery)) {
+            const chat = chats[chatId]
+            const folderPath = chat?.folderId && folders ? this.getFolderPath(chat.folderId, folders) : undefined
             results.push({
               type: 'message',
               id: message.id,
               chatId,
               messageIndex: index,
-              title: chats[chatId]?.title || 'Unknown Chat',
+              title: chat?.title || 'Unknown Chat',
               snippet: this.createSnippet(message.content, options.query),
               relevance: this.calculateMessageRelevance(message, options.query),
               highlights: [options.query],
+              folderPath,
             })
           }
         })
@@ -207,7 +289,8 @@ export class SearchEngine {
   private fuzzySearch(
     options: SearchOptions,
     chats: Record<string, Chat>,
-    messages: Record<string, Message[]>
+    messages: Record<string, Message[]>,
+    folders?: Record<string, Folder>
   ): SearchResult[] {
     const results: SearchResult[] = []
     const queryTokens = this.tokenize(options.query)
@@ -219,6 +302,7 @@ export class SearchEngine {
         const matches = this.findMatches(queryTokens, titleTokens)
 
         if (matches.length > 0) {
+          const folderPath = chat.folderId && folders ? this.getFolderPath(chat.folderId, folders) : undefined
           results.push({
             type: 'chat',
             id: chat.id,
@@ -229,6 +313,31 @@ export class SearchEngine {
               matches.length / queryTokens.length
             ),
             highlights: matches,
+            folderPath,
+          })
+        }
+      })
+    }
+
+    // Search in folders
+    if (folders && (options.type === 'folder' || options.type === 'all')) {
+      Object.values(folders).forEach((folder) => {
+        const nameTokens = this.tokenize(folder.name)
+        const matches = this.findMatches(queryTokens, nameTokens)
+
+        if (matches.length > 0) {
+          const folderPath = this.getFolderPath(folder.id, folders)
+          results.push({
+            type: 'folder',
+            id: folder.id,
+            title: folder.name,
+            relevance: this.calculateFolderRelevance(
+              folder,
+              options.query,
+              matches.length / queryTokens.length
+            ),
+            highlights: matches,
+            folderPath,
           })
         }
       })
@@ -242,12 +351,14 @@ export class SearchEngine {
           const matches = this.findMatches(queryTokens, contentTokens)
 
           if (matches.length > 0) {
+            const chat = chats[chatId]
+            const folderPath = chat?.folderId && folders ? this.getFolderPath(chat.folderId, folders) : undefined
             results.push({
               type: 'message',
               id: message.id,
               chatId,
               messageIndex: index,
-              title: chats[chatId]?.title || 'Unknown Chat',
+              title: chat?.title || 'Unknown Chat',
               snippet: this.createSnippet(message.content, matches[0]),
               relevance: this.calculateMessageRelevance(
                 message,
@@ -255,6 +366,7 @@ export class SearchEngine {
                 matches.length / queryTokens.length
               ),
               highlights: matches,
+              folderPath,
             })
           }
         })
@@ -378,6 +490,38 @@ export class SearchEngine {
   }
 
   /**
+   * Calculates relevance score for folder results
+   */
+  private calculateFolderRelevance(
+    folder: Folder,
+    query: string,
+    matchRatio = 1
+  ): number {
+    let score = matchRatio * 100
+
+    // Boost exact name matches
+    if (folder.name.toLowerCase().includes(query.toLowerCase())) {
+      score += 50
+    }
+
+    // Boost pinned folders
+    if (folder.isPinned) {
+      score += 30
+    }
+
+    // Boost folders with more chats
+    score += Math.min(folder.chatCount * 5, 25)
+
+    // Boost recently updated folders
+    const daysSinceUpdate =
+      (Date.now() - folder.updatedAt.getTime()) / (1000 * 60 * 60 * 24)
+    if (daysSinceUpdate < 7) score += 15
+    else if (daysSinceUpdate < 30) score += 10
+
+    return Math.round(score)
+  }
+
+  /**
    * Sorts results by relevance and applies limit
    */
   private sortResults(results: SearchResult[], limit?: number): SearchResult[] {
@@ -391,7 +535,8 @@ export class SearchEngine {
   generateSuggestions(
     query: string,
     searchHistory: { query: string }[],
-    chats: Record<string, Chat>
+    chats: Record<string, Chat>,
+    folders?: Record<string, Folder>
   ): string[] {
     const suggestions: string[] = []
     const queryLower = query.toLowerCase()
@@ -402,7 +547,7 @@ export class SearchEngine {
         (h) => h.query.toLowerCase().includes(queryLower) && h.query !== query
       )
       .map((h) => h.query)
-      .slice(0, 3)
+      .slice(0, 2)
 
     suggestions.push(...historySuggestions)
 
@@ -410,9 +555,19 @@ export class SearchEngine {
     const titleSuggestions = Object.values(chats)
       .filter((chat) => chat.title.toLowerCase().includes(queryLower))
       .map((chat) => chat.title)
-      .slice(0, 3)
+      .slice(0, 2)
 
     suggestions.push(...titleSuggestions)
+
+    // Folder name suggestions
+    if (folders) {
+      const folderSuggestions = Object.values(folders)
+        .filter((folder) => folder.name.toLowerCase().includes(queryLower))
+        .map((folder) => folder.name)
+        .slice(0, 2)
+
+      suggestions.push(...folderSuggestions)
+    }
 
     // Remove duplicates and limit
     return Array.from(new Set(suggestions)).slice(0, 5)

@@ -161,11 +161,26 @@ export function EnhancedSearch({
             onKeyDown={handleKeyDown}
             onFocus={() => setShowDropdown(true)}
             className={cn(
-              'pl-10 pr-20',
+              'pl-10 pr-20 transition-all duration-200',
+              'focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
+              'hover:border-gray-400 dark:hover:border-gray-500',
               (isRegex || isExact || isCaseSensitive) &&
-                'border-blue-300 dark:border-blue-700'
+                'border-blue-300 dark:border-blue-700 ring-1 ring-blue-500/20',
+              isSearching && 'animate-pulse'
             )}
+            aria-label={`Search input${hasQuery ? ` with query: ${inputValue}` : ''}`}
+            role="searchbox"
+            aria-expanded={showDropdown}
+            aria-autocomplete="list"
+            disabled={isSearching}
           />
+          
+          {/* Loading indicator */}
+          {isSearching && (
+            <div className="absolute right-16 top-1/2 -translate-y-1/2">
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
+            </div>
+          )}
 
           {/* Search controls */}
           <div className="absolute right-2 top-1/2 flex -translate-y-1/2 items-center space-x-1">
@@ -177,10 +192,14 @@ export function EnhancedSearch({
                 setSearchMode(searchMode === 'simple' ? 'advanced' : 'simple')
               }
               className={cn(
-                'h-6 w-6 p-0',
-                searchMode === 'advanced' && 'text-blue-600 dark:text-blue-400'
+                'h-6 w-6 p-0 transition-all duration-200',
+                'hover:bg-gray-100 dark:hover:bg-gray-700 hover:scale-110',
+                'focus:outline-none focus:ring-2 focus:ring-blue-500',
+                searchMode === 'advanced' && 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20'
               )}
               title="Advanced search options"
+              aria-label="Toggle advanced search options"
+              aria-pressed={searchMode === 'advanced'}
             >
               <Settings className="h-3 w-3" />
             </Button>
@@ -191,8 +210,15 @@ export function EnhancedSearch({
                 variant="ghost"
                 size="sm"
                 onClick={handleClear}
-                className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600"
+                className={cn(
+                  'h-6 w-6 p-0 transition-all duration-200',
+                  'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300',
+                  'hover:bg-gray-100 dark:hover:bg-gray-700 hover:scale-110',
+                  'focus:outline-none focus:ring-2 focus:ring-blue-500'
+                )}
                 title="Clear search"
+                aria-label="Clear search"
+                disabled={isSearching}
               >
                 <X className="h-3 w-3" />
               </Button>
@@ -202,7 +228,7 @@ export function EnhancedSearch({
 
         {/* Advanced search options */}
         {searchMode === 'advanced' && (
-          <div className="mt-2 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800">
+          <div className="mt-2 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800 animate-in slide-in-from-top-2 duration-200">
             <div className="flex items-center space-x-4 text-sm">
               <label className="flex cursor-pointer items-center space-x-2">
                 <input

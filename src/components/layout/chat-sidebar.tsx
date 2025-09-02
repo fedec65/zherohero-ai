@@ -227,7 +227,14 @@ function ChatSidebarInner({ className }: ChatSidebarProps) {
             {/* Main New Chat Button */}
             <button
               onClick={handleNewChat}
-              className="w-full bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-all duration-200 rounded-md shadow-sm hover:shadow-md"
+              className={cn(
+                "w-full bg-blue-600 text-white transition-all duration-200 rounded-md",
+                "hover:bg-blue-700 hover:scale-[1.02] hover:shadow-md",
+                "active:scale-[0.98] active:bg-blue-800",
+                "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900",
+                "disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none",
+                "transform transition-transform"
+              )}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -237,7 +244,10 @@ function ChatSidebarInner({ className }: ChatSidebarProps) {
                 fontSize: '16px',
                 fontWeight: '500'
               }}
+              aria-label="Create new chat"
+              disabled={!mounted || !isStoreReady}
             >
+              <Plus className="mr-2 h-4 w-4" />
               New Chat
             </button>
             
@@ -247,8 +257,15 @@ function ChatSidebarInner({ className }: ChatSidebarProps) {
               <Tooltip content="Create Folder">
                 <button
                   onClick={handleOpenFolderDialog}
-                  className="flex items-center justify-center w-8 h-8 rounded-md bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                  className={cn(
+                    "flex items-center justify-center w-8 h-8 rounded-md transition-all duration-200",
+                    "bg-gray-100 dark:bg-gray-800",
+                    "hover:bg-gray-200 dark:hover:bg-gray-700 hover:scale-110",
+                    "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1",
+                    "active:scale-95"
+                  )}
                   aria-label="Create new folder"
+                  disabled={!mounted || !isStoreReady}
                 >
                   <Folder className="h-4 w-4 text-gray-600 dark:text-gray-300" />
                 </button>
@@ -258,8 +275,17 @@ function ChatSidebarInner({ className }: ChatSidebarProps) {
               <Tooltip content="Sort & Filter">
                 <button
                   onClick={handleToggleSortDropdown}
-                  className="flex items-center justify-center w-8 h-8 rounded-md bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                  className={cn(
+                    "flex items-center justify-center w-8 h-8 rounded-md transition-all duration-200",
+                    "bg-gray-100 dark:bg-gray-800",
+                    "hover:bg-gray-200 dark:hover:bg-gray-700 hover:scale-110",
+                    "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1",
+                    "active:scale-95",
+                    showSortDropdown && "bg-blue-50 dark:bg-blue-900/20 ring-1 ring-blue-500/20"
+                  )}
                   aria-label="Sort and filter options"
+                  aria-expanded={showSortDropdown}
+                  disabled={!mounted || !isStoreReady}
                 >
                   <Filter className="h-4 w-4 text-gray-600 dark:text-gray-300" />
                 </button>

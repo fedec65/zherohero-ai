@@ -14,6 +14,7 @@ export interface Chat extends BaseEntity {
   title: string
   folderId?: string
   starred: boolean
+  isStarred?: boolean
   isIncognito: boolean
   modelId: string
   lastMessageAt?: Date
@@ -46,8 +47,10 @@ export interface Folder extends BaseEntity {
   name: string
   parentId?: string
   color?: string
-  isExpanded?: boolean
+  isExpanded: boolean
+  isPinned: boolean
   order?: number
+  chatCount: number
 }
 
 // AI Model types
@@ -228,7 +231,7 @@ export interface StorageConfig {
 
 // Search and filtering
 export interface SearchResult {
-  type: 'chat' | 'message' | 'model'
+  type: 'chat' | 'message' | 'model' | 'folder'
   id: string
   title: string
   snippet?: string
@@ -236,11 +239,12 @@ export interface SearchResult {
   chatId?: string // For message results
   messageIndex?: number // Position of message in chat
   highlights?: string[] // Highlighted text matches
+  folderPath?: string // Folder path for context
 }
 
 export interface SearchOptions {
   query: string
-  type?: 'chat' | 'message' | 'all'
+  type?: 'chat' | 'message' | 'folder' | 'all'
   exact?: boolean
   regex?: boolean
   caseSensitive?: boolean
@@ -307,4 +311,37 @@ export interface DialogState {
   editingItem: { type: 'chat' | 'folder'; id: string; name: string } | null
   targetChatId?: string
   selectedFolderId?: string
+}
+
+// Context Menu types
+export interface ContextMenuItem {
+  id: string
+  label: string
+  icon?: string
+  action: () => void | Promise<void>
+  variant?: 'default' | 'destructive'
+  disabled?: boolean
+  separator?: boolean
+}
+
+export interface ContextMenuSection {
+  id: string
+  items: ContextMenuItem[]
+}
+
+// Folder Tree types for hierarchical display
+export interface FolderTreeItem {
+  id: string
+  name: string
+  type: 'folder' | 'chat'
+  parentId?: string
+  level: number
+  isExpanded?: boolean
+  isPinned?: boolean
+  chatCount?: number
+  hasChildren?: boolean
+  children?: FolderTreeItem[]
+  color?: string
+  createdAt: Date
+  updatedAt: Date
 }

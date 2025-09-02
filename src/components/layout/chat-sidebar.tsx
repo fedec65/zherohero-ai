@@ -227,19 +227,24 @@ function ChatSidebarInner({ className }: ChatSidebarProps) {
             {/* Main New Chat Button */}
             <button
               onClick={handleNewChat}
-              className="w-full h-12 bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-all duration-200 rounded-md shadow-sm hover:shadow-md"
+              className="w-full bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-all duration-200 rounded-md shadow-sm hover:shadow-md"
               style={{
-                display: 'flex !important',
-                flexDirection: 'row !important',
-                alignItems: 'center !important',
-                justifyContent: 'center !important',
-                gap: '12px !important',
-                padding: '12px 16px !important'
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                padding: '12px 8px',
+                height: '48px',
+                minWidth: '200px',
+                overflow: 'hidden',
+                fontSize: '14px',
+                fontWeight: '500'
               }}
             >
-              <Plus className="h-5 w-5" style={{ flexShrink: '0 !important' }} />
-              <span className="font-medium text-base" style={{ whiteSpace: 'nowrap !important' }}>New Chat</span>
-              <Sparkles className="h-4 w-4" style={{ flexShrink: '0 !important' }} />
+              <Plus style={{ width: '16px', height: '16px', flexShrink: 0 }} />
+              <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>New Chat</span>
+              <Sparkles style={{ width: '14px', height: '14px', flexShrink: 0 }} />
             </button>
             
             {/* Secondary Action Buttons */}

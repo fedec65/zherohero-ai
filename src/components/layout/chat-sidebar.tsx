@@ -225,14 +225,14 @@ function ChatSidebarInner({ className }: ChatSidebarProps) {
           {/* New Chat Button Layout */}
           <div className="space-y-2">
             {/* Main New Chat Button */}
-            <Button
+            <button
               onClick={handleNewChat}
-              className="w-full bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-all duration-200 flex flex-row items-center justify-center gap-2 py-3 h-12"
+              className="w-full h-12 bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-all duration-200 rounded-md shadow-sm hover:shadow-md flex flex-row items-center justify-center gap-3 py-3 px-4"
             >
               <Plus className="h-5 w-5 flex-shrink-0" />
               <span className="font-medium text-base whitespace-nowrap">New Chat</span>
               <Sparkles className="h-4 w-4 flex-shrink-0" />
-            </Button>
+            </button>
             
             {/* Secondary Action Buttons */}
             <div className="flex items-center justify-between gap-2 relative">

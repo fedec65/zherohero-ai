@@ -127,19 +127,28 @@ export function createEnhancedStorage(type: StorageConfig['storage']): any {
   return {
     getItem: async (name: string) => {
       try {
+        // SSR guard at the enhanced storage level
+        if (typeof window === 'undefined') return null
+
         const result = await baseStorage.getItem(name)
         if (result === null) return null
         
         // The result should be a JSON string, deserialize it with Date handling
         return stateSerializer.deserialize(result)
       } catch (error) {
-        console.warn(`Failed to get/deserialize item '${name}':`, error)
+        // Don't log warnings during SSR, just return null silently
+        if (typeof window !== 'undefined') {
+          console.warn(`Failed to get/deserialize item '${name}':`, error)
+        }
         return null
       }
     },
     
     setItem: async (name: string, value: string) => {
       try {
+        // SSR guard at the enhanced storage level
+        if (typeof window === 'undefined') return
+
         // Zustand passes the stringified state, but we need to enhance it with Date serialization
         // First parse the JSON to get the object
         const parsedValue = JSON.parse(value)
@@ -149,13 +158,20 @@ export function createEnhancedStorage(type: StorageConfig['storage']): any {
         
         return await baseStorage.setItem(name, enhancedValue)
       } catch (error) {
-        console.error(`Failed to serialize/store item '${name}':`, error)
-        console.error(`Value that failed: ${value.substring(0, 200)}...`)
+        // Don't log errors during SSR, just fail silently
+        if (typeof window !== 'undefined') {
+          console.error(`Failed to serialize/store item '${name}':`, error)
+          console.error(`Value that failed: ${value.substring(0, 200)}...`)
+        }
         throw error
       }
     },
     
-    removeItem: baseStorage.removeItem,
+    removeItem: async (name: string) => {
+      // SSR guard at the enhanced storage level
+      if (typeof window === 'undefined') return
+      return await baseStorage.removeItem(name)
+    },
   } as StateStorage
 }
 
@@ -166,17 +182,35 @@ export function createStorage(type: StorageConfig['storage']): StateStorage {
   switch (type) {
     case 'localStorage':
       baseStorage = {
-        getItem: (name) => localStorage.getItem(name),
-        setItem: (name, value) => localStorage.setItem(name, value),
-        removeItem: (name) => localStorage.removeItem(name),
+        getItem: (name) => {
+          if (typeof window === 'undefined') return null
+          return localStorage.getItem(name)
+        },
+        setItem: (name, value) => {
+          if (typeof window === 'undefined') return
+          localStorage.setItem(name, value)
+        },
+        removeItem: (name) => {
+          if (typeof window === 'undefined') return
+          localStorage.removeItem(name)
+        },
       }
       break
 
     case 'sessionStorage':
       baseStorage = {
-        getItem: (name) => sessionStorage.getItem(name),
-        setItem: (name, value) => sessionStorage.setItem(name, value),
-        removeItem: (name) => sessionStorage.removeItem(name),
+        getItem: (name) => {
+          if (typeof window === 'undefined') return null
+          return sessionStorage.getItem(name)
+        },
+        setItem: (name, value) => {
+          if (typeof window === 'undefined') return
+          sessionStorage.setItem(name, value)
+        },
+        removeItem: (name) => {
+          if (typeof window === 'undefined') return
+          sessionStorage.removeItem(name)
+        },
       }
       break
 
@@ -542,15 +576,23 @@ export function createSafeStorage(storage: StateStorage): StateStorage {
   return {
     getItem: async (name: string) => {
       try {
+        // Additional SSR guard at the wrapper level
+        if (typeof window === 'undefined') return null
         return await storage.getItem(name)
       } catch (error) {
-        console.warn(`Failed to get item '${name}' from storage:`, error)
+        // Don't log warnings during SSR, just return null silently
+        if (typeof window !== 'undefined') {
+          console.warn(`Failed to get item '${name}' from storage:`, error)
+        }
         return null
       }
     },
 
     setItem: async (name: string, value: string) => {
       try {
+        // Additional SSR guard at the wrapper level
+        if (typeof window === 'undefined') return
+
         // Add detailed logging to catch serialization issues
         if (typeof value !== 'string') {
           console.error(`Invalid value type for storage. Expected string, got:`, typeof value, value)
@@ -577,20 +619,23 @@ export function createSafeStorage(storage: StateStorage): StateStorage {
 
         await storage.setItem(name, value)
       } catch (error) {
-        console.error(`Failed to set item '${name}' to storage:`, error)
-        console.error(`Value type: ${typeof value}`)
-        console.error(`Value preview: ${String(value).substring(0, 200)}...`)
-        
-        if (
-          error instanceof Error &&
-          error.message.includes('could not be cloned')
-        ) {
-          console.error(
-            'This is likely due to non-serializable data (functions, symbols, etc.) in the state'
-          )
-          console.error(
-            "Check your store's partialize configuration to exclude non-serializable properties"
-          )
+        // Don't log errors during SSR, just fail silently
+        if (typeof window !== 'undefined') {
+          console.error(`Failed to set item '${name}' to storage:`, error)
+          console.error(`Value type: ${typeof value}`)
+          console.error(`Value preview: ${String(value).substring(0, 200)}...`)
+          
+          if (
+            error instanceof Error &&
+            error.message.includes('could not be cloned')
+          ) {
+            console.error(
+              'This is likely due to non-serializable data (functions, symbols, etc.) in the state'
+            )
+            console.error(
+              "Check your store's partialize configuration to exclude non-serializable properties"
+            )
+          }
         }
         throw error
       }
@@ -598,9 +643,14 @@ export function createSafeStorage(storage: StateStorage): StateStorage {
 
     removeItem: async (name: string) => {
       try {
+        // Additional SSR guard at the wrapper level
+        if (typeof window === 'undefined') return
         await storage.removeItem(name)
       } catch (error) {
-        console.warn(`Failed to remove item '${name}' from storage:`, error)
+        // Don't log warnings during SSR, just fail silently
+        if (typeof window !== 'undefined') {
+          console.warn(`Failed to remove item '${name}' from storage:`, error)
+        }
       }
     },
   }

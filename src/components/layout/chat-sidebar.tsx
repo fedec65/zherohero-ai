@@ -230,21 +230,15 @@ function ChatSidebarInner({ className }: ChatSidebarProps) {
               className="w-full bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-all duration-200 rounded-md shadow-sm hover:shadow-md"
               style={{
                 display: 'flex',
-                flexDirection: 'row',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '8px',
-                padding: '12px 8px',
+                padding: '12px 16px',
                 height: '48px',
-                minWidth: '200px',
-                overflow: 'hidden',
-                fontSize: '14px',
+                fontSize: '16px',
                 fontWeight: '500'
               }}
             >
-              <Plus style={{ width: '16px', height: '16px', flexShrink: 0 }} />
-              <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>New Chat</span>
-              <Sparkles style={{ width: '14px', height: '14px', flexShrink: 0 }} />
+              New Chat
             </button>
             
             {/* Secondary Action Buttons */}
